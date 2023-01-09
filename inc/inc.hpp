@@ -7,6 +7,7 @@
 #define SPACE_ERROR "Error: missconfigured spaces in this line ->"
 #define TOKEN_ERROR "Error: unrecognized token in this line ->"
 #define FILE_ERROR "Invalid file name"
+#define GEN_ERROR "Error: misconfigured file"
 
 #include <iostream>
 #include <stdio.h>

@@ -1,7 +1,14 @@
-#include "server.hpp"
+#include "parser.hpp"
 
-int main()
+int main(int ac, char **av)
 {
-	Server a;
-	a.launch();
+	try
+	{
+		parser webhamid(ac, av);
+		webhamid._runparser();
+	}
+	catch (std::exception &e)
+	{
+		std::cerr << e.what() << std::endl;
+	}
 }

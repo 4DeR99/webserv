@@ -1,5 +1,5 @@
-#ifndef __PARCER_HPP__
-#define __PARCER_HPP__
+#ifndef __PARSER_HPP__
+#define __PARSER_HPP__
 #include "Serverconf.hpp"
 
 enum Serv_count
@@ -8,33 +8,28 @@ enum Serv_count
 	MANY
 };
 
-enum Serv_status
-{
-	NONE,
-	SET,
-	ONGOING
-};
-
-class Parcer
+class parser
 {
 private:
 	std::string _filename, buffer;
 	std::ifstream input;
-	std::vector<ServerConf> servers;
+	// std::vector<ServerConf> servers;
 	std::vector<std::string> _file_content;
 	int serv_count;
 	void _readFile();
-	void _argsParcer(int ac, char **av);
+	void _argsparser(int ac, char **av);
 	void _trimString(std::string &s);
 	void _rmBackSpaces(std::string &s);
 	void _lookForSevOP();
-	void _find_
+	size_t _find_dash(std::string &s);
+	int _count_spaces(std::string &s);
+	// void	_token_recognizer(std::string &s);
 	std::vector<std::string> _split(std::string &s, char c);
 
 public:
-	Parcer(int ac, char **av);
-	void _runParcer();
-	~Parcer();
+	parser(int ac, char **av);
+	void _runparser();
+	~parser();
 };
 
 #endif
