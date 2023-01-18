@@ -35,6 +35,13 @@
 #define DOUBLE_UPLOADPATH "Error: cant have more than 1 upload path in a location"
 #define DOUBLE_INDEX "Error: cant have more than 1 index in a location"
 #define DOUBLE_AUTOINDEX "Error: cant set autoindex more than once in a location"
+#define DOUBLE_REDIRECTION "Error: cant overrider a redirection in a location"
+#define DOUBLE_RETURN "Error: cant overrider a return in a location"
+#define DOUBLE_ALLOWMETHODS "Error: cant set the allowed methods more than 1 time in a location"
+#define DOUBLE_CGI "Error: cant set cgi info more than 1 in a location"
+#define DOUBLE_ERRPAGE "Error: cant override an error page"
+#define DOUBLE_CMBZ "Error: cant have more than 1 client max body size"
+#define DOUBLE_LOCATION_PATH "Error: cant have multiple locations with same path"
 
 
 //leverl 1 tokens

@@ -1,6 +1,7 @@
 #ifndef __SERVERCONF_HPP__
 #define __SERVERCONF_HPP__
 #include "server.hpp"
+#include "location.hpp"
 
 class ServerConf
 {
@@ -9,16 +10,18 @@ private:
 	std::string server_name, root, host;
 	int client_max_bodt_size;
 	std::map<int, std::string> err_page;
-	// std::vector<>
+	std::vector<location> loc;
+	std::map<std::string, int> l_path;
 
 public:
 	ServerConf();
 	void _setPort(int n);
 	void _setSrvName(std::string s);
 	void _setRoot(std::string s);
-	void _setUploadPath(std::string s);
 	void _setHost(std::string s);
 	void _addErrPage(int nb, std::string s);
+	void _setCMBZ(int CMBZ);
+	void _addLocation(location l);
 	~ServerConf();
 };
 

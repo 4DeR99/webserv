@@ -39,8 +39,37 @@ void location::_setAutoIndex(bool status)
 	autoindex = status;
 }
 
+void location::_setAllowMethods(std::vector<std::string> methods)
+{
+	if (!allow_methods.empty())
+		throw std::invalid_argument(DOUBLE_ALLOWMETHODS);
+	allow_methods = methods;
+}
+
 void location::_addRedirection(int n, std::string s)
 {
+	if (!redirection[n].empty())
+		throw std::invalid_argument(DOUBLE_REDIRECTION);
+	redirection[n] = s;
+}
+
+void location::_addReturn(int n, std::string s)
+{
+	if (!ret[n].empty())
+		throw std::invalid_argument(DOUBLE_REDIRECTION);
+	ret[n] = s;
+}
+
+void	location::_setCgi(std::vector<std::string> cgi)
+{
+	if (!cgi_info.empty())
+	 throw std::invalid_argument(DOUBLE_CGI);
+	cgi_info = cgi;
+}
+
+std::string location::_getPath()
+{
+	return path;
 }
 
 location::~location()
