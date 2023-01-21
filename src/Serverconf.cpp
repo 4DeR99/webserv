@@ -11,7 +11,7 @@ void ServerConf::_setPort(int n)
 	port = n;
 }
 
-void ServerConf::_setHost(std::string s)
+void ServerConf::_setHost(std::vector<int> s)
 {
 	if (!host.empty())
 		throw std::invalid_argument(DOUBLE_HOST);

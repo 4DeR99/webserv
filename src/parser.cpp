@@ -1,6 +1,6 @@
 #include "parser.hpp"
 
-std::vector<std::string> parser::_split(std::string &s, char c)
+std::vector<std::string> parser::_split(std::string s, char c)
 {
 	std::string buff;
 	std::stringstream str_str(s);
@@ -89,6 +89,7 @@ std::string parser::_serverNameCheck(std::string s)
 	{
 		if (!isprint(*it))
 			throw std::invalid_argument(SRVNAME_ERROR);
+		it++;
 	}
 	return std::string(beg, it);
 }
@@ -103,31 +104,79 @@ int parser::_portCheck(std::string s)
 	{
 		return stoi(sub);
 	}
-	catch(const std::exception& e)
+	catch (const std::exception &e)
 	{
 		throw std::invalid_argument(PORT_ERROR);
 	}
 }
 
-std::string parser::_hostCheck(std::string s)
+std::vector<int> parser::_hostCheck(std::string s)
+{
+	std::string::iterator beg = std::find(s.begin(), s.end(), ":");
+	std::vector<int> r_tab(4);
+	std::vector<std::string> tab;
+	while (beg != s.end() && isspace(*beg))
+		beg++;
+	if (std::string(beg, s.end()) == "localhost")
+	{
+		tab = _split(LOCALHOST, '.');
+		forup(i, 0, 4)
+		{
+			r_tab[i] = std::stoi(tab[i]);
+		}
+		return r_tab;
+	}
+	tab = _split(std::string(beg, s.end()), '.');
+	if (tab.size() != 4)
+		throw std::invalid_argument(HOST_ERROR);
+	forup(i, 0, 4)
+	{
+		if (tab[i].size() > 3)
+			throw std::invalid_argument(HOST_ERROR);
+		forup(j, 0, 3)
+		{
+			if (!isdigit(tab[i][j]))
+				throw std::invalid_argument(HOST_ERROR);
+		}
+		if (std::stoi(tab[i]) < 0 || std::stoi(tab[i]) > 255)
+			throw std::invalid_argument(HOST_ERROR);
+		r_tab[i] = std::stoi(tab[i]);
+	}
+	return r_tab;
+}
+
+std::string parser::_rootCheck(std::string s)
 {
 	std::string::iterator it = std::find(s.begin(), s.end(), ":");
-	std::string::iterator beg;
 	while (it != s.end() && isspace(*it))
 		it++;
-	beg = it;
-	if (std::string(beg, s.end()) == "localhost")
-		return std::string(beg, s.end());
+	std::fstream root(std::string(it, s.end()));
+	if (!root.is_open())
+		throw std::invalid_argument(ROOT_ERROR);
+	return std::string(it, s.end());
+}
+
+int parser::_cmbzCheck(std::string s)
+{
+	std::string::iterator it = std::find(s.begin(), s.end(), ":");
+	while (it != s.end() && isspace(*it))
+		it++;
+	for (std::string::iterator i = it; i != s.end(); i++)
+	{
+		if (!isdigit(*i))
+			throw std::invalid_argument(CMBZ_ERROR);
+	}
 	try
 	{
-		
+		return std::stoi(std::string(it, s.end()));
 	}
-	catch(const std::exception& e)
+	catch (const std::exception &e)
 	{
-		std::cerr << e.what() << '\n';
+		throw std::invalid_argument(CMBZ_ERROR);
 	}
-	
 }
+
+
 
 int parser::_count_spaces(std::string &s)
 {
@@ -157,7 +206,7 @@ size_t parser::_find_dash(std::string &s)
 	return std::string::npos;
 }
 
-void parser::_token_recognizer(std::string s, int lvl)
+void parser::_token_recognizer(std::string s, int lvl, ServerConf srv)
 {
 	int rndm_nb;
 	std::vector<std::string>::iterator it = _tokens[lvl].end();
@@ -176,9 +225,8 @@ void parser::_token_recognizer(std::string s, int lvl)
 		}
 	}
 	if (it == _tokens[lvl].end())
-	{
 		throw std::invalid_argument(TOKEN_ERROR + s);
-	}
+	// if ()
 }
 
 std::string parser::_sweep(std::string s)
@@ -194,9 +242,9 @@ std::string parser::_sweep(std::string s)
 
 void parser::_readFile()
 {
+	ServerConf srv;
 	_lookForSevOP();
 	int lvl = 1;
-
 	while (std::getline(input, buffer))
 	{
 		if (buffer.find('\t') != buffer.npos)
@@ -219,7 +267,7 @@ void parser::_readFile()
 			// servers.push_back(ServerConf(_file_content));
 			_file_content.clear();
 		}
-		_token_recognizer(_sweep(buffer), lvl - 1);
+		_token_recognizer(_sweep(buffer), lvl - 1, srv);
 		if (buffer.back() == ':')
 			lvl++;
 		if (lvl > 3)

@@ -4,6 +4,8 @@
 //exception errors
 #define STOI_ERROR "stoi: no conversion"
 
+#define forup(i, x, y) for(int i = x; i < y; i++)
+
 //config file syntax error
 #define BRACES_ERROR "Error: Curly braces are not written well in the configuration file or a server identifier used with no definition"
 #define TAB_ERROR "Tab found in file, please run this command:\nexpand -t 2 'yourFileName' 'newFileName'"
@@ -71,6 +73,8 @@
 #define LVL1_TOKEN_N 7
 #define LVL2_TOKEN_N 9
 #define LVL3_TOKEN_N 1
+
+#define LOCALHOST "127.0.0.1"
 
 #include <iostream>
 #include <stdio.h>
