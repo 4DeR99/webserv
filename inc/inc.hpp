@@ -19,12 +19,15 @@
 #define PORT_ERROR "Error: invalid port"
 #define HOST_ERROR "Error: invalid host"
 #define CMBZ_ERROR "Error: invalid client max body size"
+#define ERRPAGETOKEN_ERROR "Error: error_page token should end with a colon"
 #define ERRPAGE_ERROR "Error: invalid error page"
-#define LOCATION_ERROR "Error: "
-#define PATH_ERROR "Error: invalid path"
+#define LOCATION_ERROR "Error: location token should end with a colon"
+#define PATHFRNT_ERROR "Error: you should start your path with a /"
+#define PATH_ERROR "Error: cant have 1 path in multiple locations"
 #define AUTOINDEX_ERROR "Error: autoindex should be only on or off"
 #define ALMETHODS_ERROR "Error: invalid allow methods"
-#define RETURN_ERROR "Error: "
+#define RETURN_ERROR "Error: invalid return configuration"
+#define REDIRECTION_ERROR "Error: invalid redirection configuration"
 #define UPLOADPATH_ERROR "Error: invalid upload path"
 #define ROOT_ERROR "Error: invalid root"
 #define CGI_ERROR "Error: invalid cgi info"
@@ -62,17 +65,13 @@
 #define LVL2_UPLOAD "upload_path"
 #define LVL2_AUTOINDEX "autoindex"
 #define LVL2_INDEX "index"
-#define LVL2_CGI "cgi_info"
+#define LVL2_CGI "fastcgi_pass"
 #define LVL2_REDIR "redirection"
 #define LVL2_RETURN "return"
 
-//lever 3 tokens xD
-#define LVL2_3_RNDM_N "random_nb"
-
 //tokens nd leverls
 #define LVL1_TOKEN_N 7
-#define LVL2_TOKEN_N 9
-#define LVL3_TOKEN_N 1
+#define LVL2_TOKEN_N 8
 
 #define LOCALHOST "127.0.0.1"
 
@@ -94,5 +93,6 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 #endif

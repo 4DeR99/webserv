@@ -6,7 +6,7 @@ ServerConf::ServerConf() : port(-1), client_max_bodt_size(-1)
 
 void ServerConf::_setPort(int n)
 {
-	if (n != -1)
+	if (port != -1)
 		throw std::invalid_argument(DOUBLE_PORT);
 	port = n;
 }
@@ -41,7 +41,7 @@ void ServerConf::_addErrPage(int nb, std::string s)
 
 void ServerConf::_setCMBZ(int CMBZ)
 {
-	if (client_max_bodt_size == -1)
+	if (client_max_bodt_size != -1)
 		throw std::invalid_argument(DOUBLE_CMBZ);
 	client_max_bodt_size = CMBZ;
 }
@@ -52,6 +52,47 @@ void ServerConf::_addLocation(location l)
 		throw std::invalid_argument(DOUBLE_LOCATION_PATH);
 	loc.push_back(l);
 	l_path[l._getPath()]++;
+}
+
+std::string ServerConf::_getSrvname()
+{
+	return server_name;
+}
+
+std::string ServerConf::_getRoot()
+{
+	return root;
+}
+
+int ServerConf::_getCMBZ()
+{
+	return client_max_bodt_size;
+}
+
+std::vector<int> ServerConf::_getHost()
+{
+	return host;
+}
+
+std::map<int, std::string> ServerConf::_getErr_page()
+{
+	return err_page;
+}
+
+std::vector<location> ServerConf::_getLocation()
+{
+	return loc;
+}
+
+void ServerConf::clear(){
+	port = -1;
+	server_name.clear();
+	root.clear();
+	client_max_bodt_size = -1;
+	host.clear();
+	err_page.clear();
+	loc.clear();
+	l_path.clear();
 }
 
 ServerConf::~ServerConf()

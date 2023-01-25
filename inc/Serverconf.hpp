@@ -16,6 +16,7 @@ private:
 
 public:
 	ServerConf();
+	//setters
 	void _setPort(int n);
 	void _setSrvName(std::string s);
 	void _setRoot(std::string s);
@@ -23,6 +24,16 @@ public:
 	void _addErrPage(int nb, std::string s);
 	void _setCMBZ(int CMBZ);
 	void _addLocation(location l);
+	//geters
+	int _getPort();
+	std::string _getSrvname();
+	std::string _getRoot();
+	int _getCMBZ();
+	std::vector<int> _getHost();
+	std::map<int, std::string> _getErr_page();
+	std::vector<location> _getLocation();
+	//reset srv
+	void clear();
 	~ServerConf();
 };
 
