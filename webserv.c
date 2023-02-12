@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <string.h>
+#include <fcntl.h>
 #define SERVER_PORT 12345
 
 #define TRUE 1
@@ -24,6 +25,8 @@ int main(int argc, char *argv[])
   int timeout;
   struct pollfd fds[200];
   int nfds = 1, current_size = 0, i, j;
+
+  int nfd = open("./f", O_WRONLY);
 
   /*************************************************************/
   /* Create an AF_INET6 stream socket to receive incoming      */
@@ -255,17 +258,21 @@ int main(int argc, char *argv[])
           /* Data was received                                 */
           /*****************************************************/
           len = rc;
-          printf("  %d bytes received\n", len);
+          printf("\n  %d bytes received\n", len);
+          write(nfd, buffer, len);
+          write(1, buffer, len);
+          for(int i = 0; i < 80; i++)
+            buffer[i] = 0;
           /*****************************************************/
           /* Echo the data back to the client                  */
           /*****************************************************/
-          rc = send(fds[i].fd, buffer, len, 0);
-          if (rc < 0)
-          {
-            perror("  send() failed");
-            close_conn = TRUE;
-            break;
-          }
+          // rc = send(fds[i].fd, buffer, len, 0);
+          // if (rc < 0)
+          // {
+          //   perror("  send() failed");
+          //   close_conn = TRUE;
+          //   break;
+          // }
 
         } while (TRUE);
 

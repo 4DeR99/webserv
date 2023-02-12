@@ -426,7 +426,6 @@ std::vector<ServerConf> parser::_runparser()
 		buffer = buffer.substr(0, buffer.find('#'));
 		if (buffer.empty())
 			continue;
-		std::cout << buffer << std::endl;
 		int space = _count_spaces(buffer);
 		int dash = _find_dash(buffer) == buffer.npos ? 0 : 1;
 		if (space == (lvl - dash - 1) * 2 && _file_content.back().back() != ':')
@@ -441,6 +440,7 @@ std::vector<ServerConf> parser::_runparser()
 			servers.push_back(srv);
 			srv.clear();
 			_file_content.clear();
+			used_path.clear();
 		}
 		if (dash && space == 2 && !l.empty())
 		{

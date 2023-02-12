@@ -7,10 +7,8 @@
 #define forup(i, x, y) for(int i = x; i < y; i++)
 
 //config file syntax error
-#define BRACES_ERROR "Error: Curly braces are not written well in the configuration file or a server identifier used with no definition"
 #define TAB_ERROR "Tab found in file, please run this command:\nexpand -t 2 'yourFileName' 'newFileName'"
 #define EXTENTION_ERROE "Error: Wrong file extention configfile should have \".conf\" extention"
-#define SEMI_COLON_ERROR "Error: missing semi colon one line: "
 #define SPACE_ERROR "Error: missconfigured spaces in this line -> "
 #define TOKEN_ERROR "Error: unrecognized token in this line -> "
 #define FILE_ERROR "Invalid file name"
@@ -43,7 +41,7 @@
 #define DOUBLE_REDIRECTION "Error: cant overrider a redirection in a location"
 #define DOUBLE_RETURN "Error: cant overrider a return in a location"
 #define DOUBLE_ALLOWMETHODS "Error: cant set the allowed methods more than 1 time in a location"
-#define DOUBLE_CGI "Error: cant set cgi info more than 1 in a location"
+#define DOUBLE_CGI "Error: cant set cgi info more than 1 time in a location"
 #define DOUBLE_ERRPAGE "Error: cant override an error page"
 #define DOUBLE_CMBZ "Error: cant have more than 1 client max body size"
 #define DOUBLE_LOCATION_PATH "Error: cant have multiple locations with same path"
