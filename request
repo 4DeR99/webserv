@@ -1,13 +1,9 @@
-GET / HTTP/1.1
+GET / HTTP/1.0
 host: nginx.org
-Content-Length: 72
 
 {
-	hamidjkbhsfgb
-	fgbsfgb
-	sfgbsfgb
-	fsgbfgsb
-	fsgbsfgb
-	fsgbsfgbsfgb
+	asdfasdf
 }
+asdfasdf
+
 
