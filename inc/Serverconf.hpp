@@ -31,6 +31,7 @@ public:
 	std::string _getHost();
 	std::map<int, std::string> _getErr_page();
 	std::vector<location> _getLocation();
+	int	_getSd();
 	//socket management
 	void createSd();
 	void bindSd();

@@ -1,11 +1,12 @@
 #include "inc.hpp"
 
-request::request(std::vector<std::string> Content) : valid(true), type(UNKNOWN)
+Request::Request() : valid(true), type(UNKNOWN)
 {
-	this->requestContent = Content;
+	this->content = NULL;
+	this->contentLen = 0;
 }
 
-std::vector<std::string> request::_split(std::string s, char c)
+std::vector<std::string> Request::_split(std::string s, char c)
 {
 	std::string buff;
 	std::stringstream str_str(s);
@@ -15,7 +16,7 @@ std::vector<std::string> request::_split(std::string s, char c)
 	return arr;
 }
 
-void request::_parse_method()
+void Request::_parse_method()
 {
 	std::vector<std::string> tab = _split(requestContent[0], ' ');
 	if (tab.size() != 3)
@@ -39,7 +40,7 @@ void request::_parse_method()
 		valid = false;
 }
 
-void request::parse()
+void Request::parse()
 {
 	_parse_method();
 	if (valid)
@@ -66,7 +67,7 @@ void request::parse()
 	}
 }
 
-request::~request()
+Request::~Request()
 {
 	url.clear();
 	headers.clear();

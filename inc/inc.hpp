@@ -101,5 +101,6 @@
 #include "request.hpp"
 #include "server.hpp"
 #include "pollge.hpp"
+#include "client.hpp"
 
 #endif

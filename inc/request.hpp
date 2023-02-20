@@ -10,7 +10,7 @@ enum request_type {
 	UNKNOWN
 };
 
-class request
+class Request
 {
 private :
 	std::vector<std::string> requestContent, body;
@@ -21,9 +21,9 @@ private :
 	void _parse_method();
 	std::vector<std::string> _split(std::string s, char c);
 public :
-	request(std::vector<std::string> requestContent);
+	Request();
 	void parse();
-	~request();
+	~Request();
 };
 
 #endif

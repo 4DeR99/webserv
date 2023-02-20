@@ -1,11 +1,23 @@
 #include "inc.hpp"
 
-pollge::pollge()
-		: end_server(false), compress_array(false), timeout(3 * 60 * 1000), nfds()
+Pollge::Pollge()
+		: end_server(false),
+			compress_array(false),
+			timeout(3 * 60 * 1000)
 {
 }
 
-void pollge::_addSd(int sd, int srvIndex)
+// std::vector<char *> Pollge::_split(char *s, char c)
+// {
+// 	std::string buff;
+// 	std::stringstream str_str(s);
+// 	std::vector<char *> arr;
+// 	while (getline(str_str, buff, c))
+// 		arr.push_back(buff);
+// 	return arr;
+// }
+
+void Pollge::_addSd(int sd, int srvIndex)
 {
 	struct pollfd pollfd;
 	sd2srv[sd] = srvIndex;
@@ -13,10 +25,9 @@ void pollge::_addSd(int sd, int srvIndex)
 	pollfd.fd = sd;
 	pollfd.events = POLLIN;
 	this->fds.push_back(pollfd);
-	this->nfds++;
 }
 
-void pollge::_runPoll()
+void Pollge::_runPoll()
 {
 	int rc, current_size;
 	bool close_conn;
@@ -33,7 +44,7 @@ void pollge::_runPoll()
 			std::cout << "	poll() timed out. End program." << std::endl;
 			break;
 		}
-		current_size = this->nfds;
+		current_size = this->fds.size();
 		forup(i, 0, current_size)
 		{
 			if (this->fds[i].revents == 0)
@@ -41,13 +52,13 @@ void pollge::_runPoll()
 			if (sd2srv[this->fds[i].fd] > 0)
 			{
 				std::cout << "	Listening socket is readable" << std::endl;
-				// this->sdAccept();
+				this->_sdAccept(this->fds[i].fd);
 			}
 			else
 			{
 				std::cout << "	Descriptor" << this->fds[i].fd << "is readable" << std::endl;
 				close_conn = false;
-				// this->sdReceive();
+				// this->_sdReceive();
 				if (close_conn)
 				{
 					close(this->fds[i].fd);
@@ -68,7 +79,6 @@ void pollge::_runPoll()
 						this->fds[j].fd = fds[j + 1].fd;
 					}
 					i--;
-					this->nfds--;
 					this->fds.pop_back();
 				}
 			}
@@ -76,7 +86,7 @@ void pollge::_runPoll()
 	}
 }
 
-void pollge::_sdAccept(int sd)
+void Pollge::_sdAccept(int sd)
 {
 	int new_sd = -1;
 	struct pollfd pollfd;
@@ -94,53 +104,71 @@ void pollge::_sdAccept(int sd)
 			break;
 		}
 		std::cout << "	New incoming connection - " << new_sd << std::endl;
+		Client newClient(new_sd);
 		memset(&pollfd, 0, sizeof(pollfd));
 		pollfd.fd = new_sd;
 		pollfd.events = POLLIN;
 		this->fds.push_back(pollfd);
-		this->nfds++;
+		this->clients[new_sd] = newClient;
 	} while (new_sd != -1);
 }
 
-void pollge::_sdReceive(int i, bool &close_conn)
+void Pollge::_sdReceive(struct pollfd &pollfd, bool &close_conn)
 {
 	int rc, len;
+	Client client = this->clients[pollfd.fd];
+	std::string buff;
 
-	while (true)
+	if (rc = recv(pollfd.fd, this->buffer, sizeof(this->buffer) , 0) > 0)
 	{
-		// RECEIVE DATA ON THIS CONNECTION UNTIL THE RECV FAILS WITH EWOULDBLOCK
-		// IF ANY OTHER FAILURE OCCURS WE WILL CLOSE THE CONNECITON
-		rc = recv(this->fds[i].fd, this->buffer, sizeof(this->buffer), 0);
-		if (rc < 0)
-		{
-			if (errno != EWOULDBLOCK)
-			{
-				std::cerr << "  recv() failed" << std::endl;
-				close_conn = true;
-			}
-			break;
+		forup(i, 0, rc){
+			buff.push_back(this->buffer[i]);
 		}
-		// CHECK TO SEE IF THE CONNECTION HAS BEEN CLOSED BY THE CLIENT
-		if (rc == 0)
-		{
-			std::cout << "  Connection closed" << std::endl;
-			close_conn = true;
-			break;
-		}
-		len = rc;
-		std::cout << len << " bytes received" << std::endl;
-		// SEND RESPONSE BACK TO THE CLIENT
-		// rc = send(this->fds[i].fd, this->buffer, len, 0);
-		if (rc < 0)
-		{
-			perror("  send() failed");
-			close_conn = true;
-			break;
-		}
+		client.addRawRequest(buff);
 	}
+	else if (rc == 0)
+	{
+		// todo
+	}
+	else
+	{
+		// todo
+	}
+	// while (true)
+	// {
+	// 	// RECEIVE DATA ON THIS CONNECTION UNTIL THE RECV FAILS WITH EWOULDBLOCK
+	// 	// IF ANY OTHER FAILURE OCCURS WE WILL CLOSE THE CONNECITON
+	// 	rc = recv(this->fds[i].fd, this->buffer, sizeof(this->buffer), 0);
+	// 	if (rc < 0)
+	// 	{
+	// 		if (errno != EWOULDBLOCK)
+	// 		{
+	// 			std::cerr << "  recv() failed" << std::endl;
+	// 			close_conn = true;
+	// 		}
+	// 		break;
+	// 	}
+	// 	// CHECK TO SEE IF THE CONNECTION HAS BEEN CLOSED BY THE CLIENT
+	// 	if (rc == 0)
+	// 	{
+	// 		std::cout << "  Connection closed" << std::endl;
+	// 		close_conn = true;
+	// 		break;
+	// 	}
+	// 	len = rc;
+	// 	std::cout << len << " bytes received" << std::endl;
+	// 	//SEND RESPONSE BACK TO THE CLIENT
+	// 	rc = send(this->fds[i].fd, this->buffer, len, 0);
+	// 	if (rc < 0)
+	// 	{
+	// 		perror("  send() failed");
+	// 		close_conn = true;
+	// 		break;
+	// 	}
+	// }
 }
 
-pollge::~pollge()
+Pollge::~Pollge()
 {
 	sd2srv.clear();
 }

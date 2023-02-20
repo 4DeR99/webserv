@@ -89,6 +89,11 @@ std::vector<location> ServerConf::_getLocation()
 	return loc;
 }
 
+int ServerConf::_getSd()
+{
+	return sd;
+}
+
 void ServerConf::createSd()
 {
 	int rc;
