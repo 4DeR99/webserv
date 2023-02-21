@@ -10,17 +10,22 @@ private:
 	Request request;
 	std::string remaining;
 	std::string rawContent;
+
 public:
 	Client(int fd);
-	// void	saveRemaining(char *rest, size_t len);
-	//getters
+	~Client();
+
+	void splitRawRequest();
+	bool requestCompleted();
+
 	int _getFd();
 	Request _getRequest();
-	char *_getRemaining();
-	size_t _getRemainingLen();
+
 	void addRawRequest(std::string rawContent);
-	// char* addToContent(char* buffer, size_t len);
-	~Client();
+	void makeRequest();
+	void makeResponse();
+
+	void move2next();
 };
 
 #endif

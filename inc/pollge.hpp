@@ -14,11 +14,12 @@ private:
 	std::vector<char*> _split(char *s, char c);
 public:
 	Pollge();
+	~Pollge();
+	 
 	void _addSd(int sd, int srvIndex);
 	void _runPoll();
 	void _sdAccept(int sd);
 	void _sdReceive(struct pollfd& pollfd, bool &close_conn);
-	~Pollge(); 
 };
 
 #endif

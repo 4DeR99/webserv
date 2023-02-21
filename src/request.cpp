@@ -2,8 +2,6 @@
 
 Request::Request() : valid(true), type(UNKNOWN)
 {
-	this->content = NULL;
-	this->contentLen = 0;
 }
 
 std::vector<std::string> Request::_split(std::string s, char c)
@@ -65,6 +63,11 @@ void Request::parse()
 			body.push_back(requestContent[i]);
 		}
 	}
+}
+
+void Request::getRawContent(std::string rawContent)
+{
+	this->rawContent = rawContent;
 }
 
 Request::~Request()

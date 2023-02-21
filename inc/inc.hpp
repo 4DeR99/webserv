@@ -1,12 +1,12 @@
 #ifndef __INC_HPP__
 #define __INC_HPP__
 
-//exception errors
+//? exception errors
 #define STOI_ERROR "stoi: no conversion"
 
-#define forup(i, x, y) for(int i = x; i < y; i++)
+#define forup(i, x, y) for (int i = x; i < y; i++)
 
-//config file syntax error
+//? config file syntax error
 #define TAB_ERROR "Tab found in file, please run this command:\nexpand -t 2 'yourFileName' 'newFileName'"
 #define EXTENTION_ERROE "Error: Wrong file extention configfile should have \".conf\" extention"
 #define SPACE_ERROR "Error: missconfigured spaces in this line -> "
@@ -46,8 +46,7 @@
 #define DOUBLE_CMBZ "Error: cant have more than 1 client max body size"
 #define DOUBLE_LOCATION_PATH "Error: cant have multiple locations with same path"
 
-
-//leverl 1 tokens
+//? leverl 1 tokens
 #define LVL1_SRV_NAME "server_name"
 #define LVL1_PORT "listen"
 #define LVL1_HOST "host"
@@ -56,7 +55,7 @@
 #define LVL1_ERR_PAGE "error_page"
 #define LVL1_LOCATION "location"
 
-//level 2 tokens
+//? level 2 tokens
 #define LVL2_PATH "path"
 #define LVL2_METHODS "allow_methods"
 #define LVL2_ROOT "root"
@@ -67,7 +66,7 @@
 #define LVL2_REDIR "redirection"
 #define LVL2_RETURN "return"
 
-//tokens nd leverls
+//? tokens nd leverls
 #define LVL1_TOKEN_N 7
 #define LVL2_TOKEN_N 8
 

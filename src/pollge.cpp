@@ -58,7 +58,7 @@ void Pollge::_runPoll()
 			{
 				std::cout << "	Descriptor" << this->fds[i].fd << "is readable" << std::endl;
 				close_conn = false;
-				// this->_sdReceive();
+				this->_sdReceive();
 				if (close_conn)
 				{
 					close(this->fds[i].fd);
@@ -125,47 +125,26 @@ void Pollge::_sdReceive(struct pollfd &pollfd, bool &close_conn)
 			buff.push_back(this->buffer[i]);
 		}
 		client.addRawRequest(buff);
+		while (client.requestCompleted())
+		{
+			client.splitRawRequest();
+			client.makeRequest();
+			client.move2next();
+		}
 	}
 	else if (rc == 0)
 	{
-		// todo
+		std::cout << " Connection closed" << std::endl;
+		close_conn = true;
 	}
 	else
 	{
-		// todo
+		if (errno != EWOULDBLOCK)
+		{
+			std::cerr << " recv() failed" << std::endl;
+			close_conn = true;
+		}
 	}
-	// while (true)
-	// {
-	// 	// RECEIVE DATA ON THIS CONNECTION UNTIL THE RECV FAILS WITH EWOULDBLOCK
-	// 	// IF ANY OTHER FAILURE OCCURS WE WILL CLOSE THE CONNECITON
-	// 	rc = recv(this->fds[i].fd, this->buffer, sizeof(this->buffer), 0);
-	// 	if (rc < 0)
-	// 	{
-	// 		if (errno != EWOULDBLOCK)
-	// 		{
-	// 			std::cerr << "  recv() failed" << std::endl;
-	// 			close_conn = true;
-	// 		}
-	// 		break;
-	// 	}
-	// 	// CHECK TO SEE IF THE CONNECTION HAS BEEN CLOSED BY THE CLIENT
-	// 	if (rc == 0)
-	// 	{
-	// 		std::cout << "  Connection closed" << std::endl;
-	// 		close_conn = true;
-	// 		break;
-	// 	}
-	// 	len = rc;
-	// 	std::cout << len << " bytes received" << std::endl;
-	// 	//SEND RESPONSE BACK TO THE CLIENT
-	// 	rc = send(this->fds[i].fd, this->buffer, len, 0);
-	// 	if (rc < 0)
-	// 	{
-	// 		perror("  send() failed");
-	// 		close_conn = true;
-	// 		break;
-	// 	}
-	// }
 }
 
 Pollge::~Pollge()

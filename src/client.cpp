@@ -5,23 +5,41 @@ Client::Client(int fd)
 {
 }
 
-// char*		Request::addToContent(char* buffer, size_t len)
-// {
-// 	char *tmp;
 
-// 	if (len == 0)
-// 		return NULL;
-// 	tmp = new char[this->contentLen + len + 1];
-// 	strcpy(tmp, this->content);
-// 	strcat(tmp, buffer);
-// 	delete this->content;
-// 	this->contentLen += len;
-// 	this->content = tmp;
-// }
+bool Client::requestCompleted()
+{
+	return this->rawContent.find("/r/n/r/n") == std::string::npos ? false : true;
+}
 
-// void Client::saveRemaining(char *rest, size_t len)
-// {
-// }
+void Client::splitRawRequest()
+{
+	std::string::iterator b, e;
+	b = this->rawContent.begin() + this->rawContent.find("\r\n\r\n") + 4;
+	e = this->rawContent.end();
+	this->remaining = std::string(b, e);
+	b = this->rawContent.begin();
+	e = this->rawContent.begin() + this->rawContent.find("\r\n\r\n") - 1;
+	this->rawContent = std::string(b, e);
+}
+
+void Client::move2next()
+{
+	rawContent = remaining;
+	remaining.clear();
+	//! request.clear();
+}
+
+void Client::makeResponse()
+{
+	//! this->response.run(this->request);
+}
+
+void Client::makeRequest()
+{
+	this->request.getRawContent(this->rawContent);
+	this->request.parse();
+	this->makeResponse();
+}
 
 void Client::addRawRequest(std::string rawContent)
 {
@@ -37,16 +55,6 @@ Request Client::_getRequest()
 {
 	return request;
 }
-
-// char *Client::_getRemaining()
-// {
-// 	return remaining;
-// }
-
-// size_t Client::_getRemainingLen()
-// {
-// 	return remainingLen;
-// }
 
 Client::~Client()
 {

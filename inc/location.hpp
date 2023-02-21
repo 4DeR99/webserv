@@ -12,7 +12,8 @@ private:
 
 public:
 	location();
-	// setters
+	~location();
+
 	void _setPath(std::string s);
 	void _setRoot(std::string s);
 	void _setUploadPath(std::string s);
@@ -22,7 +23,7 @@ public:
 	void _setCgi(std::string cgi);
 	void _setRedirection(int n, std::string s);
 	void _setReturn(int n, std::string);
-	// geters
+
 	std::string _getPath();
 	std::string _getRoot();
 	std::string _getUploadpath();
@@ -33,12 +34,11 @@ public:
 	std::string _getRedir_path();
 	int _getRedir_n();
 	std::vector<std::string> _getmethods();
-	//location reset
-	void	clear();
-	//location tests
+
+	void clear();
+
 	bool empty();
-	
-	~location();
+
 };
 
 #endif

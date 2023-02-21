@@ -16,12 +16,13 @@ private :
 	std::vector<std::string> requestContent, body;
 	bool valid;
 	int type;
-	std::string url;
+	std::string url, rawContent;
 	std::map<std::string, std::string> headers;
 	void _parse_method();
 	std::vector<std::string> _split(std::string s, char c);
 public :
 	Request();
+	void getRawContent(std::string rawContent);
 	void parse();
 	~Request();
 };
