@@ -4,6 +4,18 @@ Request::Request() : valid(true), type(UNKNOWN)
 {
 }
 
+Request& Request::operator=(Request const &_2Copy)
+{
+	this->requestContent = _2Copy.requestContent;
+	this->body = _2Copy.body;
+	this->valid = _2Copy.valid;
+	this->type = _2Copy.type;
+	this->url = _2Copy.url;
+	this->rawContent = _2Copy.rawContent;
+	this->headers = _2Copy.headers;
+	return *this;
+}
+
 std::vector<std::string> Request::_split(std::string s, char c)
 {
 	std::string buff;
@@ -53,7 +65,9 @@ void Request::parse()
 			}
 			if (requestContent[i].find(':') != std::string::npos)
 			{
-				headers[std::string(requestContent.begin(), std::find(requestContent.begin(), requestContent.end(), ':') - 1)] = std::string(std::find(requestContent.begin(), requestContent.end(), ':') + 1, requestContent.end());
+				std::string key = std::string(requestContent[i].begin(), std::find(requestContent[i].begin(), requestContent[i].end(), ':') - 1);
+				std::string value = std::string(std::find(requestContent[i].begin(), requestContent[i].end(), ':') + 1, requestContent[i].end());
+				headers[key] = value;
 			}
 		}
 		forup(i, pause, requestContent.size())

@@ -1,10 +1,23 @@
 #include "inc.hpp"
 
+Client::Client()
+: fd(-1)
+{
+}
+
 Client::Client(int fd)
 : fd(fd)
 {
 }
 
+Client& Client::operator=(Client const &_2Copy)
+{
+	this->fd = _2Copy.fd;
+	this->request = _2Copy.request;
+	this->remaining = _2Copy.remaining;
+	this->rawContent = _2Copy.rawContent;
+	return *this;
+}
 
 bool Client::requestCompleted()
 {

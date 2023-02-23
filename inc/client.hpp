@@ -12,7 +12,9 @@ private:
 	std::string rawContent;
 
 public:
+	Client();
 	Client(int fd);
+	Client& operator=(Client const &_2Copy);
 	~Client();
 
 	void splitRawRequest();

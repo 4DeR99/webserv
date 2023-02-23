@@ -1,4 +1,11 @@
 #include "inc.hpp"
+#include "parser.hpp"
+#include "location.hpp"
+#include "Serverconf.hpp"
+#include "request.hpp"
+#include "server.hpp"
+#include "pollge.hpp"
+#include "client.hpp"
 
 Pollge::Pollge()
 		: end_server(false),
@@ -6,16 +13,6 @@ Pollge::Pollge()
 			timeout(3 * 60 * 1000)
 {
 }
-
-// std::vector<char *> Pollge::_split(char *s, char c)
-// {
-// 	std::string buff;
-// 	std::stringstream str_str(s);
-// 	std::vector<char *> arr;
-// 	while (getline(str_str, buff, c))
-// 		arr.push_back(buff);
-// 	return arr;
-// }
 
 void Pollge::_addSd(int sd, int srvIndex)
 {
@@ -58,7 +55,7 @@ void Pollge::_runPoll()
 			{
 				std::cout << "	Descriptor" << this->fds[i].fd << "is readable" << std::endl;
 				close_conn = false;
-				this->_sdReceive();
+				this->_sdReceive(this->fds.at(i), close_conn);
 				if (close_conn)
 				{
 					close(this->fds[i].fd);
@@ -119,7 +116,7 @@ void Pollge::_sdReceive(struct pollfd &pollfd, bool &close_conn)
 	Client client = this->clients[pollfd.fd];
 	std::string buff;
 
-	if (rc = recv(pollfd.fd, this->buffer, sizeof(this->buffer) , 0) > 0)
+	if ((rc = recv(pollfd.fd, this->buffer, sizeof(this->buffer) , 0)) > 0)
 	{
 		forup(i, 0, rc){
 			buff.push_back(this->buffer[i]);

@@ -94,12 +94,12 @@
 #include <vector>
 #include <algorithm>
 
-#include "parser.hpp"
 #include "location.hpp"
 #include "Serverconf.hpp"
+#include "parser.hpp"
 #include "request.hpp"
 #include "server.hpp"
-#include "pollge.hpp"
 #include "client.hpp"
+#include "pollge.hpp"
 
 #endif
