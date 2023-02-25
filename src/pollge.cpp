@@ -1,16 +1,17 @@
 #include "inc.hpp"
-#include "parser.hpp"
-#include "location.hpp"
-#include "Serverconf.hpp"
-#include "request.hpp"
-#include "server.hpp"
-#include "pollge.hpp"
-#include "client.hpp"
 
 Pollge::Pollge()
 		: end_server(false),
 			compress_array(false),
 			timeout(3 * 60 * 1000)
+{
+}
+
+Pollge::Pollge(std::vector<ServerConf> servers)
+		: end_server(false),
+			compress_array(false),
+			timeout(3 * 60 * 1000),
+			servers(servers)
 {
 }
 
@@ -24,10 +25,11 @@ void Pollge::_addSd(int sd, int srvIndex)
 	this->fds.push_back(pollfd);
 }
 
-void Pollge::_runPoll()
+void Pollge::_run()
 {
 	int rc, current_size;
 	bool close_conn;
+	std::cout << "begin" << std::endl;
 	while (this->end_server == false)
 	{
 		// CALL POLL() AND WAIT FOR INC CONNECTIONS
@@ -53,7 +55,7 @@ void Pollge::_runPoll()
 			}
 			else
 			{
-				std::cout << "	Descriptor" << this->fds[i].fd << "is readable" << std::endl;
+				// std::cout << "	Descriptor " << this->fds[i].fd << " is readable" << std::endl;
 				close_conn = false;
 				this->_sdReceive(this->fds.at(i), close_conn);
 				if (close_conn)
@@ -101,7 +103,7 @@ void Pollge::_sdAccept(int sd)
 			break;
 		}
 		std::cout << "	New incoming connection - " << new_sd << std::endl;
-		Client newClient(new_sd);
+		Client newClient(new_sd, servers[sd2srv[sd]-1]);
 		memset(&pollfd, 0, sizeof(pollfd));
 		pollfd.fd = new_sd;
 		pollfd.events = POLLIN;
@@ -113,7 +115,7 @@ void Pollge::_sdAccept(int sd)
 void Pollge::_sdReceive(struct pollfd &pollfd, bool &close_conn)
 {
 	int rc, len;
-	Client client = this->clients[pollfd.fd];
+	Client &client = this->clients[pollfd.fd];
 	std::string buff;
 
 	if ((rc = recv(pollfd.fd, this->buffer, sizeof(this->buffer) , 0)) > 0)
@@ -122,7 +124,7 @@ void Pollge::_sdReceive(struct pollfd &pollfd, bool &close_conn)
 			buff.push_back(this->buffer[i]);
 		}
 		client.addRawRequest(buff);
-		while (client.requestCompleted())
+		while (client.requestCompleted() && !client.getRawContent().empty())
 		{
 			client.splitRawRequest();
 			client.makeRequest();

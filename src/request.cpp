@@ -4,6 +4,11 @@ Request::Request() : valid(true), type(UNKNOWN)
 {
 }
 
+Request::Request(Request const &_2Copy)
+{
+	this->operator=(_2Copy);
+}
+
 Request& Request::operator=(Request const &_2Copy)
 {
 	this->requestContent = _2Copy.requestContent;
@@ -26,6 +31,20 @@ std::vector<std::string> Request::_split(std::string s, char c)
 	return arr;
 }
 
+std::vector<std::string> Request::_splitRawcontent(std::string s)
+{
+	std::vector<std::string> arr;
+	size_t index;
+	while ((index = s.find("\r\n")) != std::string::npos)
+	{
+		std::string buff = s.substr(0, index);
+		arr.push_back(buff);
+		s.erase(0, index+2);
+	}
+	arr.push_back(s);
+	return arr;
+}
+
 void Request::_parse_method()
 {
 	std::vector<std::string> tab = _split(requestContent[0], ' ');
@@ -44,7 +63,12 @@ void Request::_parse_method()
 		type = DELETE;
 	else
 		type = UNKNOWN;
-	if (tab[1].front() != '/' || tab[1].find("/../") == std::string::npos)
+	if (tab.size() != 3)
+	{
+		valid = false;
+		return ;
+	}
+	if (tab[1].front() != '/' || tab[1].find("/../") != std::string::npos)
 		valid = false;
 	if (tab[2] != "HTTP/1.1")
 		valid = false;
@@ -56,7 +80,7 @@ void Request::parse()
 	if (valid)
 	{
 		int pause;
-		forup(i, 0, requestContent.size())
+		forup(i, 1, requestContent.size())
 		{
 			if (requestContent[i] == "{")
 			{
@@ -74,14 +98,47 @@ void Request::parse()
 		{
 			if (requestContent[i] == "}")
 				break;
-			body.push_back(requestContent[i]);
+			// body.push_back(requestContent[i]);
 		}
 	}
 }
 
-void Request::getRawContent(std::string rawContent)
+std::string Request::_getrawContent()
+{
+	return this->rawContent;
+}
+
+bool Request::getValid()
+{
+	return this->valid;
+}
+
+int Request::getType()
+{
+	return this->type;
+}
+
+std::string Request::getUrl()
+{
+	return this->url;
+}
+
+std::map<std::string, std::string> Request::getHeaders()
+{
+	return this->headers;
+}
+
+std::vector<char> Request::getBody()
+{
+	return this->body;
+}
+
+void Request::addRawContent(std::string rawContent)
 {
 	this->rawContent = rawContent;
+	this->requestContent = _splitRawcontent(rawContent);
+	forup(i, 0, requestContent.size())
+		std::cout << requestContent[i] << std::endl;
 }
 
 Request::~Request()

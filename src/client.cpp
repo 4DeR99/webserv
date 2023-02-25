@@ -1,16 +1,17 @@
 #include "inc.hpp"
 
 Client::Client()
-: fd(-1)
+		: fd(-1)
 {
 }
 
-Client::Client(int fd)
-: fd(fd)
+Client::Client(int fd, ServerConf &serverconf)
+		: fd(fd),
+			srvconf(serverconf)
 {
 }
 
-Client& Client::operator=(Client const &_2Copy)
+Client &Client::operator=(Client const &_2Copy)
 {
 	this->fd = _2Copy.fd;
 	this->request = _2Copy.request;
@@ -21,7 +22,7 @@ Client& Client::operator=(Client const &_2Copy)
 
 bool Client::requestCompleted()
 {
-	return this->rawContent.find("/r/n/r/n") == std::string::npos ? false : true;
+	return (this->rawContent.find("\r\n\r\n") == std::string::npos ? false : true);
 }
 
 void Client::splitRawRequest()
@@ -31,7 +32,7 @@ void Client::splitRawRequest()
 	e = this->rawContent.end();
 	this->remaining = std::string(b, e);
 	b = this->rawContent.begin();
-	e = this->rawContent.begin() + this->rawContent.find("\r\n\r\n") - 1;
+	e = this->rawContent.begin() + this->rawContent.find("\r\n\r\n");
 	this->rawContent = std::string(b, e);
 }
 
@@ -42,21 +43,16 @@ void Client::move2next()
 	//! request.clear();
 }
 
-void Client::makeResponse()
-{
-	//! this->response.run(this->request);
-}
-
 void Client::makeRequest()
 {
-	this->request.getRawContent(this->rawContent);
+
+	this->request.addRawContent(this->rawContent);
 	this->request.parse();
-	this->makeResponse();
 }
 
-void Client::addRawRequest(std::string rawContent)
+void Client::addRawRequest(std::string &buffer)
 {
-	this->rawContent += rawContent;
+	this->rawContent += buffer;
 }
 
 int Client::_getFd()
@@ -67,6 +63,11 @@ int Client::_getFd()
 Request Client::_getRequest()
 {
 	return request;
+}
+
+std::string Client::getRawContent()
+{
+	return this->rawContent;
 }
 
 Client::~Client()

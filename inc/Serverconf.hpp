@@ -7,37 +7,45 @@ class ServerConf
 private:
 	int sd, on;
 	std::string port, host, server_name, root;
-	int client_max_bodt_size;
-	std::map<int, std::string> err_page;
+	int client_max_body_size;
+	std::map<int, std::string> err_page, defaultErrPage;
 	std::vector<location> loc;
 	std::map<std::string, int> l_path;
 	struct addrinfo hints, *res;
 
 public:
 	ServerConf();
+	ServerConf(ServerConf const &_2Copy);
+	ServerConf &operator=(ServerConf const &_2Copy);
 	~ServerConf();
 
-	void _setPort(std::string n);
-	void _setSrvName(std::string s);
-	void _setRoot(std::string s);
-	void _setHost(std::string s);
-	void _addErrPage(int nb, std::string s);
-	void _setCMBZ(int CMBZ);
-	void _addLocation(location l);
+	// setters
+	void setPort(std::string n);
+	void setSrvName(std::string s);
+	void setRoot(std::string s);
+	void setHost(std::string s);
+	void addErrPage(int nb, std::string s);
+	void setCMBZ(int CMBZ);
+	void addLocation(location l);
 
-	std::string _getPort();
-	std::string _getSrvname();
-	std::string _getRoot();
-	int _getCMBZ();
-	std::string _getHost();
-	std::map<int, std::string> _getErr_page();
-	std::vector<location> _getLocation();
-	int _getSd();
+	// getters
+	std::string getPort();
+	std::string getSrvname();
+	std::string getRoot();
+	int getCMBZ();
+	std::string getHost();
+	std::map<int, std::string> getErr_page();
+	std::map<int, std::string> getDefaultErrPage();
+	std::vector<location> getLocation();
+	int getSd();
+	location getLocationByUrl(std::string &url); // to do
 
+	// socket descriptor
 	void createSd();
 	void bindSd();
 	void listenSd();
 
+	// utility
 	void clear();
 };
 

@@ -89,7 +89,6 @@ void parser::_lookForSevOP()
 		else
 			throw std::invalid_argument(TOKEN_ERROR + buffer);
 	}
-	_file_content.push_back(buffer);
 }
 
 void parser::_serverNameCheck(std::string s, ServerConf &srv)
@@ -437,7 +436,7 @@ std::vector<ServerConf> parser::_runparser()
 			throw std::invalid_argument(SPACE_ERROR + buffer);
 		if (dash && !space && !_file_content.empty())
 		{
-			servers.push_back(srv);
+			servers.push_back(ServerConf(srv));
 			srv.clear();
 			_file_content.clear();
 			used_path.clear();
@@ -459,6 +458,7 @@ std::vector<ServerConf> parser::_runparser()
 			throw std::invalid_argument(GEN_ERROR);
 		_file_content.push_back(buffer);
 	}
+	servers.push_back(ServerConf(srv));
 	return servers;
 }
 

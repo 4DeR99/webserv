@@ -2,12 +2,6 @@
 #define __PARSER_HPP__
 #include "inc.hpp"
 
-enum Serv_count
-{
-	ONE,
-	MANY
-};
-
 class parser
 {
 private:

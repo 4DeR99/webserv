@@ -83,6 +83,7 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <errno.h>
+#include <cerrno>
 #include <unistd.h>
 #include <cstring>
 #include <fcntl.h>
@@ -93,6 +94,8 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <cstdlib>
+#include <dirent.h>
 
 #include "location.hpp"
 #include "Serverconf.hpp"
@@ -100,6 +103,7 @@
 #include "request.hpp"
 #include "server.hpp"
 #include "client.hpp"
+#include "Response.hpp"
 #include "pollge.hpp"
 
 #endif

@@ -8,12 +8,13 @@ class Client
 private:
 	int fd;
 	Request request;
+	ServerConf &srvconf;
 	std::string remaining;
 	std::string rawContent;
 
 public:
 	Client();
-	Client(int fd);
+	Client(int fd, ServerConf &serverconf);
 	Client& operator=(Client const &_2Copy);
 	~Client();
 
@@ -22,10 +23,10 @@ public:
 
 	int _getFd();
 	Request _getRequest();
+	std::string getRawContent();
 
-	void addRawRequest(std::string rawContent);
+	void addRawRequest(std::string &buffer);
 	void makeRequest();
-	void makeResponse();
 
 	void move2next();
 };
