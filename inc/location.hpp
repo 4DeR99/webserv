@@ -2,38 +2,38 @@
 #define __LOCATION_HPP__
 #include "inc.hpp"
 
-class location
+class Location
 {
 private:
-	std::string path, root, upload_path, index, cgi_info, ret_path, redir_path;
-	int autoindex_c, ret_n, redir_n;
+	std::string path, root, uploadPath, index, cgiInfo, returnPath, redirectionPath;
+	int autoindexCount, returnNb, redirectionNb;
 	bool autoindex;
-	std::vector<std::string> allow_methods;
+	std::vector<std::string> allowMethods;
 
 public:
-	location();
-	~location();
+	Location();
+	~Location();
 
-	void _setPath(std::string s);
-	void _setRoot(std::string s);
-	void _setUploadPath(std::string s);
-	void _setIndex(std::string s);
-	void _setAutoIndex(bool status);
-	void _setAllowMethods(std::vector<std::string> methods);
-	void _setCgi(std::string cgi);
-	void _setRedirection(int n, std::string s);
-	void _setReturn(int n, std::string);
+	std::string getPath();
+	std::string getRoot();
+	std::string getUploadpath();
+	std::string getIndex();
+	std::string getCgi();
+	std::string getReturnPath();
+	int getReturnNb();
+	std::string getRedirectionPath();
+	int getRedirectionNb();
+	std::vector<std::string> getmethods();
 
-	std::string _getPath();
-	std::string _getRoot();
-	std::string _getUploadpath();
-	std::string _getIndex();
-	std::string _getCgi();
-	std::string _getRet_path();
-	int _getRet_n();
-	std::string _getRedir_path();
-	int _getRedir_n();
-	std::vector<std::string> _getmethods();
+	void setPath(std::string path);
+	void setRoot(std::string root);
+	void setUploadPath(std::string uploadPath);
+	void setIndex(std::string index);
+	void setAutoIndex(bool status);
+	void setAllowMethods(std::vector<std::string> methods);
+	void setCgi(std::string cgi);
+	void setRedirection(int nb, std::string path);
+	void setReturn(int nb, std::string path);
 
 	void clear();
 

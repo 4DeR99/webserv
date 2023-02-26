@@ -1,8 +1,7 @@
 #include "inc.hpp"
 
 Response::Response()
-		: statusCode(0),
-			srvconf(ServerConf()) {}
+		: statusCode(0) {}
 
 std::vector<std::string> Response::listDirectory(DIR *dir)
 {
@@ -59,10 +58,10 @@ void Response::getAction()
 {
 	std::string url = request.getUrl();
 
-	location loc;
+	Location location;
 	try
 	{
-		loc = srvconf.getLocationByUrl(url);
+		location = srvconf.getLocation(request.getLocationIndex());
 	}
 	catch (const std::exception &e)
 	{
@@ -72,8 +71,8 @@ void Response::getAction()
 
 	DIR *dir = opendir(url.c_str());
 
-	if (!loc._getIndex().empty())
-		url = loc._getIndex();
+	if (!location.getIndex().empty())
+		url = location.getIndex();
 	else if (dir)
 	{
 		generateBasedOnDirectory(dir);

@@ -51,7 +51,7 @@
 #define LVL1_PORT "listen"
 #define LVL1_HOST "host"
 #define LVL1_ROOT "root"
-#define LVL1_CMBZ "client_max_body_size"
+#define LVL1_CMBZ "clientMaxBodySize"
 #define LVL1_ERR_PAGE "error_page"
 #define LVL1_LOCATION "location"
 

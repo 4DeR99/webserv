@@ -1,7 +1,7 @@
 #include "inc.hpp"
 
 ServerConf::ServerConf()
-		: client_max_body_size(-1),
+		: clientMaxBodySize(-1),
 			sd(-1)
 {
 	defaultErrPage[400] = "./defaultErrorPages/400.html";
@@ -21,63 +21,63 @@ ServerConf &ServerConf::operator=(ServerConf const &_2Copy)
 	this->on = _2Copy.on;
 	this->port = _2Copy.port;
 	this->host = _2Copy.host;
-	this->server_name = _2Copy.server_name;
+	this->serverName = _2Copy.serverName;
 	this->root = _2Copy.root;
-	this->client_max_body_size = _2Copy.client_max_body_size;
-	this->err_page = _2Copy.err_page;
-	this->loc = _2Copy.loc;
-	this->l_path = _2Copy.l_path;
+	this->clientMaxBodySize = _2Copy.clientMaxBodySize;
+	this->errorPage = _2Copy.errorPage;
+	this->locations = _2Copy.locations;
+	this->locationsPath = _2Copy.locationsPath;
 	return *this;
 }
 
-void ServerConf::setPort(std::string n)
+void ServerConf::setPort(std::string port)
 {
 	if (!port.empty())
 		throw std::invalid_argument(DOUBLE_PORT);
-	port = n;
+	this->port = port;
 }
 
-void ServerConf::setHost(std::string s)
+void ServerConf::setHost(std::string host)
 {
 	if (!host.empty())
 		throw std::invalid_argument(DOUBLE_HOST);
-	host = s;
+	this->host = host;
 }
 
-void ServerConf::setRoot(std::string s)
+void ServerConf::setRoot(std::string root)
 {
 	if (!root.empty())
 		throw std::invalid_argument(DOUBLE_ROOT);
-	root = s;
+	this->root = root;
 }
 
-void ServerConf::setSrvName(std::string s)
+void ServerConf::setSrvName(std::string srvname)
 {
-	if (!server_name.empty())
+	if (!serverName.empty())
 		throw std::invalid_argument(DOUBLE_SRVNAME);
-	server_name = s;
+	this->serverName = srvname;
 }
 
-void ServerConf::addErrPage(int nb, std::string s)
+void ServerConf::addErrPage(int nb, std::string path)
 {
-	if (!err_page[nb].empty())
+	if (!errorPage[nb].empty())
 		throw std::invalid_argument(DOUBLE_ERRPAGE);
-	err_page[nb] = s;
+	errorPage[nb] = path;
 }
 
 void ServerConf::setCMBZ(int CMBZ)
 {
-	if (client_max_body_size != -1)
+	if (clientMaxBodySize != -1)
 		throw std::invalid_argument(DOUBLE_CMBZ);
-	client_max_body_size = CMBZ;
+	clientMaxBodySize = CMBZ;
 }
 
-void ServerConf::addLocation(location l)
+void ServerConf::addLocation(Location location)
 {
-	if (l_path[l._getPath()])
+	if (locationsPath[location.getPath()])
 		throw std::invalid_argument(DOUBLE_LOCATION_PATH);
-	loc.push_back(l);
-	l_path[l._getPath()]++;
+	locations.push_back(location);
+	locationsPath[location.getPath()]++;
 }
 
 std::string ServerConf::getPort()
@@ -87,7 +87,7 @@ std::string ServerConf::getPort()
 
 std::string ServerConf::getSrvname()
 {
-	return server_name;
+	return serverName;
 }
 
 std::string ServerConf::getRoot()
@@ -97,7 +97,7 @@ std::string ServerConf::getRoot()
 
 int ServerConf::getCMBZ()
 {
-	return client_max_body_size;
+	return clientMaxBodySize;
 }
 
 std::string ServerConf::getHost()
@@ -107,7 +107,7 @@ std::string ServerConf::getHost()
 
 std::map<int, std::string> ServerConf::getErr_page()
 {
-	return err_page;
+	return errorPage;
 }
 
 std::map<int, std::string> ServerConf::getDefaultErrPage()
@@ -115,15 +115,21 @@ std::map<int, std::string> ServerConf::getDefaultErrPage()
 	return defaultErrPage;
 }
 
-std::vector<location> ServerConf::getLocation()
+std::vector<Location> ServerConf::getLocation()
 {
-	return loc;
+	return locations;
 }
 
 int ServerConf::getSd()
 {
 	return sd;
 }
+
+Location ServerConf::getLocation(int index)
+{
+	return locations[index];
+}
+
 
 void ServerConf::createSd()
 {
@@ -187,16 +193,16 @@ void ServerConf::listenSd()
 void ServerConf::clear()
 {
 	port.clear();
-	server_name.clear();
+	serverName.clear();
 	root.clear();
-	client_max_body_size = -1;
+	clientMaxBodySize = -1;
 	host.clear();
-	err_page.clear();
-	loc.clear();
-	l_path.clear();
+	errorPage.clear();
+	locations.clear();
+	locationsPath.clear();
 }
 
 ServerConf::~ServerConf()
 {
-	err_page.clear();
+	errorPage.clear();
 }

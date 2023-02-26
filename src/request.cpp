@@ -45,38 +45,45 @@ std::vector<std::string> Request::_splitRawcontent(std::string s)
 	return arr;
 }
 
-void Request::_parse_method()
+void Request::_parseUrl(std::string &url)
+{
+	if (valid)
+	{
+		if (url.front() != '/' || url.find("/../") != std::string::npos)
+			valid = false;
+		Location location = ;
+	}
+}
+
+void Request::_parseMethod()
 {
 	std::vector<std::string> tab = _split(requestContent[0], ' ');
-	if (tab.size() != 3)
-		valid = false;
-	forup(i, 0, tab[0].size())
-	{
-		if (islower(tab[0][i]))
-			valid = false;
-	}
-	if (tab[0] == "GET")
-		type = GET;
-	if (tab[0] == "POST")
-		type = POST;
-	if (tab[0] == "DELETE")
-		type = DELETE;
-	else
-		type = UNKNOWN;
 	if (tab.size() != 3)
 	{
 		valid = false;
 		return ;
 	}
-	if (tab[1].front() != '/' || tab[1].find("/../") != std::string::npos)
-		valid = false;
-	if (tab[2] != "HTTP/1.1")
+	forup(i, 0, tab[0].size())
+	{
+		if (islower(tab[0][i]))
+			valid = false;
+	}
+	if (valid && tab[0] == "GET")
+		type = GET;
+	else if (valid && tab[0] == "POST")
+		type = POST;
+	else if (valid && tab[0] == "DELETE")
+		type = DELETE;
+	else if (valid)
+		type = UNKNOWN;
+	_parseUrl(tab[1]);
+	if (valid && tab[2] != "HTTP/1.1")
 		valid = false;
 }
 
 void Request::parse()
 {
-	_parse_method();
+	_parseMethod();
 	if (valid)
 	{
 		int pause;
@@ -103,7 +110,7 @@ void Request::parse()
 	}
 }
 
-std::string Request::_getrawContent()
+std::string Request::getrawContent()
 {
 	return this->rawContent;
 }
@@ -116,6 +123,11 @@ bool Request::getValid()
 int Request::getType()
 {
 	return this->type;
+}
+
+int Request::getLocationIndex()
+{
+	return this->locationIndex;
 }
 
 std::string Request::getUrl()

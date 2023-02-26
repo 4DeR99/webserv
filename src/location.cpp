@@ -1,148 +1,150 @@
 #include "inc.hpp"
 
-location::location() : autoindex_c(-1), ret_n(-1), redir_n(-1)
+Location::Location()
+		: autoindexCount(-1),
+			returnNb(-1),
+			redirectionNb(-1)
 {
 }
 
-void location::_setPath(std::string s)
+void Location::setPath(std::string path)
 {
 	if (!path.empty())
 		throw std::invalid_argument(DOUBLE_PATH);
-	path = s;
+	this->path = path;
 }
 
-void location::_setRoot(std::string s)
+void Location::setRoot(std::string root)
 {
 	if (!root.empty())
 		throw std::invalid_argument(DOUBLE_ROOT);
-	root = s;
+	this->root = root;
 }
 
-void location::_setUploadPath(std::string s)
+void Location::setUploadPath(std::string uploadPath)
 {
-	if (!upload_path.empty())
+	if (!uploadPath.empty())
 		throw std::invalid_argument(DOUBLE_UPLOADPATH);
-	upload_path = s;
+	this->uploadPath = uploadPath;
 }
 
-void location::_setIndex(std::string s)
+void Location::setIndex(std::string index)
 {
 	if (!index.empty())
 		throw std::invalid_argument(DOUBLE_INDEX);
-	index = s;
+	this->index = index;
 }
 
-void location::_setAutoIndex(bool status)
+void Location::setAutoIndex(bool status)
 {
-	if (autoindex_c != -1)
+	if (autoindexCount != -1)
 		throw std::invalid_argument(DOUBLE_AUTOINDEX);
-	autoindex_c++;
-	autoindex = status;
+	this->autoindexCount++;
+	this->autoindex = status;
 }
 
-void location::_setAllowMethods(std::vector<std::string> methods)
+void Location::setAllowMethods(std::vector<std::string> methods)
 {
-	if (!allow_methods.empty())
+	if (!allowMethods.empty())
 		throw std::invalid_argument(DOUBLE_ALLOWMETHODS);
-	allow_methods = methods;
+	this->allowMethods = methods;
 }
 
-void location::_setRedirection(int n, std::string s)
+void Location::setRedirection(int nb, std::string path)
 {
-	if (redir_n != -1)
+	if (redirectionNb != -1)
 		throw std::invalid_argument(DOUBLE_REDIRECTION);
-	redir_n = n;
-	redir_path = s;
+	this->redirectionNb = nb;
+	this->redirectionPath = path;
 }
 
-void location::_setReturn(int n, std::string s)
+void Location::setReturn(int nb, std::string path)
 {
-	if (ret_n != -1)
+	if (returnNb != -1)
 		throw std::invalid_argument(DOUBLE_RETURN);
-	ret_n = n;
-	ret_path = s;
+	this->returnNb = nb;
+	this->returnPath = path;
 }
 
-void location::_setCgi(std::string cgi)
+void Location::setCgi(std::string cgi)
 {
-	if (!cgi_info.empty())
+	if (!cgiInfo.empty())
 		throw std::invalid_argument(DOUBLE_CGI);
-	cgi_info = cgi;
+	cgiInfo = cgi;
 }
 
-std::string location::_getPath()
+std::string Location::getPath()
 {
-	return path;
+	return this->path;
 }
 
-std::string location::_getRoot()
+std::string Location::getRoot()
 {
-	return root;
+	return this->root;
 }
 
-std::string location::_getUploadpath()
+std::string Location::getUploadpath()
 {
-	return upload_path;
+	return this->uploadPath;
 }
 
-std::string location::_getIndex()
+std::string Location::getIndex()
 {
-	return index;
+	return this->index;
 }
 
-std::string location::_getCgi()
+std::string Location::getCgi()
 {
-	return cgi_info;
+	return this->cgiInfo;
 }
 
-std::string location::_getRet_path()
+std::string Location::getReturnPath()
 {
-	return ret_path;
+	return this->returnPath;
 }
 
-std::string location::_getRedir_path()
+std::string Location::getRedirectionPath()
 {
-	return redir_path;
+	return this->redirectionPath;
 }
 
-int location::_getRet_n()
+int Location::getReturnNb()
 {
-	return ret_n;
+	return this->returnNb;
 }
 
-int location::_getRedir_n()
+int Location::getRedirectionNb()
 {
-	return redir_n;
+	return this->redirectionNb;
 }
 
-std::vector<std::string> location::_getmethods()
+std::vector<std::string> Location::getmethods()
 {
-	return allow_methods;
+	return this->allowMethods;
 }
 
-bool location::empty(){
-	return (path.empty() && root.empty() && upload_path.empty() && index.empty() && cgi_info.empty()
-		&& ret_path.empty() && redir_path.empty() && allow_methods.empty() && autoindex_c == -1
-		&& ret_n == -1 && redir_n == -1);
+bool Location::empty()
+{
+	return (path.empty() && root.empty() && uploadPath.empty() && index.empty() && cgiInfo.empty() && returnPath.empty() && redirectionPath.empty() && allowMethods.empty() && autoindexCount == -1 && returnNb == -1 && redirectionNb == -1);
 }
 
-void	location::clear()
+void Location::clear()
 {
 	path.clear();
 	root.clear();
-	upload_path.clear();
+	uploadPath.clear();
 	index.clear();
-	cgi_info.clear();
-	ret_path.clear();
-	redir_path.clear();
-	allow_methods.clear();
-	autoindex_c = -1;
-	ret_n = -1;
-	redir_n = -1;
+	cgiInfo.clear();
+	returnPath.clear();
+	redirectionPath.clear();
+	allowMethods.clear();
+	autoindexCount = -1;
+	returnNb = -1;
+	redirectionNb = -1;
 }
 
-location::~location()
+Location::~Location()
 {
-	allow_methods.clear();
-	cgi_info.clear();
+	allowMethods.clear();
+	cgiInfo.clear();
 }

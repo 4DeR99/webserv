@@ -17,7 +17,7 @@ class Response
 private:
 	size_t statusCode;
 	Request request;
-	ServerConf &srvconf;
+	ServerConf srvconf;
 	std::string generatedResponse;
 
 	// private functions

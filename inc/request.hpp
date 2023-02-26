@@ -17,23 +17,29 @@ private:
 	std::vector<std::string> requestContent;
 	std::vector<char> body;
 	bool valid;
-	int type;
+	int type, locationIndex;
 	std::string url;
 	std::string rawContent;
 	std::map<std::string, std::string> headers;
-	void _parse_method();
+	ServerConf serverConf;
+
+	void _parseMethod();
+	void _parseUrl(std::string &url);
 	std::vector<std::string> _split(std::string s, char c);
 	std::vector<std::string> _splitRawcontent(std::string s);
 
 public:
 	Request();
+	Request(ServerConf &serverConf)
 	Request(Request const &_2Copy);
 	Request &operator=(Request const &_2Copy);
 	~Request();
 
-	std::string _getrawContent();
+	// getters
 	bool getValid();
 	int getType();
+	int getLocationIndex();
+	std::string getrawContent();
 	std::string getUrl();
 	std::map<std::string, std::string> getHeaders();
 	std::vector<char> getBody();

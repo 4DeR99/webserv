@@ -5,12 +5,13 @@
 class ServerConf
 {
 private:
+	std::string port, host, serverName, root;
+	int clientMaxBodySize;
+	std::map<int, std::string> errorPage, defaultErrPage;
+	std::vector<Location> locations;
+	std::map<std::string, int> locationsPath;
+
 	int sd, on;
-	std::string port, host, server_name, root;
-	int client_max_body_size;
-	std::map<int, std::string> err_page, defaultErrPage;
-	std::vector<location> loc;
-	std::map<std::string, int> l_path;
 	struct addrinfo hints, *res;
 
 public:
@@ -20,13 +21,13 @@ public:
 	~ServerConf();
 
 	// setters
-	void setPort(std::string n);
-	void setSrvName(std::string s);
-	void setRoot(std::string s);
-	void setHost(std::string s);
-	void addErrPage(int nb, std::string s);
+	void setPort(std::string port);
+	void setSrvName(std::string srvname);
+	void setRoot(std::string root);
+	void setHost(std::string host);
+	void addErrPage(int nb, std::string path);
 	void setCMBZ(int CMBZ);
-	void addLocation(location l);
+	void addLocation(Location location);
 
 	// getters
 	std::string getPort();
@@ -36,9 +37,9 @@ public:
 	std::string getHost();
 	std::map<int, std::string> getErr_page();
 	std::map<int, std::string> getDefaultErrPage();
-	std::vector<location> getLocation();
+	std::vector<Location> getLocation();
 	int getSd();
-	location getLocationByUrl(std::string &url); // to do
+	Location getLocation(int index);
 
 	// socket descriptor
 	void createSd();
