@@ -37,7 +37,7 @@ public:
 	std::string getHost();
 	std::map<int, std::string> getErr_page();
 	std::map<int, std::string> getDefaultErrPage();
-	std::vector<Location> getLocation();
+	std::vector<Location> getLocations();
 	int getSd();
 	Location getLocation(int index);
 

@@ -1,6 +1,17 @@
 #include "inc.hpp"
 
-Request::Request() : valid(true), type(UNKNOWN)
+Request::Request()
+	:	valid(true),
+		type(UNKNOWN),
+		locationIndex(NO_LOCATION)
+{
+}
+
+Request::Request(ServerConf &serverConf)
+	:	valid(true),
+		type(UNKNOWN),
+		serverConf(serverConf),
+		locationIndex(NO_LOCATION)
 {
 }
 
@@ -47,11 +58,25 @@ std::vector<std::string> Request::_splitRawcontent(std::string s)
 
 void Request::_parseUrl(std::string &url)
 {
+	size_t pos = 0;
+	std::string holder;
+	std::vector<Location> locations;
+
 	if (valid)
 	{
 		if (url.front() != '/' || url.find("/../") != std::string::npos)
 			valid = false;
-		Location location = ;
+		locations = serverConf.getLocations();
+		while (pos != std::string::npos)
+		{
+			holder = url.substr(0, pos+1);
+			forup(i, 0, locations.size())
+			{
+				if (holder == locations[i].getPath().substr(0, holder.size()))
+					locationIndex = i;
+			}
+			pos = url.find('/', pos + 1);
+		}
 	}
 }
 

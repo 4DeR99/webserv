@@ -2,6 +2,7 @@
 #define __REQUEST_HPP__
 
 #include "inc.hpp"
+#define NO_LOCATION -1
 
 enum request_type
 {

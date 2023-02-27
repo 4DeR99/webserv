@@ -115,7 +115,7 @@ std::map<int, std::string> ServerConf::getDefaultErrPage()
 	return defaultErrPage;
 }
 
-std::vector<Location> ServerConf::getLocation()
+std::vector<Location> ServerConf::getLocations()
 {
 	return locations;
 }
