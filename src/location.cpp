@@ -7,6 +7,29 @@ Location::Location()
 {
 }
 
+Location::Location(Location const &_2Copy)
+{
+	this->operator=(_2Copy);
+}
+
+Location& Location::operator=(Location const &_2Copy)
+{
+	this->path = _2Copy.path;
+	this->root = _2Copy.root;
+	this->uploadPath = _2Copy.uploadPath;
+	this->index = _2Copy.index;
+	this->cgiInfo= _2Copy.cgiInfo;
+	this->returnPath = _2Copy.returnPath;
+	this->redirectionPath = _2Copy.redirectionPath;
+	this->autoindexCount = _2Copy.autoindexCount;
+}
+
+Location::~Location()
+{
+	allowMethods.clear();
+	cgiInfo.clear();
+}
+
 void Location::setPath(std::string path)
 {
 	if (!path.empty())
@@ -141,10 +164,4 @@ void Location::clear()
 	autoindexCount = -1;
 	returnNb = -1;
 	redirectionNb = -1;
-}
-
-Location::~Location()
-{
-	allowMethods.clear();
-	cgiInfo.clear();
 }

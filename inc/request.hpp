@@ -30,7 +30,7 @@ private:
 
 public:
 	Request();
-	Request(ServerConf &serverConf)
+	Request(ServerConf &serverConf);
 	Request(Request const &_2Copy);
 	Request &operator=(Request const &_2Copy);
 	~Request();

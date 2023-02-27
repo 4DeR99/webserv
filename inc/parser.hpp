@@ -6,7 +6,7 @@ class parser
 {
 private:
 	typedef void(parser::*lvl1_fncPtr)(std::string, ServerConf&);
-	typedef void(parser::*lvl2_fncPtr)(std::string, location&);
+	typedef void(parser::*lvl2_fncPtr)(std::string, Location&);
 	std::string _filename, buffer;
 	std::ifstream input;
 	std::vector<ServerConf> servers;
@@ -24,24 +24,24 @@ private:
 	size_t _find_dash(std::string &s);
 	int _count_spaces(std::string &s);
 	std::string _sweep(std::string &s);
-	void _token_recognizer(std::string s, int lvl, ServerConf &srv, location &l, std::string head);
+	void _token_recognizer(std::string s, int lvl, ServerConf &srv, Location &location, std::string head);
 	std::vector<std::string> _split(std::string s, char c);
 	void _serverNameCheck(std::string s, ServerConf &srv);
-	void _portCheck(std::string s, ServerConf &srv);
+	void _portCheck(std::string port, ServerConf &srv);
 	void _hostCheck(std::string s, ServerConf &srv);
 	void _rootCheck(std::string s, ServerConf &srv);
 	void _cmbzCheck(std::string s, ServerConf &srv);
 	void _errorPagesCheck(std::string s, ServerConf &srv);
 	void _locationCheck(std::string s, ServerConf &srv);
-	void _pathCheck(std::string s, location &l);
-	void _methodsCheck(std::string s, location &l);
-	void _uploadPathCheck(std::string s, location &l);
-	void _rootCheck(std::string s, location &l);
-	void _autoindexCheck(std::string s, location &l);
-	void _indexCheck(std::string s, location &l);
-	void _cgiCheck(std::string s, location &l);
-	void _redirectionCheck(std::string s, location &l);
-	void _returnCheck(std::string s, location &l);
+	void _pathCheck(std::string s, Location &location);
+	void _methodsCheck(std::string s, Location &location);
+	void _uploadPathCheck(std::string s, Location &location);
+	void _rootCheck(std::string s, Location &location);
+	void _autoindexCheck(std::string s, Location &location);
+	void _indexCheck(std::string s, Location &location);
+	void _cgiCheck(std::string s, Location &location);
+	void _redirectionCheck(std::string s, Location &location);
+	void _returnCheck(std::string s, Location &location);
 
 public:
 	parser(int ac, char **av);

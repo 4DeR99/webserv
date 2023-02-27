@@ -12,6 +12,8 @@ private:
 
 public:
 	Location();
+	Location(Location const &_2Copy);
+	Location& operator=(Location const &_2Copy);
 	~Location();
 
 	std::string getPath();

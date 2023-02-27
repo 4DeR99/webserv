@@ -98,7 +98,7 @@ void parser::_serverNameCheck(std::string s, ServerConf &srv)
 	forup(i, 0, s.size())
 		if (!isprint(s[i]))
 			throw std::invalid_argument(SRVNAME_ERROR);
-	srv._setSrvName(s);
+	srv.setSrvName(s);
 }
 
 void parser::_portCheck(std::string s, ServerConf &srv)
@@ -114,7 +114,7 @@ void parser::_portCheck(std::string s, ServerConf &srv)
 	{
 		throw std::invalid_argument(PORT_ERROR);
 	}
-	srv._setPort(s);
+	srv.setPort(s);
 }
 
 void parser::_hostCheck(std::string s, ServerConf &srv)
@@ -130,7 +130,7 @@ void parser::_hostCheck(std::string s, ServerConf &srv)
 		{
 			r_tab[i] = std::stoi(tab[i]);
 		}
-		srv._setHost(s);
+		srv.setHost(s);
 		return;
 	}
 	tab = _split(s, '.');
@@ -149,7 +149,7 @@ void parser::_hostCheck(std::string s, ServerConf &srv)
 			throw std::invalid_argument(HOST_ERROR);
 		r_tab[i] = std::stoi(tab[i]);
 	}
-	srv._setHost(s);
+	srv.setHost(s);
 }
 
 void parser::_rootCheck(std::string s, ServerConf &srv)
@@ -158,7 +158,7 @@ void parser::_rootCheck(std::string s, ServerConf &srv)
 	_sweep(s);
 	if (access(s.c_str(), F_OK) == -1)
 		throw std::invalid_argument(ROOT_ERROR);
-	srv._setRoot(s);
+	srv.setRoot(s);
 }
 
 void parser::_cmbzCheck(std::string s, ServerConf &srv)
@@ -177,7 +177,7 @@ void parser::_cmbzCheck(std::string s, ServerConf &srv)
 	{
 		throw std::invalid_argument(CMBZ_ERROR);
 	}
-	srv._setCMBZ(cmbz);
+	srv.setCMBZ(cmbz);
 }
 
 void parser::_errorPagesCheck(std::string s, ServerConf &srv)
@@ -190,20 +190,21 @@ void parser::_errorPagesCheck(std::string s, ServerConf &srv)
 		if (tab.size() != 2)
 			throw std::invalid_argument(ERRPAGE_ERROR);
 		_sweep(tab[1]);
-		if (tab[1].front() != '/')
+	if (access(tab[1].c_str(), F_OK) == -1)
 			throw std::invalid_argument(PATHFRNT_ERROR);
-		srv._addErrPage(std::stoi(tab[0]), tab[1]);
+		srv.addErrPage(std::stoi(tab[0]), tab[1]);
 	}
 }
 
 void parser::_locationCheck(std::string s, ServerConf &srv)
 {
+	_sweep(s);
 	std::vector<std::string> tab = _split(s, ':');
-	if (tab.size() != 1)
+	if (tab.size() != 1 || s.back() != ':')
 		throw std::invalid_argument(LOCATION_ERROR);
 }
 
-void parser::_pathCheck(std::string s, location &l)
+void parser::_pathCheck(std::string s, Location &location)
 {
 	s = std::string(std::find(s.begin(), s.end(), ':') + 1, s.end());
 	_sweep(s);
@@ -212,13 +213,13 @@ void parser::_pathCheck(std::string s, location &l)
 	if (!used_path[s])
 	{
 		used_path[s]++;
-		l._setPath(s);
+		location.setPath(s);
 	}
 	else
 		throw std::invalid_argument(PATH_ERROR);
 }
 
-void parser::_methodsCheck(std::string s, location &l)
+void parser::_methodsCheck(std::string s, Location &location)
 {
 	std::vector<std::string> tab = _split(s, ':');
 	if (tab.size() != 2)
@@ -246,51 +247,53 @@ void parser::_methodsCheck(std::string s, location &l)
 				throw std::invalid_argument(ALMETHODS_ERROR);
 		}
 	}
-	l._setAllowMethods(methods);
+	location.setAllowMethods(methods);
 }
 
-void parser::_uploadPathCheck(std::string s, location &l)
+void parser::_uploadPathCheck(std::string s, Location &location)
 {
 	s = std::string(std::find(s.begin(), s.end(), ':') + 1, s.end());
 	_sweep(s);
 	forup(i, 0, s.size())
 		if (isspace(s[i]))
 			throw std::invalid_argument(UPLOADPATH_ERROR);
-	l._setUploadPath(s);
+	if (access(s.c_str(), F_OK) == -1)
+			throw std::invalid_argument(UPLOADPATH_ERROR);
+	location.setUploadPath(s);
 }
 
-void parser::_rootCheck(std::string s, location &l)
+void parser::_rootCheck(std::string s, Location &location)
 {
 	s = std::string(std::find(s.begin(), s.end(), ':') + 1, s.end());
 	_sweep(s);
 	if (access(s.c_str(), F_OK) == -1)
 		throw std::invalid_argument(ROOT_ERROR);
-	l._setRoot(s);
+	location.setRoot(s);
 }
 
-void parser::_autoindexCheck(std::string s, location &l)
+void parser::_autoindexCheck(std::string s, Location &location)
 {
 	s = std::string(std::find(s.begin(), s.end(), ':') + 1, s.end());
 	_sweep(s);
 	if (s != "on" && s != "off")
 		throw std::invalid_argument(AUTOINDEX_ERROR);
 	if (s == "on")
-		l._setAutoIndex(true);
+		location.setAutoIndex(true);
 	else
-		l._setAutoIndex(false);
+		location.setAutoIndex(false);
 }
 
-void parser::_indexCheck(std::string s, location &l)
+void parser::_indexCheck(std::string s, Location &location)
 {
 	s = std::string(std::find(s.begin(), s.end(), ':') + 1, s.end());
 	_sweep(s);
 	forup(i, 0, s.size())
 		if (isspace(s[i]))
 			throw std::invalid_argument(UPLOADPATH_ERROR);
-	l._setIndex(s);
+	location.setIndex(s);
 }
 
-void parser::_cgiCheck(std::string s, location &l)
+void parser::_cgiCheck(std::string s, Location &location)
 {
 	s = std::string(std::find(s.begin(), s.end(), ':') + 1, s.end());
 	_sweep(s);
@@ -299,10 +302,10 @@ void parser::_cgiCheck(std::string s, location &l)
 	forup(i, 0, s.size())
 		if (isspace(s[i]))
 			throw std::invalid_argument(UPLOADPATH_ERROR);
-	l._setCgi(s);
+	location.setCgi(s);
 }
 
-void parser::_returnCheck(std::string s, location &l)
+void parser::_returnCheck(std::string s, Location &location)
 {
 	s = std::string(std::find(s.begin(), s.end(), ':') + 1, s.end());
 	_sweep(s);
@@ -318,10 +321,10 @@ void parser::_returnCheck(std::string s, location &l)
 	{
 		throw std::invalid_argument(RETURN_ERROR);
 	}
-	l._setReturn(r_index, tab[1]);
+	location.setReturn(r_index, tab[1]);
 }
 
-void parser::_redirectionCheck(std::string s, location &l)
+void parser::_redirectionCheck(std::string s, Location &location)
 {
 	s = std::string(std::find(s.begin(), s.end(), ':') + 1, s.end());
 	_sweep(s);
@@ -332,7 +335,7 @@ void parser::_redirectionCheck(std::string s, location &l)
 	try
 	{
 		r_index = std::stoi(tab[0]);
-		l._setRedirection(r_index, tab[1]);
+		location.setRedirection(r_index, tab[1]);
 	}
 	catch(const std::exception& e)
 	{
@@ -368,7 +371,7 @@ size_t parser::_find_dash(std::string &s)
 	return std::string::npos;
 }
 
-void parser::_token_recognizer(std::string s, int lvl, ServerConf &srv, location &l, std::string head)
+void parser::_token_recognizer(std::string s, int lvl, ServerConf &srv, Location &location, std::string head)
 {
 	if (head == "server" || head == "location")
 	{
@@ -379,7 +382,7 @@ void parser::_token_recognizer(std::string s, int lvl, ServerConf &srv, location
 		else if (!lvl)
 			(this->*lvl1[it - _tokens[lvl].begin()])(s, srv);
 		else
-			(this->*lvl2[it - _tokens[lvl].begin()])(s, l);
+			(this->*lvl2[it - _tokens[lvl].begin()])(s, location);
 	}
 	else if (head == "error_page")
 	{
@@ -412,7 +415,7 @@ std::string parser::_sweep(std::string &s)
 std::vector<ServerConf> parser::_runparser()
 {
 	ServerConf srv;
-	location l;
+	Location location;
 	std::string head = "server";
 	std::string old_head;
 	_lookForSevOP();
@@ -441,13 +444,13 @@ std::vector<ServerConf> parser::_runparser()
 			_file_content.clear();
 			used_path.clear();
 		}
-		if (dash && space == 2 && !l.empty())
+		if (dash && space == 2 && !location.empty())
 		{
-			srv._addLocation(l);
-			l.clear();
+			srv.addLocation(location);
+			location.clear();
 		}
 		_sweep(buffer);
-		_token_recognizer(buffer, lvl - 1, srv, l, head);
+		_token_recognizer(buffer, lvl - 1, srv, location, head);
 		if (buffer.back() == ':')
 		{
 			lvl++;
