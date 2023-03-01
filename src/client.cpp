@@ -22,7 +22,21 @@ Client &Client::operator=(Client const &_2Copy)
 
 bool Client::requestCompleted()
 {
-	return (this->rawContent.find("\r\n\r\n") == std::string::npos ? false : true);
+	size_t pos = lowerCaseRawContent.find("content-length: ");
+	if (pos != std::string::npos)
+	{
+		try
+		{
+			std::string sub = lowerCaseRawContent.substr(pos + 15, lowerCaseRawContent.find('\n', pos) - (pos + 15));
+			int contentLen = std::stoi(lowerCaseRawContent);
+		}
+		catch(const std::exception& e)
+		{
+			std::cerr << e.what() << '\n';
+		}
+		
+	}
+	return (rawContent.find("\r\n\r\n") != std::string::npos);
 }
 
 void Client::splitRawRequest()
@@ -53,6 +67,10 @@ void Client::makeRequest()
 void Client::addRawRequest(std::string &buffer)
 {
 	this->rawContent += buffer;
+	forup(i, 0, buffer.size())
+	{
+		this->lowerCaseRawContent.push_back(tolower(buffer[i]));
+	}
 }
 
 int Client::_getFd()

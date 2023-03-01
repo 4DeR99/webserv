@@ -6,7 +6,8 @@ class Pollge
 {
 private:
 	int timeout;
-	bool end_server, compress_array;
+	bool end_server;
+	bool compress_array;
 	char buffer[80];
 	std::vector<struct pollfd> fds;
 	std::map<int, int> sd2srv;

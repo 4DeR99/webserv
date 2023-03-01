@@ -5,9 +5,13 @@
 class ServerConf
 {
 private:
-	std::string port, host, serverName, root;
+	std::string port;
+	std::string host;
+	std::string serverName;
+	std::string root;
 	int clientMaxBodySize;
-	std::map<int, std::string> errorPage, defaultErrPage;
+	std::map<int, std::string> errorPage;
+	std::map<int, std::string> defaultErrPage;
 	std::vector<Location> locations;
 	std::map<std::string, int> locationsPath;
 

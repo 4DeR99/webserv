@@ -5,8 +5,16 @@
 class Location
 {
 private:
-	std::string path, root, uploadPath, index, cgiInfo, returnPath, redirectionPath;
-	int autoindexCount, returnNb, redirectionNb;
+	std::string path;
+	std::string root;
+	std::string uploadPath;
+	std::string index;
+	std::string cgiInfo;
+	std::string returnPath;
+	std::string redirectionPath;
+	int autoindexCount;
+	int returnNb;
+	int redirectionNb;
 	bool autoindex;
 	std::vector<std::string> allowMethods;
 

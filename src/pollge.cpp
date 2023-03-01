@@ -49,10 +49,7 @@ void Pollge::_run()
 			if (this->fds[i].revents == 0)
 				continue;
 			if (sd2srv[this->fds[i].fd] > 0)
-			{
-				std::cout << "	Listening socket is readable" << std::endl;
 				this->_sdAccept(this->fds[i].fd);
-			}
 			else
 			{
 				// std::cout << "	Descriptor " << this->fds[i].fd << " is readable" << std::endl;
@@ -102,7 +99,7 @@ void Pollge::_sdAccept(int sd)
 			}
 			break;
 		}
-		std::cout << "	New incoming connection - " << new_sd << std::endl;
+		std::cout << "	New client connected " << std::endl;
 		Client newClient(new_sd, servers[sd2srv[sd]-1]);
 		memset(&pollfd, 0, sizeof(pollfd));
 		pollfd.fd = new_sd;
@@ -133,6 +130,7 @@ void Pollge::_sdReceive(struct pollfd &pollfd, bool &close_conn)
 	}
 	else if (rc == 0)
 	{
+		client.makeRequest();
 		std::cout << " Connection closed" << std::endl;
 		close_conn = true;
 	}

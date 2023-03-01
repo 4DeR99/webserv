@@ -8,9 +8,10 @@ class Client
 private:
 	int fd;
 	Request request;
-	ServerConf &srvconf;
+	ServerConf srvconf;
 	std::string remaining;
 	std::string rawContent;
+	std::string lowerCaseRawContent;
 
 public:
 	Client();

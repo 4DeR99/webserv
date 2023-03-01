@@ -7,7 +7,8 @@ class parser
 private:
 	typedef void(parser::*lvl1_fncPtr)(std::string, ServerConf&);
 	typedef void(parser::*lvl2_fncPtr)(std::string, Location&);
-	std::string _filename, buffer;
+	std::string _filename;
+	std::string	buffer;
 	std::ifstream input;
 	std::vector<ServerConf> servers;
 	std::vector<std::string> _tokens[2];
