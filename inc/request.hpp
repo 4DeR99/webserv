@@ -18,14 +18,20 @@ private:
 	std::vector<std::string> requestContent;
 	std::vector<char> body;
 	bool valid;
-	int type, locationIndex;
+	bool bodyExist;
+	int type;
+	int locationIndex;
 	std::string url;
+	std::string absoluteUrl;
 	std::string rawContent;
 	std::map<std::string, std::string> headers;
 	ServerConf serverConf;
 
 	void _parseMethod();
 	void _parseUrl(std::string &url);
+	void _sweep(std::string &string);
+	void _rmBackSpaces(std::string &string);
+	void _rmFrontSpaces(std::string &string);
 	std::vector<std::string> _split(std::string s, char c);
 	std::vector<std::string> _splitRawcontent(std::string s);
 
@@ -38,6 +44,7 @@ public:
 
 	// getters
 	bool getValid();
+	bool getBodyExist();
 	int getType();
 	int getLocationIndex();
 	std::string getrawContent();

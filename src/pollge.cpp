@@ -52,7 +52,6 @@ void Pollge::_run()
 				this->_sdAccept(this->fds[i].fd);
 			else
 			{
-				// std::cout << "	Descriptor " << this->fds[i].fd << " is readable" << std::endl;
 				close_conn = false;
 				this->_sdReceive(this->fds.at(i), close_conn);
 				if (close_conn)

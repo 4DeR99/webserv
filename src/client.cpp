@@ -22,7 +22,7 @@ Client &Client::operator=(Client const &_2Copy)
 
 bool Client::requestCompleted()
 {
-	size_t pos = lowerCaseRawContent.find("content-length: ");
+	size_t  pos = lowerCaseRawContent.find("content-length: ");
 	if (pos != std::string::npos)
 	{
 		try
@@ -73,12 +73,12 @@ void Client::addRawRequest(std::string &buffer)
 	}
 }
 
-int Client::_getFd()
+int Client::getFd()
 {
 	return fd;
 }
 
-Request Client::_getRequest()
+Request Client::getRequest()
 {
 	return request;
 }

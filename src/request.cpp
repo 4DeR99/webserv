@@ -3,7 +3,8 @@
 Request::Request()
 	:	valid(true),
 		type(UNKNOWN),
-		locationIndex(NO_LOCATION)
+		locationIndex(NO_LOCATION),
+		bodyExist(false)
 {
 }
 
@@ -11,7 +12,8 @@ Request::Request(ServerConf &serverConf)
 	:	valid(true),
 		type(UNKNOWN),
 		serverConf(serverConf),
-		locationIndex(NO_LOCATION)
+		locationIndex(NO_LOCATION),
+		bodyExist(false)
 {
 }
 
@@ -54,6 +56,24 @@ std::vector<std::string> Request::_splitRawcontent(std::string s)
 	}
 	arr.push_back(s);
 	return arr;
+}
+
+void Request::_rmBackSpaces(std::string &string)
+{
+	while (isspace(string.back()))
+		string.erase(string.end()-1);
+}
+
+void Request::_rmFrontSpaces(std::string &string)
+{
+	while (isspace(string.front()))
+		string.erase(string.front());
+}
+
+void Request::_sweep(std::string &string)
+{
+	_rmBackSpaces(string);
+	_rmBackSpaces(string);
 }
 
 void Request::_parseUrl(std::string &url)
@@ -114,23 +134,20 @@ void Request::parse()
 		int pause;
 		forup(i, 1, requestContent.size())
 		{
-			if (requestContent[i] == "{")
-			{
-				pause = ++i;
-				break;
-			}
+			if (requestContent[i].find(':') == requestContent.size() - 1)
+				valid = false;
 			if (requestContent[i].find(':') != std::string::npos)
 			{
 				std::string key = std::string(requestContent[i].begin(), std::find(requestContent[i].begin(), requestContent[i].end(), ':') - 1);
+				_sweep(key);
+				forup(i, 0, key.size())
+					key[i] = tolower(key[i]);
 				std::string value = std::string(std::find(requestContent[i].begin(), requestContent[i].end(), ':') + 1, requestContent[i].end());
+				_rmFrontSpaces(value);
+				if (key == "content-length")
+					bodyExist = true;
 				headers[key] = value;
 			}
-		}
-		forup(i, pause, requestContent.size())
-		{
-			if (requestContent[i] == "}")
-				break;
-			// body.push_back(requestContent[i]);
 		}
 	}
 }
@@ -168,6 +185,11 @@ std::map<std::string, std::string> Request::getHeaders()
 std::vector<char> Request::getBody()
 {
 	return this->body;
+}
+
+bool Request::getBodyExist()
+{
+	return this->bodyExist;
 }
 
 void Request::addRawContent(std::string rawContent)

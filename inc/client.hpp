@@ -22,8 +22,8 @@ public:
 	void splitRawRequest();
 	bool requestCompleted();
 
-	int _getFd();
-	Request _getRequest();
+	int getFd();
+	Request getRequest();
 	std::string getRawContent();
 
 	void addRawRequest(std::string &buffer);
