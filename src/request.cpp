@@ -1,28 +1,25 @@
 #include "inc.hpp"
 
 Request::Request()
-	:	valid(true),
-		type(UNKNOWN),
-		locationIndex(NO_LOCATION),
-		bodyExist(false)
-{
-}
+		: valid(true),
+			type(UNKNOWN),
+			locationIndex(NO_LOCATION),
+			bodyLength(0),
+			bodyExist(false),
+			requestChunked(false) {}
 
 Request::Request(ServerConf &serverConf)
-	:	valid(true),
-		type(UNKNOWN),
-		serverConf(serverConf),
-		locationIndex(NO_LOCATION),
-		bodyExist(false)
-{
-}
+		: valid(true),
+			type(UNKNOWN),
+			serverConf(serverConf),
+			locationIndex(NO_LOCATION),
+			bodyLength(0),
+			bodyExist(false),
+			requestChunked(false) {}
 
-Request::Request(Request const &_2Copy)
-{
-	this->operator=(_2Copy);
-}
+Request::Request(Request const &_2Copy) { this->operator=(_2Copy); }
 
-Request& Request::operator=(Request const &_2Copy)
+Request &Request::operator=(Request const &_2Copy)
 {
 	this->requestContent = _2Copy.requestContent;
 	this->body = _2Copy.body;
@@ -52,7 +49,7 @@ std::vector<std::string> Request::_splitRawcontent(std::string s)
 	{
 		std::string buff = s.substr(0, index);
 		arr.push_back(buff);
-		s.erase(0, index+2);
+		s.erase(0, index + 2);
 	}
 	arr.push_back(s);
 	return arr;
@@ -61,7 +58,7 @@ std::vector<std::string> Request::_splitRawcontent(std::string s)
 void Request::_rmBackSpaces(std::string &string)
 {
 	while (isspace(string.back()))
-		string.erase(string.end()-1);
+		string.erase(string.end() - 1);
 }
 
 void Request::_rmFrontSpaces(std::string &string)
@@ -89,7 +86,7 @@ void Request::_parseUrl(std::string &url)
 		locations = serverConf.getLocations();
 		while (pos != std::string::npos)
 		{
-			holder = url.substr(0, pos+1);
+			holder = url.substr(0, pos + 1);
 			forup(i, 0, locations.size())
 			{
 				if (holder == locations[i].getPath().substr(0, holder.size()))
@@ -106,7 +103,7 @@ void Request::_parseMethod()
 	if (tab.size() != 3)
 	{
 		valid = false;
-		return ;
+		return;
 	}
 	forup(i, 0, tab[0].size())
 	{
@@ -141,63 +138,55 @@ void Request::parse()
 				std::string key = std::string(requestContent[i].begin(), std::find(requestContent[i].begin(), requestContent[i].end(), ':') - 1);
 				_sweep(key);
 				forup(i, 0, key.size())
-					key[i] = tolower(key[i]);
+						key[i] = tolower(key[i]);
 				std::string value = std::string(std::find(requestContent[i].begin(), requestContent[i].end(), ':') + 1, requestContent[i].end());
-				_rmFrontSpaces(value);
+				_sweep(value);
 				if (key == "content-length")
+				{
 					bodyExist = true;
+				}
+				if (key == "transfer-encoding" && value == "chunked")
+					requestChunked = true;
 				headers[key] = value;
 			}
 		}
 	}
 }
 
-std::string Request::getrawContent()
-{
-	return this->rawContent;
-}
+std::string Request::getrawContent() { return this->rawContent; }
 
-bool Request::getValid()
-{
-	return this->valid;
-}
+bool Request::getValid() { return this->valid; }
 
-int Request::getType()
-{
-	return this->type;
-}
+int Request::getType() { return this->type; }
 
-int Request::getLocationIndex()
-{
-	return this->locationIndex;
-}
+int Request::getLocationIndex() { return this->locationIndex; }
 
-std::string Request::getUrl()
-{
-	return this->url;
-}
+int Request::getBodyLength() { return this->bodyLength; }
 
-std::map<std::string, std::string> Request::getHeaders()
-{
-	return this->headers;
-}
+std::string Request::getUrl() { return this->url; }
 
-std::vector<char> Request::getBody()
-{
-	return this->body;
-}
+std::map<std::string, std::string> Request::getHeaders() { return this->headers; }
 
-bool Request::getBodyExist()
-{
-	return this->bodyExist;
-}
+std::vector<char> Request::getBody() { return this->body; }
+
+bool Request::bodyDoesExist() { return this->bodyExist; }
+
+bool Request::isRequestChunked() { return this->requestChunked; }
+
+bool Request::empty() { return (url.empty() && type == UNKNOWN); }
 
 void Request::addRawContent(std::string rawContent)
 {
 	this->rawContent = rawContent;
 	this->requestContent = _splitRawcontent(rawContent);
 	forup(i, 0, requestContent.size())
-		std::cout << requestContent[i] << std::endl;
+					std::cout
+			<< requestContent[i] << std::endl;
+}
+
+void Request::clear()
+{
+
 }
 
 Request::~Request()

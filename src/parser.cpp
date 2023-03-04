@@ -95,9 +95,7 @@ void parser::_serverNameCheck(std::string s, ServerConf &srv)
 {
 	s = std::string(std::find(s.begin(), s.end(), ':') + 1, s.end());
 	_sweep(s);
-	forup(i, 0, s.size())
-		if (!isprint(s[i]))
-			throw std::invalid_argument(SRVNAME_ERROR);
+	forup(i, 0, s.size()) if (!isprint(s[i])) throw std::invalid_argument(SRVNAME_ERROR);
 	srv.setSrvName(s);
 }
 
@@ -165,9 +163,7 @@ void parser::_cmbzCheck(std::string s, ServerConf &srv)
 {
 	s = std::string(std::find(s.begin(), s.end(), ':') + 1, s.end());
 	_sweep(s);
-	forup(i, 0, s.size())
-		if (!isdigit(s[i]))
-			throw std::invalid_argument(CMBZ_ERROR);
+	forup(i, 0, s.size()) if (!isdigit(s[i])) throw std::invalid_argument(CMBZ_ERROR);
 	int cmbz;
 	try
 	{
@@ -190,7 +186,7 @@ void parser::_errorPagesCheck(std::string s, ServerConf &srv)
 		if (tab.size() != 2)
 			throw std::invalid_argument(ERRPAGE_ERROR);
 		_sweep(tab[1]);
-	if (access(tab[1].c_str(), F_OK) == -1)
+		if (access(tab[1].c_str(), F_OK) == -1)
 			throw std::invalid_argument(PATHFRNT_ERROR);
 		srv.addErrPage(std::stoi(tab[0]), tab[1]);
 	}
@@ -254,11 +250,9 @@ void parser::_uploadPathCheck(std::string s, Location &location)
 {
 	s = std::string(std::find(s.begin(), s.end(), ':') + 1, s.end());
 	_sweep(s);
-	forup(i, 0, s.size())
-		if (isspace(s[i]))
-			throw std::invalid_argument(UPLOADPATH_ERROR);
+	forup(i, 0, s.size()) if (isspace(s[i])) throw std::invalid_argument(UPLOADPATH_ERROR);
 	if (access(s.c_str(), F_OK) == -1)
-			throw std::invalid_argument(UPLOADPATH_ERROR);
+		throw std::invalid_argument(UPLOADPATH_ERROR);
 	location.setUploadPath(s);
 }
 
@@ -287,9 +281,7 @@ void parser::_indexCheck(std::string s, Location &location)
 {
 	s = std::string(std::find(s.begin(), s.end(), ':') + 1, s.end());
 	_sweep(s);
-	forup(i, 0, s.size())
-		if (isspace(s[i]))
-			throw std::invalid_argument(UPLOADPATH_ERROR);
+	forup(i, 0, s.size()) if (isspace(s[i])) throw std::invalid_argument(UPLOADPATH_ERROR);
 	location.setIndex(s);
 }
 
@@ -299,9 +291,7 @@ void parser::_cgiCheck(std::string s, Location &location)
 	_sweep(s);
 	if (s.front() != '/')
 		throw std::invalid_argument(CGI_ERROR);
-	forup(i, 0, s.size())
-		if (isspace(s[i]))
-			throw std::invalid_argument(UPLOADPATH_ERROR);
+	forup(i, 0, s.size()) if (isspace(s[i])) throw std::invalid_argument(UPLOADPATH_ERROR);
 	location.setCgi(s);
 }
 
@@ -317,7 +307,7 @@ void parser::_returnCheck(std::string s, Location &location)
 	{
 		r_index = std::stoi(tab[0]);
 	}
-	catch(const std::exception& e)
+	catch (const std::exception &e)
 	{
 		throw std::invalid_argument(RETURN_ERROR);
 	}
@@ -337,7 +327,7 @@ void parser::_redirectionCheck(std::string s, Location &location)
 		r_index = std::stoi(tab[0]);
 		location.setRedirection(r_index, tab[1]);
 	}
-	catch(const std::exception& e)
+	catch (const std::exception &e)
 	{
 		throw std::invalid_argument(RETURN_ERROR);
 	}
@@ -464,7 +454,6 @@ std::vector<ServerConf> parser::_runparser()
 	servers.push_back(ServerConf(srv));
 	return servers;
 }
-
 
 parser::parser(int ac, char **av)
 {

@@ -19,8 +19,10 @@ private:
 	std::vector<char> body;
 	bool valid;
 	bool bodyExist;
+	bool requestChunked;
 	int type;
 	int locationIndex;
+	int bodyLength;
 	std::string url;
 	std::string absoluteUrl;
 	std::string rawContent;
@@ -44,13 +46,20 @@ public:
 
 	// getters
 	bool getValid();
-	bool getBodyExist();
 	int getType();
 	int getLocationIndex();
+	int getBodyLength();
 	std::string getrawContent();
 	std::string getUrl();
 	std::map<std::string, std::string> getHeaders();
 	std::vector<char> getBody();
+
+	//class info
+	bool bodyDoesExist();
+	bool isRequestChunked();
+	bool empty();
+
+	void clear();
 
 	void addRawContent(std::string rawContent);
 	void parse();

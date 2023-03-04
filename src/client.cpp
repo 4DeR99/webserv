@@ -1,15 +1,11 @@
 #include "inc.hpp"
 
 Client::Client()
-		: fd(-1)
-{
-}
+		: fd(-1) {}
 
 Client::Client(int fd, ServerConf &serverconf)
 		: fd(fd),
-			srvconf(serverconf)
-{
-}
+			srvconf(serverconf) {}
 
 Client &Client::operator=(Client const &_2Copy)
 {
@@ -22,21 +18,7 @@ Client &Client::operator=(Client const &_2Copy)
 
 bool Client::requestCompleted()
 {
-	size_t  pos = lowerCaseRawContent.find("content-length: ");
-	if (pos != std::string::npos)
-	{
-		try
-		{
-			std::string sub = lowerCaseRawContent.substr(pos + 15, lowerCaseRawContent.find('\n', pos) - (pos + 15));
-			int contentLen = std::stoi(lowerCaseRawContent);
-		}
-		catch(const std::exception& e)
-		{
-			std::cerr << e.what() << '\n';
-		}
-		
-	}
-	return (rawContent.find("\r\n\r\n") != std::string::npos);
+	return (rawContent.find("\r\n\r\n") != std::string::npos && !request.bodyDoesExist() && !request.isRequestChunked());
 }
 
 void Client::splitRawRequest()
@@ -54,7 +36,7 @@ void Client::move2next()
 {
 	rawContent = remaining;
 	remaining.clear();
-	//! request.clear();
+	request.clear();
 }
 
 void Client::makeRequest()
@@ -73,21 +55,10 @@ void Client::addRawRequest(std::string &buffer)
 	}
 }
 
-int Client::getFd()
-{
-	return fd;
-}
+int Client::getFd() { return fd; }
 
-Request Client::getRequest()
-{
-	return request;
-}
+Request Client::getRequest() { return request; }
 
-std::string Client::getRawContent()
-{
-	return this->rawContent;
-}
+std::string Client::getRawContent() { return this->rawContent; }
 
-Client::~Client()
-{
-}
+Client::~Client() {}

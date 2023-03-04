@@ -3,17 +3,13 @@
 Pollge::Pollge()
 		: end_server(false),
 			compress_array(false),
-			timeout(3 * 60 * 1000)
-{
-}
+			timeout(3 * 60 * 1000) {}
 
 Pollge::Pollge(std::vector<ServerConf> servers)
 		: end_server(false),
 			compress_array(false),
 			timeout(3 * 60 * 1000),
-			servers(servers)
-{
-}
+			servers(servers) {}
 
 void Pollge::_addSd(int sd, int srvIndex)
 {
@@ -99,7 +95,7 @@ void Pollge::_sdAccept(int sd)
 			break;
 		}
 		std::cout << "	New client connected " << std::endl;
-		Client newClient(new_sd, servers[sd2srv[sd]-1]);
+		Client newClient(new_sd, servers[sd2srv[sd] - 1]);
 		memset(&pollfd, 0, sizeof(pollfd));
 		pollfd.fd = new_sd;
 		pollfd.events = POLLIN;
@@ -114,15 +110,17 @@ void Pollge::_sdReceive(struct pollfd &pollfd, bool &close_conn)
 	Client &client = this->clients[pollfd.fd];
 	std::string buff;
 
-	if ((rc = recv(pollfd.fd, this->buffer, sizeof(this->buffer) , 0)) > 0)
+	if ((rc = recv(pollfd.fd, this->buffer, sizeof(this->buffer), 0)) > 0)
 	{
-		forup(i, 0, rc){
+		forup(i, 0, rc)
+		{
 			buff.push_back(this->buffer[i]);
 		}
 		client.addRawRequest(buff);
 		while (client.requestCompleted() && !client.getRawContent().empty())
 		{
-			client.splitRawRequest();
+			if (client.getRequest().empty())
+				client.splitRawRequest();
 			client.makeRequest();
 			client.move2next();
 		}
