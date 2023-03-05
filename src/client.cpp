@@ -32,7 +32,7 @@ void Client::splitRawRequest()
 	this->rawContent = std::string(b, e);
 }
 
-void Client::move2next()
+void Client::nextRequest()
 {
 	rawContent = remaining;
 	remaining.clear();
@@ -46,12 +46,38 @@ void Client::makeRequest()
 	this->request.parse();
 }
 
+
+void Client::addNormalBody()
+{
+	
+}
+
 void Client::addRawRequest(std::string &buffer)
 {
 	this->rawContent += buffer;
-	forup(i, 0, buffer.size())
+	if (request.empty() && rawContent.find("\r\n\r\n") != std::string::npos)
 	{
-		this->lowerCaseRawContent.push_back(tolower(buffer[i]));
+		splitRawRequest();
+		request.addRawContent(rawContent);
+		request.parse();
+		if (!request.bodyDoesExist())
+		{
+			response.generateResponse(request, srvconf);
+			nextRequest();
+		}
+		else
+		{
+			rawContent = remaining;
+			remaining.clear();
+		}
+	}
+	else if (request.isRequestChunked())
+	{
+		addChunkedBody();
+	}
+	else if (request.bodyDoesExist())
+	{
+		addNormalBody();
 	}
 }
 

@@ -8,10 +8,10 @@ class Client
 private:
 	int fd;
 	Request request;
+	Response response;
 	ServerConf srvconf;
 	std::string remaining;
 	std::string rawContent;
-	std::string lowerCaseRawContent;
 
 public:
 	Client();
@@ -27,9 +27,11 @@ public:
 	std::string getRawContent();
 
 	void addRawRequest(std::string &buffer);
+	void addNormalBody();
+	void addChunkedBody();
 	void makeRequest();
 
-	void move2next();
+	void nextRequest();
 };
 
 #endif

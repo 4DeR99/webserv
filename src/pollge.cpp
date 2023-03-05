@@ -117,13 +117,6 @@ void Pollge::_sdReceive(struct pollfd &pollfd, bool &close_conn)
 			buff.push_back(this->buffer[i]);
 		}
 		client.addRawRequest(buff);
-		while (client.requestCompleted() && !client.getRawContent().empty())
-		{
-			if (client.getRequest().empty())
-				client.splitRawRequest();
-			client.makeRequest();
-			client.move2next();
-		}
 	}
 	else if (rc == 0)
 	{

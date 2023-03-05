@@ -49,10 +49,11 @@ void Response::generateBasedOnDirectory(DIR *dir)
 	generatedResponse += "</html>\n";
 }
 
-Response::Response(Request &request, ServerConf &serverconf)
-		: statusCode(0),
-			request(request),
-			srvconf(serverconf) {}
+//! check this later
+// Response::Response(Request &request, ServerConf &serverconf)
+// 		: statusCode(0),
+// 			request(request),
+// 			srvconf(serverconf) {}
 
 void Response::getAction()
 {
@@ -148,8 +149,10 @@ void Response::generateErrorMessage()
 	fs.close();
 }
 
-void Response::generateResponse()
+void Response::generateResponse(Request &request, ServerConf &serverConf)
 {
+	this->request = request;
+	this->srvconf = serverConf;
 	if (!request.getValid())
 		generateReponsetemplate(BAD_REQUEST);
 	else if (request.getType() == GET)

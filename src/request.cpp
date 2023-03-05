@@ -55,22 +55,12 @@ std::vector<std::string> Request::_splitRawcontent(std::string s)
 	return arr;
 }
 
-void Request::_rmBackSpaces(std::string &string)
+void Request::_sweep(std::string &string)
 {
 	while (isspace(string.back()))
 		string.erase(string.end() - 1);
-}
-
-void Request::_rmFrontSpaces(std::string &string)
-{
 	while (isspace(string.front()))
 		string.erase(string.front());
-}
-
-void Request::_sweep(std::string &string)
-{
-	_rmBackSpaces(string);
-	_rmBackSpaces(string);
 }
 
 void Request::_parseUrl(std::string &url)
@@ -129,7 +119,7 @@ void Request::parse()
 	if (valid)
 	{
 		int pause;
-		forup(i, 1, requestContent.size())
+		for (size_t i = 1; i < requestContent.size() && valid; i++)
 		{
 			if (requestContent[i].find(':') == requestContent.size() - 1)
 				valid = false;
@@ -143,10 +133,25 @@ void Request::parse()
 				_sweep(value);
 				if (key == "content-length")
 				{
+					if (requestChunked)
+						valid = false;
 					bodyExist = true;
+					try
+					{
+						bodyLength = std::stoi(value);
+					}
+					catch(std::exception &e)
+					{
+						valid = false;
+					}
 				}
-				if (key == "transfer-encoding" && value == "chunked")
+				else if (key == "transfer-encoding" && value == "chunked")
+				{
+					if (!headers["content-length"].empty())
+						valid = false;
+					bodyExist = true;
 					requestChunked = true;
+				}
 				headers[key] = value;
 			}
 		}

@@ -25,7 +25,7 @@ private:
 
 public:
 	Response();
-	Response(Request &request, ServerConf &serverconf);
+	// Response(Request &request, ServerConf &serverconf);
 	Response &operator=(Response const &_2Copy);
 
 	// error
@@ -44,7 +44,7 @@ public:
 	void deleteAction();
 
 	// main
-	void generateResponse();
+	void generateResponse(Request &request, ServerConf &serverConf);
 
 	// utils to generate reponse
 	void generateReponsetemplate(int statusCode);

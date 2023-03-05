@@ -72,6 +72,8 @@
 
 #define LOCALHOST "127.0.0.1"
 
+#define NGINX_MAX_BDY_SIZE 1048576
+
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
