@@ -55,8 +55,8 @@ void parser::_set_token()
 	lvl2.push_back(&parser::_cgiCheck);
 	_tokens[1].push_back(LVL2_REDIR);
 	lvl2.push_back(&parser::_redirectionCheck);
-	_tokens[1].push_back(LVL2_RETURN);
-	lvl2.push_back(&parser::_returnCheck);
+	// _tokens[1].push_back(LVL2_RETURN);
+	// lvl2.push_back(&parser::_returnCheck);
 }
 
 void parser::_trimString(std::string &s)
@@ -295,24 +295,24 @@ void parser::_cgiCheck(std::string s, Location &location)
 	location.setCgi(s);
 }
 
-void parser::_returnCheck(std::string s, Location &location)
-{
-	s = std::string(std::find(s.begin(), s.end(), ':') + 1, s.end());
-	_sweep(s);
-	int r_index;
-	std::vector<std::string> tab = _split(s, ' ');
-	if (tab.size() != 2)
-		throw std::invalid_argument(RETURN_ERROR);
-	try
-	{
-		r_index = std::stoi(tab[0]);
-	}
-	catch (const std::exception &e)
-	{
-		throw std::invalid_argument(RETURN_ERROR);
-	}
-	location.setReturn(r_index, tab[1]);
-}
+// void parser::_returnCheck(std::string s, Location &location)
+// {
+// 	s = std::string(std::find(s.begin(), s.end(), ':') + 1, s.end());
+// 	_sweep(s);
+// 	int r_index;
+// 	std::vector<std::string> tab = _split(s, ' ');
+// 	if (tab.size() != 2)
+// 		throw std::invalid_argument(RETURN_ERROR);
+// 	try
+// 	{
+// 		r_index = std::stoi(tab[0]);
+// 	}
+// 	catch (const std::exception &e)
+// 	{
+// 		throw std::invalid_argument(RETURN_ERROR);
+// 	}
+// 	location.setReturn(r_index, tab[1]);
+// }
 
 void parser::_redirectionCheck(std::string s, Location &location)
 {
@@ -321,7 +321,7 @@ void parser::_redirectionCheck(std::string s, Location &location)
 	int r_index;
 	std::vector<std::string> tab = _split(s, ' ');
 	if (tab.size() != 2)
-		throw std::invalid_argument(RETURN_ERROR);
+		throw std::invalid_argument(REDIRECTION_ERROR);
 	try
 	{
 		r_index = std::stoi(tab[0]);
@@ -329,7 +329,7 @@ void parser::_redirectionCheck(std::string s, Location &location)
 	}
 	catch (const std::exception &e)
 	{
-		throw std::invalid_argument(RETURN_ERROR);
+		throw std::invalid_argument(REDIRECTION_ERROR);
 	}
 }
 
@@ -402,6 +402,26 @@ std::string parser::_sweep(std::string &s)
 	return s;
 }
 
+void parser::_setDefaultLocationsDetails()
+{
+	forup(i, 0, servers.size())
+	{
+		if (servers[i].getPort().empty())
+			throw std::invalid_argument(PORT_MISSING);
+		if (servers[i].getRoot().empty())
+			throw std::invalid_argument(ROOT_MISSING);
+		forup(j, 0, servers[i].getLocations().size())
+		{
+			if (servers[i].getLocations()[i].getPath().empty())
+				throw std::invalid_argument(PATH_MISSING);
+			if (servers[i].getLocations()[i].getmethods().empty())
+				servers[i].getLocations()[i].getmethods().push_back("GET");
+			if (servers[i].getLocations()[i].getRoot().empty())
+				servers[i].getLocations()[i].getRoot() = servers[i].getRoot();
+		}
+	}
+}
+
 std::vector<ServerConf> parser::_runparser()
 {
 	ServerConf srv;
@@ -452,6 +472,7 @@ std::vector<ServerConf> parser::_runparser()
 		_file_content.push_back(buffer);
 	}
 	servers.push_back(ServerConf(srv));
+	_setDefaultLocationsDetails();
 	return servers;
 }
 

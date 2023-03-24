@@ -4,7 +4,7 @@
 //? exception errors
 #define STOI_ERROR "stoi: no conversion"
 
-#define forup(i, x, y) for (int i = x; i < y; i++)
+#define forup(i, x, y) for (size_t i = x; i < y; i++)
 
 //? config file syntax error
 #define TAB_ERROR "Tab found in file, please run this command:\nexpand -t 2 'yourFileName' 'newFileName'"
@@ -24,7 +24,10 @@
 #define PATH_ERROR "Error: cant have 1 path in multiple locations"
 #define AUTOINDEX_ERROR "Error: autoindex should be only on or off"
 #define ALMETHODS_ERROR "Error: invalid allow methods"
-#define RETURN_ERROR "Error: invalid return configuration"
+// #define RETURN_ERROR "Error: invalid return configuration"
+#define PORT_MISSING "Error: port missing"
+#define ROOT_MISSING "Error: root missing"
+#define PATH_MISSING "Error: path missing on a location"
 #define REDIRECTION_ERROR "Error: invalid redirection configuration"
 #define UPLOADPATH_ERROR "Error: invalid upload path"
 #define ROOT_ERROR "Error: invalid root"

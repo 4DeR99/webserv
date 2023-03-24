@@ -160,7 +160,7 @@ void Request::parse()
 
 std::string Request::getrawContent() { return this->rawContent; }
 
-bool Request::getValid() { return this->valid; }
+bool Request::isValid() { return this->valid; }
 
 int Request::getType() { return this->type; }
 

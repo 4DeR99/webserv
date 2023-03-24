@@ -45,7 +45,7 @@ public:
 	~Request();
 
 	// getters
-	bool getValid();
+	bool isValid();
 	int getType();
 	int getLocationIndex();
 	int getBodyLength();

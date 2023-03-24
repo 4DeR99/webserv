@@ -42,7 +42,9 @@ private:
 	void _indexCheck(std::string s, Location &location);
 	void _cgiCheck(std::string s, Location &location);
 	void _redirectionCheck(std::string s, Location &location);
-	void _returnCheck(std::string s, Location &location);
+	// void _returnCheck(std::string s, Location &location);
+
+	void _setDefaultLocationsDetails();
 
 public:
 	parser(int ac, char **av);

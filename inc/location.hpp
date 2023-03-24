@@ -10,7 +10,7 @@ private:
 	std::string uploadPath;
 	std::string index;
 	std::string cgiInfo;
-	std::string returnPath;
+	// std::string returnPath;
 	std::string redirectionPath;
 	int autoindexCount;
 	int returnNb;

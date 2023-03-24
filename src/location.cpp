@@ -14,7 +14,7 @@ Location &Location::operator=(Location const &_2Copy)
 	this->uploadPath = _2Copy.uploadPath;
 	this->index = _2Copy.index;
 	this->cgiInfo = _2Copy.cgiInfo;
-	this->returnPath = _2Copy.returnPath;
+	// this->returnPath = _2Copy.returnPath;
 	this->redirectionPath = _2Copy.redirectionPath;
 	this->autoindexCount = _2Copy.autoindexCount;
 }
@@ -76,13 +76,13 @@ void Location::setRedirection(int nb, std::string path)
 	this->redirectionPath = path;
 }
 
-void Location::setReturn(int nb, std::string path)
-{
-	if (returnNb != -1)
-		throw std::invalid_argument(DOUBLE_RETURN);
-	this->returnNb = nb;
-	this->returnPath = path;
-}
+// void Location::setReturn(int nb, std::string path)
+// {
+// 	if (returnNb != -1)
+// 		throw std::invalid_argument(DOUBLE_RETURN);
+// 	this->returnNb = nb;
+// 	this->returnPath = path;
+// }
 
 void Location::setCgi(std::string cgi)
 {
@@ -101,7 +101,7 @@ std::string Location::getIndex() { return this->index; }
 
 std::string Location::getCgi() { return this->cgiInfo; }
 
-std::string Location::getReturnPath() { return this->returnPath; }
+// std::string Location::getReturnPath() { return this->returnPath; }
 
 std::string Location::getRedirectionPath() { return this->redirectionPath; }
 
@@ -113,7 +113,7 @@ std::vector<std::string> Location::getmethods() { return this->allowMethods; }
 
 bool Location::empty()
 {
-	return (path.empty() && root.empty() && uploadPath.empty() && index.empty() && cgiInfo.empty() && returnPath.empty() && redirectionPath.empty() && allowMethods.empty() && autoindexCount == -1 && returnNb == -1 && redirectionNb == -1);
+	return (path.empty() && root.empty() && uploadPath.empty() && index.empty() && cgiInfo.empty() && redirectionPath.empty() && allowMethods.empty() && autoindexCount == -1 && returnNb == -1 && redirectionNb == -1);
 }
 
 void Location::clear()
@@ -123,7 +123,7 @@ void Location::clear()
 	uploadPath.clear();
 	index.clear();
 	cgiInfo.clear();
-	returnPath.clear();
+	// returnPath.clear();
 	redirectionPath.clear();
 	allowMethods.clear();
 	autoindexCount = -1;

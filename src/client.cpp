@@ -41,15 +41,17 @@ void Client::nextRequest()
 
 void Client::makeRequest()
 {
-
 	this->request.addRawContent(this->rawContent);
 	this->request.parse();
 }
 
-
 void Client::addNormalBody()
 {
-	
+	size_t i = 0;
+
+	while (i < rawContent.size() && i < request.getBodyLength())
+		request.getBody().push_back(rawContent[i]);
+	rawContent.erase(rawContent.begin(), rawContent.begin() + i);
 }
 
 void Client::addRawRequest(std::string &buffer)
@@ -60,7 +62,7 @@ void Client::addRawRequest(std::string &buffer)
 		splitRawRequest();
 		request.addRawContent(rawContent);
 		request.parse();
-		if (!request.bodyDoesExist())
+		if (!request.isValid() || !request.bodyDoesExist())
 		{
 			response.generateResponse(request, srvconf);
 			nextRequest();

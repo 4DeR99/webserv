@@ -11,7 +11,7 @@ int main(int ac, char **av)
 			servers[i].createSd();
 			servers[i].bindSd();
 			servers[i].listenSd();
-			pollin._addSd(servers[i]._getSd(), i+1);
+			pollin._addSd(servers[i].getSd(), i+1);
 		}
 		pollin._run();
 	}
