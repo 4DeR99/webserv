@@ -139,6 +139,8 @@ void Request::parse()
 					try
 					{
 						bodyLength = std::stoi(value);
+						if (bodyLength > serverConf.getCMBZ())
+							valid = false;
 					}
 					catch(std::exception &e)
 					{

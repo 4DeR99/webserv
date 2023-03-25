@@ -41,8 +41,8 @@ void Response::generateBasedOnDirectory(DIR *dir)
 	generatedResponse += "<body >\n";
 	for (size_t i = 0; i < dirItems.size(); i++)
 	{
-		generatedResponse += "\t<a href=\"" + '/' + split;
-		generatedResponse += "\">" + dirItems[i] + "</a>"
+		generatedResponse += "\t<a href=\"./" + dirItems[i];
+		generatedResponse += "\">" + dirItems[i] + "</a>";
 	}
 
 	generatedResponse += "</body>\n\n";
@@ -153,7 +153,7 @@ void Response::generateResponse(Request &request, ServerConf &serverConf)
 {
 	this->request = request;
 	this->srvconf = serverConf;
-	if (!request.getValid())
+	if (!request.isValid())
 		generateReponsetemplate(BAD_REQUEST);
 	else if (request.getType() == GET)
 		getAction();

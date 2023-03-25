@@ -32,8 +32,6 @@ private:
 	void _parseMethod();
 	void _parseUrl(std::string &url);
 	void _sweep(std::string &string);
-	void _rmBackSpaces(std::string &string);
-	void _rmFrontSpaces(std::string &string);
 	std::vector<std::string> _split(std::string s, char c);
 	std::vector<std::string> _splitRawcontent(std::string s);
 
@@ -54,8 +52,12 @@ public:
 	std::map<std::string, std::string> getHeaders();
 	std::vector<char> getBody();
 
-	//class info
-	bool bodyDoesExist();
+	// setters
+	void setValidity(bool validity);
+
+	// class info
+	bool
+	bodyDoesExist();
 	bool isRequestChunked();
 	bool empty();
 

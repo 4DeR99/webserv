@@ -18,7 +18,7 @@ public:
 	Pollge();
 	Pollge(std::vector<ServerConf>);
 	~Pollge();
-	 
+
 	void _addSd(int sd, int srvIndex);
 	void _run();
 	void _sdAccept(int sd);

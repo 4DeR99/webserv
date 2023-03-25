@@ -65,7 +65,7 @@
 #define LVL2_UPLOAD "upload_path"
 #define LVL2_AUTOINDEX "autoindex"
 #define LVL2_INDEX "index"
-#define LVL2_CGI "fastcgi_pass"
+#define LVL2_CGI "cgi_info"
 #define LVL2_REDIR "redirection"
 #define LVL2_RETURN "return"
 
@@ -75,7 +75,7 @@
 
 #define LOCALHOST "127.0.0.1"
 
-#define NGINX_MAX_BDY_SIZE 1048576
+#define NGINX_MAX_BODY_SIZE 1048576
 
 #include <iostream>
 #include <stdio.h>

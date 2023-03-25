@@ -7,6 +7,7 @@ class Client
 {
 private:
 	int fd;
+	size_t chunkSize;
 	Request request;
 	Response response;
 	ServerConf srvconf;
