@@ -150,21 +150,39 @@ void Response::generateErrorMessage()
 	fs.close();
 }
 
+void Response::_generateBasicGetResponse()
+{
+	std::fstream fs("www/index.html");
+	std::string fileContent;
+	std::string buff;
+	while (getline(fs, buff, '\n'))
+	{
+		fileContent += buff;
+		fileContent += "\r\n";
+	}
+	this->generatedResponse = "HTTP/1.1 200 OK\r\n";
+	this->generatedResponse += "Content-Type: text/html\r\n";
+	this->generatedResponse += "Content-Length: " + std::to_string(fileContent.size()) + "\r\n";
+	this->generatedResponse += "Connection: keep-alive\r\n";
+	this->generatedResponse += "\r\n";
+	this->generatedResponse += fileContent;
+}
 void Response::generateResponse(Request &request, ServerConf &serverConf)
 {
 	this->request = request;
 	this->srvconf = serverConf;
-	if (!request.isValid())
-		generateReponsetemplate(BAD_REQUEST);
-	else if (request.getType() == GET)
-		getAction();
-	else if (request.getType() == POST)
-		postAction();
-	else if (request.getType() == DELETE)
-		deleteAction();
-	if (statusCode > 200)
-		generateErrorMessage();
-	generatedResponse += "\r\n";
+	_generateBasicGetResponse();
+	// if (!request.isValid())
+	// 	generateReponsetemplate(BAD_REQUEST);
+	// else if (request.getType() == GET)
+	// 	getAction();
+	// else if (request.getType() == POST)
+	// 	postAction();
+	// else if (request.getType() == DELETE)
+	// 	deleteAction();
+	// if (statusCode > 200)
+	// 	generateErrorMessage();
+	// generatedResponse += "\r\n";
 }
 
 std::vector<std::string> Response::_split(std::string s, char c)
@@ -232,5 +250,7 @@ void Response::generateReponsetemplate(int statusCode)
 	generatedResponse += getContentTypeString() + "\r\n";
 	// generatedResponse += "Content-Length " + std::to_string(fileContent.size()) + "\r\n";
 }
+
+std::string Response::getGeneratedResponse() { return generatedResponse; }
 
 Response::~Response() {}

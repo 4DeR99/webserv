@@ -22,6 +22,7 @@ private:
 
 	// private functions
 	std::vector<std::string> _split(std::string s, char c);
+	void _generateBasicGetResponse();
 
 public:
 	Response();
@@ -51,6 +52,7 @@ public:
 	std::string getMessage(int statusCode);
 	std::string getContentTypeString();
 	std::string getContentType(std::string &extention);
+	std::string getGeneratedResponse();
 
 	~Response();
 };

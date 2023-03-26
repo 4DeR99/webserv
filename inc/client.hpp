@@ -26,6 +26,7 @@ public:
 	int getFd();
 	Request getRequest();
 	std::string getRawContent();
+	Response getResponse();
 
 	void addRawRequest(std::string buffer);
 	void addNormalBody();

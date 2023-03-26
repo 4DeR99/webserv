@@ -103,6 +103,7 @@ void Client::addRawRequest(std::string buffer)
 		splitRawRequest();
 		request.addRawContent(rawContent);
 		request.parse();
+		this->rawContent.erase(this->rawContent.begin(), this->rawContent.begin() + this->rawContent.find("\r\n\r\n") + 4);
 		if (!request.isValid() || !request.bodyDoesExist())
 		{
 			response.generateResponse(request, srvconf);
@@ -116,23 +117,21 @@ void Client::addRawRequest(std::string buffer)
 	}
 	if (request.isRequestChunked())
 	{
+		addChunkedBody();
 		if (chunkSize == 0)
 		{
 			response.generateResponse(request, srvconf);
-			addRawRequest("");
 			return ;
 		}
-		addChunkedBody();
 	}
 	if (request.bodyDoesExist())
 	{
+		addNormalBody();
 		if ((int)request.getBody().size() == request.getBodyLength())
 		{
 			response.generateResponse(request, srvconf);
-			addRawRequest("");
 			return ;
 		}
-		addNormalBody();
 	}
 }
 
@@ -141,5 +140,7 @@ int Client::getFd() { return fd; }
 Request Client::getRequest() { return request; }
 
 std::string Client::getRawContent() { return this->rawContent; }
+
+Response Client::getResponse() { return this->response; }
 
 Client::~Client() {}

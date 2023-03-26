@@ -60,7 +60,7 @@ void Request::_sweep(std::string &string)
 	while (isspace(string.back()))
 		string.erase(string.end() - 1);
 	while (isspace(string.front()))
-		string.erase(string.front());
+		string.erase(string.begin());
 }
 
 void Request::_parseUrl(std::string &url)
@@ -187,9 +187,6 @@ void Request::addRawContent(std::string rawContent)
 {
 	this->rawContent = rawContent;
 	this->requestContent = _splitRawcontent(rawContent);
-	forup(i, 0, requestContent.size())
-					std::cout
-			<< requestContent[i] << std::endl;
 }
 
 void Request::clear()

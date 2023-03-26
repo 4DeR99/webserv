@@ -117,7 +117,22 @@ void Pollge::_sdReceive(struct pollfd &pollfd, bool &close_conn)
 		{
 			buff.push_back(this->buffer[i]);
 		}
-		client.addRawRequest(buff);
+		try{
+			client.addRawRequest(buff);
+			size_t size = client.getResponse().getGeneratedResponse().size();
+			rc = send(pollfd.fd, client.getResponse().getGeneratedResponse().c_str(), size, 0);
+			if (rc < 0)
+			{
+				std::cerr << "  send() failed" << std::endl;
+				close_conn = true;
+			}
+		}
+		catch (std::exception &e)
+		{
+			std::cout << "Error: ";
+			std::cerr << e.what() << std::endl;
+			close_conn = true;
+		}
 	}
 	else if (rc == 0)
 	{
