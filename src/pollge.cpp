@@ -1,14 +1,14 @@
-#include "inc.hpp"
+#include "Inc.hpp"
 
 Pollge::Pollge()
-		: end_server(false),
-			compress_array(false),
-			timeout(3 * 60 * 1000) {}
+		: timeout(3 * 60 * 1000),
+			end_server(false),
+			compress_array(false) {}
 
 Pollge::Pollge(std::vector<ServerConf> servers)
-		: end_server(false),
+		: timeout(3 * 60 * 1000),
+			end_server(false),
 			compress_array(false),
-			timeout(3 * 60 * 1000),
 			servers(servers) {}
 
 void Pollge::_addSd(int sd, int srvIndex)
@@ -23,7 +23,8 @@ void Pollge::_addSd(int sd, int srvIndex)
 
 void Pollge::_run()
 {
-	int rc, current_size;
+	int rc;
+	size_t current_size;
 	bool close_conn;
 	std::cout << "begin" << std::endl;
 	while (this->end_server == false)
@@ -106,13 +107,13 @@ void Pollge::_sdAccept(int sd)
 
 void Pollge::_sdReceive(struct pollfd &pollfd, bool &close_conn)
 {
-	int rc, len;
+	int rc;
 	Client &client = this->clients[pollfd.fd];
 	std::string buff;
 
 	if ((rc = recv(pollfd.fd, this->buffer, sizeof(this->buffer), 0)) > 0)
 	{
-		forup(i, 0, rc)
+		forup(i, 0, (size_t)rc)
 		{
 			buff.push_back(this->buffer[i]);
 		}

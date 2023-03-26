@@ -1,4 +1,4 @@
-#include "inc.hpp"
+#include "Inc.hpp"
 
 ServerConf::ServerConf()
 		: clientMaxBodySize(-1),

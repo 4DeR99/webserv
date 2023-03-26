@@ -1,6 +1,6 @@
 #ifndef __POLLGE_HPP__
 #define __POLLGE_HPP__
-#include "inc.hpp"
+#include "Inc.hpp"
 
 class Pollge
 {

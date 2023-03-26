@@ -1,14 +1,14 @@
 #ifndef __PARSER_HPP__
 #define __PARSER_HPP__
-#include "inc.hpp"
+#include "Inc.hpp"
 
 class parser
 {
 private:
-	typedef void(parser::*lvl1_fncPtr)(std::string, ServerConf&);
-	typedef void(parser::*lvl2_fncPtr)(std::string, Location&);
+	typedef void (parser::*lvl1_fncPtr)(std::string, ServerConf &);
+	typedef void (parser::*lvl2_fncPtr)(std::string, Location &);
 	std::string _filename;
-	std::string	buffer;
+	std::string buffer;
 	std::ifstream input;
 	std::vector<ServerConf> servers;
 	std::vector<std::string> _tokens[2];
@@ -16,7 +16,6 @@ private:
 	std::vector<parser::lvl2_fncPtr> lvl2;
 	std::vector<std::string> _file_content;
 	std::map<std::string, int> used_path;
-	int serv_count;
 	void _argsparser(int ac, char **av);
 	void _set_token();
 	void _trimString(std::string &s);

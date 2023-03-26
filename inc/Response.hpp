@@ -1,7 +1,7 @@
 #ifndef __RESPONSE_HPP__
 #define __RESPONSE_HPP__
 
-#include "inc.hpp"
+#include "Inc.hpp"
 
 enum StatusCode
 {

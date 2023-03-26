@@ -1,7 +1,7 @@
 #ifndef __REQUEST_HPP__
 #define __REQUEST_HPP__
 
-#include "inc.hpp"
+#include "Inc.hpp"
 #define NO_LOCATION -1
 
 enum request_type

@@ -1,6 +1,6 @@
 #ifndef __SERVERCONF_HPP__
 #define __SERVERCONF_HPP__
-#include "inc.hpp"
+#include "Inc.hpp"
 
 class ServerConf
 {

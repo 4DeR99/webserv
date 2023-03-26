@@ -1,4 +1,4 @@
-#include "inc.hpp"
+#include "Inc.hpp"
 
 Location::Location()
 		: autoindexCount(-1),
@@ -17,6 +17,7 @@ Location &Location::operator=(Location const &_2Copy)
 	// this->returnPath = _2Copy.returnPath;
 	this->redirectionPath = _2Copy.redirectionPath;
 	this->autoindexCount = _2Copy.autoindexCount;
+	return *this;
 }
 
 Location::~Location()

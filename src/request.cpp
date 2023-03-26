@@ -1,21 +1,21 @@
-#include "inc.hpp"
+#include "Inc.hpp"
 
 Request::Request()
 		: valid(true),
+			bodyExist(false),
+			requestChunked(false),
 			type(UNKNOWN),
 			locationIndex(NO_LOCATION),
-			bodyLength(0),
-			bodyExist(false),
-			requestChunked(false) {}
+			bodyLength(0) {}
 
 Request::Request(ServerConf &serverConf)
 		: valid(true),
+			bodyExist(false),
+			requestChunked(false),
 			type(UNKNOWN),
-			serverConf(serverConf),
 			locationIndex(NO_LOCATION),
 			bodyLength(0),
-			bodyExist(false),
-			requestChunked(false) {}
+			serverConf(serverConf) {}
 
 Request::Request(Request const &_2Copy) { this->operator=(_2Copy); }
 
@@ -118,7 +118,6 @@ void Request::parse()
 	_parseMethod();
 	if (valid)
 	{
-		int pause;
 		for (size_t i = 1; i < requestContent.size() && valid; i++)
 		{
 			if (requestContent[i].find(':') == requestContent.size() - 1)
@@ -142,7 +141,7 @@ void Request::parse()
 						if (bodyLength > serverConf.getCMBZ())
 							valid = false;
 					}
-					catch(std::exception &e)
+					catch (std::exception &e)
 					{
 						valid = false;
 					}
@@ -159,6 +158,8 @@ void Request::parse()
 		}
 	}
 }
+
+void Request::setValidity(bool validity) { this->valid = validity; }
 
 std::string Request::getrawContent() { return this->rawContent; }
 
@@ -193,7 +194,6 @@ void Request::addRawContent(std::string rawContent)
 
 void Request::clear()
 {
-
 }
 
 Request::~Request()

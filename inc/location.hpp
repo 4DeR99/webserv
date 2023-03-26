@@ -1,6 +1,6 @@
 #ifndef __LOCATION_HPP__
 #define __LOCATION_HPP__
-#include "inc.hpp"
+#include "Inc.hpp"
 
 class Location
 {

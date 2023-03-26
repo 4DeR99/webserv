@@ -1,4 +1,4 @@
-#include "inc.hpp"
+#include "Inc.hpp"
 
 std::vector<std::string> parser::_split(std::string s, char c)
 {
@@ -195,6 +195,7 @@ void parser::_errorPagesCheck(std::string s, ServerConf &srv)
 void parser::_locationCheck(std::string s, ServerConf &srv)
 {
 	_sweep(s);
+	(void)srv;
 	std::vector<std::string> tab = _split(s, ':');
 	if (tab.size() != 1 || s.back() != ':')
 		throw std::invalid_argument(LOCATION_ERROR);

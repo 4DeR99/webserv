@@ -1,4 +1,4 @@
-#include "inc.hpp"
+#include "Inc.hpp"
 
 Client::Client()
 		: fd(-1),
@@ -6,8 +6,8 @@ Client::Client()
 
 Client::Client(int fd, ServerConf &serverconf)
 		: fd(fd),
-			srvconf(serverconf),
-			chunkSize(-1) {}
+			chunkSize(-1),
+			srvconf(serverconf) {}
 
 Client &Client::operator=(Client const &_2Copy)
 {
@@ -67,10 +67,22 @@ void Client::addChunkedBody()
 				request.setValidity(false);
 			}
 		}
+		else if (chunkSize < 0)
+			request.setValidity(false);
 		else if (chunkSize > 0)
 		{
-			
+			rawBody = rawContent.substr(0, rawContent.find('\n'));
+			rawContent.erase(rawContent.begin(), rawContent.begin() + rawBody.size());
+			if ((int)rawBody.size() != chunkSize)
+			{
+				request.setValidity(false);
+				return ;
+			}
+			forup(i, 0, rawContent.size())
+				request.getBody().push_back(rawBody[i]);
 		}
+		else
+			return ;
 	}
 }
 
@@ -78,12 +90,12 @@ void Client::addNormalBody()
 {
 	size_t i = 0;
 
-	while (i < rawContent.size() && request.getBody().size() < request.getBodyLength())
+	while (i < rawContent.size() && (int)request.getBody().size() < request.getBodyLength())
 		request.getBody().push_back(rawContent[i++]);
 	rawContent.erase(rawContent.begin(), rawContent.begin() + i);
 }
 
-void Client::addRawRequest(std::string &buffer)
+void Client::addRawRequest(std::string buffer)
 {
 	this->rawContent += buffer;
 	if (request.empty() && rawContent.find("\r\n\r\n") != std::string::npos)
@@ -104,13 +116,23 @@ void Client::addRawRequest(std::string &buffer)
 	}
 	if (request.isRequestChunked())
 	{
+		if (chunkSize == 0)
+		{
+			response.generateResponse(request, srvconf);
+			addRawRequest("");
+			return ;
+		}
 		addChunkedBody();
 	}
 	if (request.bodyDoesExist())
 	{
-		addNormalBody();
-		if (request.getBody().size() < request.getBodyLength())
+		if ((int)request.getBody().size() == request.getBodyLength())
+		{
 			response.generateResponse(request, srvconf);
+			addRawRequest("");
+			return ;
+		}
+		addNormalBody();
 	}
 }
 

@@ -1,4 +1,4 @@
-#include "inc.hpp"
+#include "Inc.hpp"
 
 Response::Response()
 		: statusCode(0) {}
@@ -117,6 +117,7 @@ void Response::deleteAction()
 
 void Response::generateFileError(std::fstream &fs)
 {
+	(void)fs;
 	if (errno == ENOENT)
 		generateReponsetemplate(NOT_FOUND);
 	else if (errno == EACCES)
@@ -229,7 +230,7 @@ void Response::generateReponsetemplate(int statusCode)
 	this->statusCode = statusCode;
 	generatedResponse += "HTTP/1.1 " + std::to_string(statusCode) + " " + getMessage(statusCode) + "\r\n";
 	generatedResponse += getContentTypeString() + "\r\n";
-	generatedResponse += "Content-Length " + std::to_string(fileContent.size()) + "\r\n";
+	// generatedResponse += "Content-Length " + std::to_string(fileContent.size()) + "\r\n";
 }
 
 Response::~Response() {}

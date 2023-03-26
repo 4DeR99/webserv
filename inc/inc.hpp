@@ -102,13 +102,12 @@
 #include <cstdlib>
 #include <dirent.h>
 
-#include "location.hpp"
+#include "Location.hpp"
 #include "Serverconf.hpp"
-#include "parser.hpp"
-#include "request.hpp"
-#include "server.hpp"
-#include "client.hpp"
+#include "Parser.hpp"
+#include "Request.hpp"
 #include "Response.hpp"
-#include "pollge.hpp"
+#include "Client.hpp"
+#include "Pollge.hpp"
 
 #endif

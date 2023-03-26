@@ -1,13 +1,13 @@
 #ifndef __CLIENT_HPP__
 #define __CLIENT_HPP__
 
-#include "inc.hpp"
+#include "Inc.hpp"
 
 class Client
 {
 private:
 	int fd;
-	size_t chunkSize;
+	int chunkSize;
 	Request request;
 	Response response;
 	ServerConf srvconf;
@@ -27,7 +27,7 @@ public:
 	Request getRequest();
 	std::string getRawContent();
 
-	void addRawRequest(std::string &buffer);
+	void addRawRequest(std::string buffer);
 	void addNormalBody();
 	void addChunkedBody();
 	void makeRequest();
