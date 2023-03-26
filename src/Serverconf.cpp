@@ -32,49 +32,49 @@ ServerConf &ServerConf::operator=(ServerConf const &_2Copy)
 
 void ServerConf::setPort(std::string port)
 {
-	if (!port.empty())
+	if (!this->port.empty())
 		throw std::invalid_argument(DOUBLE_PORT);
 	this->port = port;
 }
 
 void ServerConf::setHost(std::string host)
 {
-	if (!host.empty())
+	if (!this->host.empty())
 		throw std::invalid_argument(DOUBLE_HOST);
 	this->host = host;
 }
 
 void ServerConf::setRoot(std::string root)
 {
-	if (!root.empty())
+	if (!this->root.empty())
 		throw std::invalid_argument(DOUBLE_ROOT);
 	this->root = root;
 }
 
 void ServerConf::setSrvName(std::string srvname)
 {
-	if (!serverName.empty())
+	if (!this->serverName.empty())
 		throw std::invalid_argument(DOUBLE_SRVNAME);
 	this->serverName = srvname;
 }
 
 void ServerConf::addErrPage(int nb, std::string path)
 {
-	if (!errorPage[nb].empty())
+	if (!this->errorPage[nb].empty())
 		throw std::invalid_argument(DOUBLE_ERRPAGE);
 	errorPage[nb] = path;
 }
 
 void ServerConf::setCMBZ(int CMBZ)
 {
-	if (clientMaxBodySize != -1)
+	if (this->clientMaxBodySize != -1)
 		throw std::invalid_argument(DOUBLE_CMBZ);
 	clientMaxBodySize = CMBZ;
 }
 
 void ServerConf::addLocation(Location location)
 {
-	if (locationsPath[location.getPath()])
+	if (this->locationsPath[location.getPath()])
 		throw std::invalid_argument(DOUBLE_LOCATION_PATH);
 	locations.push_back(location);
 	locationsPath[location.getPath()]++;

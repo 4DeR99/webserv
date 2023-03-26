@@ -32,6 +32,6 @@ clean :
 	@rm -rf $(OBJ_DIR)
 
 fclean : clean
-	@rm-rf $(NAME)
+	@rm -rf $(NAME)
 
 re : fclean all

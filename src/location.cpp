@@ -28,35 +28,35 @@ Location::~Location()
 
 void Location::setPath(std::string path)
 {
-	if (!path.empty())
+	if (!this->path.empty())
 		throw std::invalid_argument(DOUBLE_PATH);
 	this->path = path;
 }
 
 void Location::setRoot(std::string root)
 {
-	if (!root.empty())
+	if (!this->root.empty())
 		throw std::invalid_argument(DOUBLE_ROOT);
 	this->root = root;
 }
 
 void Location::setUploadPath(std::string uploadPath)
 {
-	if (!uploadPath.empty())
+	if (!this->uploadPath.empty())
 		throw std::invalid_argument(DOUBLE_UPLOADPATH);
 	this->uploadPath = uploadPath;
 }
 
 void Location::setIndex(std::string index)
 {
-	if (!index.empty())
+	if (!this->index.empty())
 		throw std::invalid_argument(DOUBLE_INDEX);
 	this->index = index;
 }
 
 void Location::setAutoIndex(bool status)
 {
-	if (autoindexCount != -1)
+	if (this->autoindexCount != -1)
 		throw std::invalid_argument(DOUBLE_AUTOINDEX);
 	this->autoindexCount++;
 	this->autoindex = status;
@@ -64,14 +64,14 @@ void Location::setAutoIndex(bool status)
 
 void Location::setAllowMethods(std::vector<std::string> methods)
 {
-	if (!allowMethods.empty())
+	if (!this->allowMethods.empty())
 		throw std::invalid_argument(DOUBLE_ALLOWMETHODS);
 	this->allowMethods = methods;
 }
 
 void Location::setRedirection(int nb, std::string path)
 {
-	if (redirectionNb != -1)
+	if (this->redirectionNb != -1)
 		throw std::invalid_argument(DOUBLE_REDIRECTION);
 	this->redirectionNb = nb;
 	this->redirectionPath = path;
@@ -87,7 +87,7 @@ void Location::setRedirection(int nb, std::string path)
 
 void Location::setCgi(std::string cgi)
 {
-	if (!cgiInfo.empty())
+	if (!this->cgiInfo.empty())
 		throw std::invalid_argument(DOUBLE_CGI);
 	cgiInfo = cgi;
 }
