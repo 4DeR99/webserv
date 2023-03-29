@@ -8,7 +8,7 @@ private:
 	int timeout;
 	bool end_server;
 	bool compress_array;
-	char buffer[80];
+	char buffer[1000];
 	std::vector<struct pollfd> fds;
 	std::map<int, int> sd2srv;
 	std::map<int, Client> clients;

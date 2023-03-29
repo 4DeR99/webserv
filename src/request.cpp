@@ -65,14 +65,17 @@ void Request::_sweep(std::string &string)
 
 void Request::_parseUrl(std::string &url)
 {
-	size_t pos = 0;
+	size_t pos = url.find('/');
 	std::string holder;
 	std::vector<Location> locations;
 
 	if (valid)
 	{
 		if (url.front() != '/' || url.find("/../") != std::string::npos)
+		{
 			valid = false;
+			return;
+		}
 		locations = serverConf.getLocations();
 		while (pos != std::string::npos)
 		{
@@ -111,6 +114,7 @@ void Request::_parseMethod()
 	_parseUrl(tab[1]);
 	if (valid && tab[2] != "HTTP/1.1")
 		valid = false;
+	_parseUrl(tab[1]);
 }
 
 void Request::parse()

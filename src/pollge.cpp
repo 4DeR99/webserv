@@ -120,11 +120,14 @@ void Pollge::_sdReceive(struct pollfd &pollfd, bool &close_conn)
 		try{
 			client.addRawRequest(buff);
 			size_t size = client.getResponse().getGeneratedResponse().size();
-			rc = send(pollfd.fd, client.getResponse().getGeneratedResponse().c_str(), size, 0);
-			if (rc < 0)
+			if (size)
 			{
-				std::cerr << "  send() failed" << std::endl;
-				close_conn = true;
+				rc = send(pollfd.fd, client.getResponse().getGeneratedResponse().c_str(), size, 0);
+				if (rc < 0)
+				{
+					std::cerr << "  send() failed" << std::endl;
+					close_conn = true;
+				}
 			}
 		}
 		catch (std::exception &e)
@@ -136,17 +139,13 @@ void Pollge::_sdReceive(struct pollfd &pollfd, bool &close_conn)
 	}
 	else if (rc == 0)
 	{
-		client.makeRequest();
 		std::cout << " Connection closed" << std::endl;
 		close_conn = true;
 	}
-	else
+	else if (rc == -1 || this->buffer[0] == '\0')
 	{
-		if (errno != EWOULDBLOCK)
-		{
-			std::cerr << " recv() failed" << std::endl;
-			close_conn = true;
-		}
+		std::cerr << " recv() failed" << std::endl;
+		close_conn = true;
 	}
 }
 

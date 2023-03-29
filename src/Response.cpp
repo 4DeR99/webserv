@@ -163,7 +163,7 @@ void Response::_generateBasicGetResponse()
 	this->generatedResponse = "HTTP/1.1 200 OK\r\n";
 	this->generatedResponse += "Content-Type: text/html\r\n";
 	this->generatedResponse += "Content-Length: " + std::to_string(fileContent.size()) + "\r\n";
-	this->generatedResponse += "Connection: keep-alive\r\n";
+	this->generatedResponse += "Connection: keep-alive\r\n ";
 	this->generatedResponse += "\r\n";
 	this->generatedResponse += fileContent;
 }
