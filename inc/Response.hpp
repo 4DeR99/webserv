@@ -7,9 +7,11 @@ enum StatusCode
 {
 	OK = 200,
 	BAD_REQUEST = 400,
-	UNAUTHORIZED = 401,
+	FORBIDDEN = 403,
 	NOT_FOUND = 404,
-	INTERNAL_SERVER_ERROR = 500
+	NOT_ALLOWED = 405,
+	INTERNAL_SERVER_ERROR = 500,
+	CGI = 600
 };
 
 class Response
@@ -19,6 +21,7 @@ private:
 	Request request;
 	ServerConf srvconf;
 	std::string generatedResponse;
+	std::string generatedBody;
 
 	// private functions
 	std::vector<std::string> _split(std::string s, char c);
@@ -48,11 +51,14 @@ public:
 	void generateResponse(Request &request, ServerConf &serverConf);
 
 	// utils to generate reponse
-	void generateReponsetemplate(int statusCode);
+	void generateResponsetemplate();
 	std::string getMessage(int statusCode);
 	std::string getContentTypeString();
 	std::string getContentType(std::string &extention);
 	std::string getGeneratedResponse();
+	std::string getBody();
+
+	void clear();
 
 	~Response();
 };

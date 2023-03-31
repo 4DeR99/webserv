@@ -4,10 +4,6 @@ ServerConf::ServerConf()
 		: clientMaxBodySize(-1),
 			sd(-1)
 {
-	defaultErrPage[400] = "./defaultErrorPages/400.html";
-	defaultErrPage[401] = "./defaultErrorPages/401.html";
-	defaultErrPage[404] = "./defaultErrorPages/404.html";
-	defaultErrPage[500] = "./defaultErrorPages/500.html";
 }
 
 ServerConf::ServerConf(ServerConf const &_2Copy)
@@ -80,56 +76,12 @@ void ServerConf::addLocation(Location location)
 	locationsPath[location.getPath()]++;
 }
 
-std::string ServerConf::getPort()
-{
-	return port;
-}
-
-std::string ServerConf::getSrvname()
-{
-	return serverName;
-}
-
-std::string ServerConf::getRoot()
-{
-	return root;
-}
-
-int ServerConf::getCMBZ()
-{
-	return clientMaxBodySize;
-}
-
-std::string ServerConf::getHost()
-{
-	return host;
-}
-
-std::map<int, std::string> ServerConf::getErr_page()
-{
-	return errorPage;
-}
-
-std::map<int, std::string> ServerConf::getDefaultErrPage()
-{
-	return defaultErrPage;
-}
-
-std::vector<Location> ServerConf::getLocations()
-{
-	return locations;
-}
-
-int ServerConf::getSd()
-{
-	return sd;
-}
-
 Location ServerConf::getLocation(int index)
 {
+	if (index < 0 || index >= (int)locations.size())
+		throw std::invalid_argument("Ivalid index");
 	return locations[index];
 }
-
 
 void ServerConf::createSd()
 {
@@ -189,6 +141,22 @@ void ServerConf::listenSd()
 		throw std::runtime_error("listen() failed");
 	}
 }
+
+std::string ServerConf::getPort() { return port; }
+
+std::string ServerConf::getSrvname() { return serverName; }
+
+std::string ServerConf::getRoot() { return root; }
+
+int ServerConf::getCMBZ() { return clientMaxBodySize; }
+
+std::string ServerConf::getHost() { return host; }
+
+std::map<int, std::string> ServerConf::getErr_page() { return errorPage; }
+
+std::vector<Location> ServerConf::getLocations() { return locations; }
+
+int ServerConf::getSd() { return sd; }
 
 void ServerConf::clear()
 {

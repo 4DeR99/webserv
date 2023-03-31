@@ -3,6 +3,39 @@
 Response::Response()
 		: statusCode(0) {}
 
+//! check this later
+// Response::Response(Request &request, ServerConf &serverconf)
+// 		: statusCode(0),
+// 			request(request),
+// 			srvconf(serverconf) {}
+
+std::vector<std::string> Response::_split(std::string s, char c)
+{
+	std::string buff;
+	std::stringstream str_str(s);
+	std::vector<std::string> arr;
+	while (getline(str_str, buff, c))
+		arr.push_back(buff);
+	return arr;
+}
+
+void Response::_generateBasicGetResponse()
+{
+	std::fstream fs("www/index.html");
+	std::string fileContent;
+	std::string buff;
+	while (getline(fs, buff, '\n'))
+	{
+		fileContent += buff;
+		fileContent += "\r\n";
+	}
+	this->generatedResponse = "HTTP/1.1 200 OK\r\n";
+	this->generatedResponse += "Content-Type: text/html\r\n";
+	this->generatedResponse += "Content-Length: " + std::to_string(fileContent.size()) + "\r\n";
+	this->generatedResponse += "\r\n";
+	this->generatedResponse += fileContent;
+}
+
 std::vector<std::string> Response::listDirectory(DIR *dir)
 {
 	std::vector<std::string> dirItems;
@@ -28,32 +61,37 @@ void Response::generateBasedOnDirectory(DIR *dir)
 	std::vector<std::string> dirItems;
 
 	dirItems = listDirectory(dir);
-	generatedResponse += "<!DOCTYPE html>\n";
-	generatedResponse += "<html lang=\"en\">\n\n";
-	generatedResponse += "<head>\n";
-	generatedResponse += "\t<meta charset=\"UTF-8\">\n";
-	generatedResponse += "\t<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n";
-	generatedResponse += "\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n";
-	generatedResponse += "\t<meta charset=\"UTF-8\">\n";
-	generatedResponse += "\t<title>" + request.getUrl() + "</title>\n";
-	generatedResponse += "</head>\n";
+	generatedBody += "<!DOCTYPE html>\n";
+	generatedBody += "<html lang=\"en\">\n\n";
+	generatedBody += "<head>\n";
+	generatedBody += "\t<meta charset=\"UTF-8\">\n";
+	generatedBody += "\t<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n";
+	generatedBody += "\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n";
+	generatedBody += "\t<meta charset=\"UTF-8\">\n";
+	generatedBody += "\t<title>" + request.getUrl() + "</title>\n";
+	generatedBody += "</head>\n";
 
-	generatedResponse += "<body >\n";
+	generatedBody += "<body >\n";
 	for (size_t i = 0; i < dirItems.size(); i++)
 	{
-		generatedResponse += "\t<a href=\"./" + dirItems[i];
-		generatedResponse += "\">" + dirItems[i] + "</a>";
+		generatedBody += "\t<a href=\"./" + dirItems[i];
+		generatedBody += "\">" + dirItems[i] + "</a>";
 	}
 
-	generatedResponse += "</body>\n\n";
-	generatedResponse += "</html>\n";
+	generatedBody += "</body>\n\n";
+	generatedBody += "</html>\n";
 }
 
-//! check this later
-// Response::Response(Request &request, ServerConf &serverconf)
-// 		: statusCode(0),
-// 			request(request),
-// 			srvconf(serverconf) {}
+void Response::generateFileError(std::fstream &fs)
+{
+	(void)fs;
+	if (errno == ENOENT)
+		this->statusCode = NOT_FOUND;
+	else if (errno == EACCES)
+		this->statusCode = FORBIDDEN;
+	else
+		this->statusCode = INTERNAL_SERVER_ERROR;
+}
 
 void Response::getAction()
 {
@@ -66,7 +104,13 @@ void Response::getAction()
 	}
 	catch (const std::exception &e)
 	{
-		generateReponsetemplate(NOT_FOUND);
+		this->statusCode = NOT_FOUND;
+		return;
+	}
+
+	if (find(location.getMethods().begin(), location.getMethods().end(), "GET") == location.getMethods().end())
+	{
+		this->statusCode = NOT_ALLOWED;
 		return;
 	}
 
@@ -77,7 +121,7 @@ void Response::getAction()
 	else if (dir)
 	{
 		generateBasedOnDirectory(dir);
-
+		this->statusCode = OK;
 		return;
 	}
 	std::fstream fs(url);
@@ -86,113 +130,63 @@ void Response::getAction()
 		generateFileError(fs);
 		return;
 	}
-	generateReponsetemplate(OK);
-	std::string buffer;
-	while (getline(fs, buffer, '\n'))
-		generatedResponse += buffer;
-	fs.close();
-	generatedResponse += "\r\n";
-}
-
-void Response::postAction()
-{
-	std::string url = request.getUrl();
-	std::fstream fs(url);
-
-	if (!fs.good())
+	if (!location.getCgi().empty())
 	{
-		generateFileError(fs);
-		return;
+		// todo larsen part !!
+		// generatedResponse = 
 	}
-	for (size_t i = 0; i < request.getBody().size(); i++)
-		fs << request.getBody()[i];
-	fs.close();
-	generateReponsetemplate(OK);
+	else
+	{
+		this->statusCode = OK;
+		std::string buffer;
+		while (getline(fs, buffer, '\n'))
+		{
+			generatedResponse += buffer;
+			generatedResponse += "\r\n";
+		}
+		generatedResponse += "\r\n";
+		fs.close();
+	}
 }
+
+// void Response::postAction()
+// {
+// 	std::string url = request.getUrl();
+// 	std::fstream fs(url);
+
+// 	if (!fs.good())
+// 	{
+// 		generateFileError(fs);
+// 		return;
+// 	}
+// 	for (size_t i = 0; i < request.getBody().size(); i++)
+// 		fs << request.getBody()[i];
+// 	fs.close();
+// 	generateResponsetemplate(OK);
+// }
 
 void Response::deleteAction()
 {
 	// pass
 }
 
-void Response::generateFileError(std::fstream &fs)
-{
-	(void)fs;
-	if (errno == ENOENT)
-		generateReponsetemplate(NOT_FOUND);
-	else if (errno == EACCES)
-		generateReponsetemplate(UNAUTHORIZED);
-	else
-		generateReponsetemplate(INTERNAL_SERVER_ERROR);
-}
-
 void Response::generateErrorMessage()
 {
 	std::map<int, std::string> errPages = srvconf.getErr_page();
-	std::map<int, std::string> defaultErrPages = srvconf.getDefaultErrPage();
 	std::fstream fs;
 	std::string buff;
 
-	if (!errPages[statusCode].empty())
+	fs.open(errPages[statusCode]);
+	if (!fs.good())
 	{
-		fs.open(errPages[statusCode]);
 		while (getline(fs, buff, '\n'))
-			generatedResponse += buff;
-		generatedResponse += "\r\n";
+		{
+			generatedBody += buff;
+			generatedBody += "\r\n";
+		}
+		generatedBody += "\r\n";
+		fs.close();
 	}
-	else
-	{
-		fs.open(defaultErrPages[statusCode]);
-		while (getline(fs, buff, '\n'))
-			generatedResponse += buff;
-		generatedResponse += "\r\n";
-	}
-	fs.close();
-}
-
-void Response::_generateBasicGetResponse()
-{
-	std::fstream fs("www/index.html");
-	std::string fileContent;
-	std::string buff;
-	while (getline(fs, buff, '\n'))
-	{
-		fileContent += buff;
-		fileContent += "\r\n";
-	}
-	this->generatedResponse = "HTTP/1.1 200 OK\r\n";
-	this->generatedResponse += "Content-Type: text/html\r\n";
-	this->generatedResponse += "Content-Length: " + std::to_string(fileContent.size()) + "\r\n";
-	this->generatedResponse += "Connection: keep-alive\r\n ";
-	this->generatedResponse += "\r\n";
-	this->generatedResponse += fileContent;
-}
-void Response::generateResponse(Request &request, ServerConf &serverConf)
-{
-	this->request = request;
-	this->srvconf = serverConf;
-	_generateBasicGetResponse();
-	// if (!request.isValid())
-	// 	generateReponsetemplate(BAD_REQUEST);
-	// else if (request.getType() == GET)
-	// 	getAction();
-	// else if (request.getType() == POST)
-	// 	postAction();
-	// else if (request.getType() == DELETE)
-	// 	deleteAction();
-	// if (statusCode > 200)
-	// 	generateErrorMessage();
-	// generatedResponse += "\r\n";
-}
-
-std::vector<std::string> Response::_split(std::string s, char c)
-{
-	std::string buff;
-	std::stringstream str_str(s);
-	std::vector<std::string> arr;
-	while (getline(str_str, buff, c))
-		arr.push_back(buff);
-	return arr;
 }
 
 std::string Response::getMessage(int statusCode)
@@ -201,12 +195,14 @@ std::string Response::getMessage(int statusCode)
 	{
 	case OK:
 		return "OK";
-	case NOT_FOUND:
-		return "NOT_FOUND";
 	case BAD_REQUEST:
 		return "BAD_REQUEST";
+	case FORBIDDEN:
+		return "FORBIDDEN";
+	case NOT_FOUND:
+		return "NOT_FOUND";
 	default:
-		return "CHANGE_ME_LATER";
+		return "INTERNAL_SERVER_ERROR";
 	}
 }
 
@@ -243,12 +239,44 @@ std::string Response::getContentTypeString()
 	return contentTypeString;
 }
 
-void Response::generateReponsetemplate(int statusCode)
+// std::string Response::getbody()
+// {
+// 	std::string body;
+
+	
+// }
+
+void Response::generateResponsetemplate()
 {
-	this->statusCode = statusCode;
 	generatedResponse += "HTTP/1.1 " + std::to_string(statusCode) + " " + getMessage(statusCode) + "\r\n";
 	generatedResponse += getContentTypeString() + "\r\n";
-	// generatedResponse += "Content-Length " + std::to_string(fileContent.size()) + "\r\n";
+	generatedResponse += "Content-Length: " + std::to_string(generatedBody.size()) + "\r\n";
+	generatedResponse += "\r\n";
+	generatedResponse += generatedBody;
+}
+
+void Response::generateResponse(Request &request, ServerConf &serverConf)
+{
+	this->request = request;
+	this->srvconf = serverConf;
+	// _generateBasicGetResponse();
+	if (!request.isValid())
+		this->statusCode = BAD_REQUEST;
+	else if (request.getType() == GET)
+		getAction();
+	// else if (request.getType() == POST)
+	// 	postAction();
+	// else if (request.getType() == DELETE)
+	// 	deleteAction();
+	if (statusCode != CGI)
+		generateErrorMessage();
+	generatedResponse += "\r\n";
+}
+
+void Response::clear()
+{
+	generatedResponse.clear();
+	statusCode = 0;
 }
 
 std::string Response::getGeneratedResponse() { return generatedResponse; }

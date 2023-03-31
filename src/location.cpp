@@ -110,7 +110,7 @@ int Location::getReturnNb() { return this->returnNb; }
 
 int Location::getRedirectionNb() { return this->redirectionNb; }
 
-std::vector<std::string> Location::getmethods() { return this->allowMethods; }
+std::vector<std::string> Location::getMethods() { return this->allowMethods; }
 
 bool Location::empty()
 {

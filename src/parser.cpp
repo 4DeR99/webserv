@@ -415,8 +415,8 @@ void parser::_setDefaultLocationsDetails()
 		{
 			if (servers[i].getLocations()[i].getPath().empty())
 				throw std::invalid_argument(PATH_MISSING);
-			if (servers[i].getLocations()[i].getmethods().empty())
-				servers[i].getLocations()[i].getmethods().push_back("GET");
+			if (servers[i].getLocations()[i].getMethods().empty())
+				servers[i].getLocations()[i].getMethods().push_back("GET");
 			if (servers[i].getLocations()[i].getRoot().empty())
 				servers[i].getLocations()[i].getRoot() = servers[i].getRoot();
 		}

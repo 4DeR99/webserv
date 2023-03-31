@@ -26,7 +26,7 @@ void Pollge::_run()
 	int rc;
 	size_t current_size;
 	bool close_conn;
-	std::cout << "begin" << std::endl;
+	std::cout << "Begin" << std::endl;
 	while (this->end_server == false)
 	{
 		// CALL POLL() AND WAIT FOR INC CONNECTIONS

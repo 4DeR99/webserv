@@ -29,11 +29,11 @@ public:
 	std::string getUploadpath();
 	std::string getIndex();
 	std::string getCgi();
-	std::string getReturnPath();
+	// std::string getReturnPath();
 	int getReturnNb();
 	std::string getRedirectionPath();
 	int getRedirectionNb();
-	std::vector<std::string> getmethods();
+	std::vector<std::string> getMethods();
 
 	void setPath(std::string path);
 	void setRoot(std::string root);

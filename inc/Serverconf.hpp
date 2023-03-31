@@ -11,7 +11,6 @@ private:
 	std::string root;
 	int clientMaxBodySize;
 	std::map<int, std::string> errorPage;
-	std::map<int, std::string> defaultErrPage;
 	std::vector<Location> locations;
 	std::map<std::string, int> locationsPath;
 
@@ -40,7 +39,6 @@ public:
 	int getCMBZ();
 	std::string getHost();
 	std::map<int, std::string> getErr_page();
-	std::map<int, std::string> getDefaultErrPage();
 	std::vector<Location> getLocations();
 	int getSd();
 	Location getLocation(int index);
