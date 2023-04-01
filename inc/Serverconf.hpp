@@ -39,7 +39,7 @@ public:
 	int getCMBZ();
 	std::string getHost();
 	std::map<int, std::string> getErr_page();
-	std::vector<Location> getLocations();
+	std::vector<Location>& getLocations();
 	int getSd();
 	Location getLocation(int index);
 

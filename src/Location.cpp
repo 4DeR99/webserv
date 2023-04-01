@@ -15,8 +15,12 @@ Location &Location::operator=(Location const &_2Copy)
 	this->index = _2Copy.index;
 	this->cgiInfo = _2Copy.cgiInfo;
 	// this->returnPath = _2Copy.returnPath;
+	// this->returnNb = _2Copy.returnNb;
 	this->redirectionPath = _2Copy.redirectionPath;
 	this->autoindexCount = _2Copy.autoindexCount;
+	this->redirectionNb = _2Copy.redirectionNb;
+	this->autoindex = _2Copy.autoindex;
+	this->allowMethods = _2Copy.allowMethods;
 	return *this;
 }
 
@@ -92,23 +96,25 @@ void Location::setCgi(std::string cgi)
 	cgiInfo = cgi;
 }
 
-std::string Location::getPath() { return this->path; }
+std::string& Location::getPath() { return this->path; }
 
-std::string Location::getRoot() { return this->root; }
+std::string& Location::getRoot() { return this->root; }
 
-std::string Location::getUploadpath() { return this->uploadPath; }
+std::string& Location::getUploadpath() { return this->uploadPath; }
 
-std::string Location::getIndex() { return this->index; }
+std::string& Location::getIndex() { return this->index; }
 
-std::string Location::getCgi() { return this->cgiInfo; }
+std::string& Location::getCgi() { return this->cgiInfo; }
 
-// std::string Location::getReturnPath() { return this->returnPath; }
+// std::string& Location::getReturnPath() { return this->returnPath; }
 
-std::string Location::getRedirectionPath() { return this->redirectionPath; }
+std::string& Location::getRedirectionPath() { return this->redirectionPath; }
 
 int Location::getReturnNb() { return this->returnNb; }
 
 int Location::getRedirectionNb() { return this->redirectionNb; }
+
+int Location::getAutoIndex() { return this->autoindex; }
 
 std::vector<std::string> Location::getMethods() { return this->allowMethods; }
 

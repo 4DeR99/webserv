@@ -22,7 +22,7 @@ public:
 	void _addSd(int sd, int srvIndex);
 	void _run();
 	void _sdAccept(int sd);
-	void _sdReceive(struct pollfd& pollfd, bool &close_conn);
+	void _sdReceive(int sd, bool &close_conn);
 };
 
 #endif

@@ -7,7 +7,10 @@ Client::Client()
 Client::Client(int fd, ServerConf &serverconf)
 		: fd(fd),
 			chunkSize(-1),
-			srvconf(serverconf) {}
+			srvconf(serverconf)
+{
+	this->request.setServerConf(serverconf);
+}
 
 Client &Client::operator=(Client const &_2Copy)
 {
@@ -16,6 +19,7 @@ Client &Client::operator=(Client const &_2Copy)
 	this->request = _2Copy.request;
 	this->remaining = _2Copy.remaining;
 	this->rawContent = _2Copy.rawContent;
+	this->srvconf = _2Copy.srvconf;
 	return *this;
 }
 
@@ -62,7 +66,7 @@ void Client::addChunkedBody()
 			{
 				chunkSize = std::stoi(rawBody);
 			}
-			catch(const std::exception& e)
+			catch (const std::exception &e)
 			{
 				request.setValidity(false);
 			}
@@ -76,13 +80,14 @@ void Client::addChunkedBody()
 			if ((int)rawBody.size() != chunkSize)
 			{
 				request.setValidity(false);
-				return ;
+				return;
 			}
 			forup(i, 0, rawContent.size())
-				request.getBody().push_back(rawBody[i]);
+					request.getBody()
+							.push_back(rawBody[i]);
 		}
 		else
-			return ;
+			return;
 	}
 }
 
@@ -121,7 +126,7 @@ void Client::addRawRequest(std::string buffer)
 		if (chunkSize == 0)
 		{
 			response.generateResponse(request, srvconf);
-			return ;
+			return;
 		}
 	}
 	if (request.bodyDoesExist())
@@ -130,7 +135,7 @@ void Client::addRawRequest(std::string buffer)
 		if ((int)request.getBody().size() == request.getBodyLength())
 		{
 			response.generateResponse(request, srvconf);
-			return ;
+			return;
 		}
 	}
 }
@@ -142,5 +147,7 @@ Request Client::getRequest() { return request; }
 std::string Client::getRawContent() { return this->rawContent; }
 
 Response Client::getResponse() { return this->response; }
+
+ServerConf Client::getSrvConf() { return this->srvconf; }
 
 Client::~Client() {}

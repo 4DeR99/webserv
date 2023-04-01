@@ -27,6 +27,7 @@ public:
 	Request getRequest();
 	std::string getRawContent();
 	Response getResponse();
+	ServerConf getSrvConf();
 
 	void addRawRequest(std::string buffer);
 	void addNormalBody();

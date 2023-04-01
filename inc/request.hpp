@@ -49,11 +49,13 @@ public:
 	int getBodyLength();
 	std::string getrawContent();
 	std::string getUrl();
+	std::string getAbsoluteUrl();
 	std::map<std::string, std::string> getHeaders();
 	std::vector<char> getBody();
 
 	// setters
 	void setValidity(bool validity);
+	void setServerConf(ServerConf &serverConf);
 
 	// class info
 	bool

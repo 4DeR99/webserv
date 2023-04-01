@@ -24,26 +24,27 @@ public:
 	Location& operator=(Location const &_2Copy);
 	~Location();
 
-	std::string getPath();
-	std::string getRoot();
-	std::string getUploadpath();
-	std::string getIndex();
-	std::string getCgi();
-	// std::string getReturnPath();
-	int getReturnNb();
-	std::string getRedirectionPath();
-	int getRedirectionNb();
 	std::vector<std::string> getMethods();
+	std::string& getRedirectionPath();
+	std::string& getUploadpath();
+	std::string& getIndex();
+	std::string& getPath();
+	std::string& getRoot();
+	std::string& getCgi();
+	// std::string getReturnPath();
+	int getRedirectionNb();
+	int getReturnNb();
+	int getAutoIndex();
 
+	void setAllowMethods(std::vector<std::string> methods);
+	void setRedirection(int nb, std::string path);
+	void setUploadPath(std::string uploadPath);
+	// void setReturn(int nb, std::string path);
+	void setIndex(std::string index);
 	void setPath(std::string path);
 	void setRoot(std::string root);
-	void setUploadPath(std::string uploadPath);
-	void setIndex(std::string index);
 	void setAutoIndex(bool status);
-	void setAllowMethods(std::vector<std::string> methods);
 	void setCgi(std::string cgi);
-	void setRedirection(int nb, std::string path);
-	void setReturn(int nb, std::string path);
 
 	void clear();
 

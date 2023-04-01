@@ -418,7 +418,7 @@ void parser::_setDefaultLocationsDetails()
 			if (servers[i].getLocations()[i].getMethods().empty())
 				servers[i].getLocations()[i].getMethods().push_back("GET");
 			if (servers[i].getLocations()[i].getRoot().empty())
-				servers[i].getLocations()[i].getRoot() = servers[i].getRoot();
+				servers[i].getLocations()[i].setRoot(servers[i].getRoot());
 		}
 	}
 }
@@ -472,6 +472,7 @@ std::vector<ServerConf> parser::_runparser()
 			throw std::invalid_argument(GEN_ERROR);
 		_file_content.push_back(buffer);
 	}
+	srv.addLocation(location);
 	servers.push_back(ServerConf(srv));
 	_setDefaultLocationsDetails();
 	return servers;

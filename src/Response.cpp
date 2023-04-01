@@ -76,6 +76,7 @@ void Response::generateBasedOnDirectory(DIR *dir)
 	{
 		generatedBody += "\t<a href=\"./" + dirItems[i];
 		generatedBody += "\">" + dirItems[i] + "</a>";
+		generatedBody += "<br>\n";
 	}
 
 	generatedBody += "</body>\n\n";
@@ -96,8 +97,8 @@ void Response::generateFileError(std::fstream &fs)
 void Response::getAction()
 {
 	std::string url = request.getUrl();
-
 	Location location;
+
 	try
 	{
 		location = srvconf.getLocation(request.getLocationIndex());
@@ -107,19 +108,22 @@ void Response::getAction()
 		this->statusCode = NOT_FOUND;
 		return;
 	}
-
 	if (find(location.getMethods().begin(), location.getMethods().end(), "GET") == location.getMethods().end())
 	{
 		this->statusCode = NOT_ALLOWED;
 		return;
 	}
 
-	DIR *dir = opendir(url.c_str());
-
+	DIR *dir = opendir(this->request.getAbsoluteUrl().c_str());
 	if (!location.getIndex().empty())
 		url = location.getIndex();
 	else if (dir)
 	{
+		if (!location.getAutoIndex())
+		{
+			this->statusCode = NOT_ALLOWED;
+			return;
+		}
 		generateBasedOnDirectory(dir);
 		this->statusCode = OK;
 		return;
@@ -132,7 +136,7 @@ void Response::getAction()
 	}
 	if (!location.getCgi().empty())
 	{
-		// todo larsen part !!
+		// todo: larsen part !!
 		// generatedResponse = 
 	}
 	else
@@ -232,7 +236,7 @@ std::string Response::getContentTypeString()
 
 	std::vector<std::string> dottedSplit = _split(url, '.');
 	if (dottedSplit.size() == 1)
-		contentType = "text/plain";
+		contentType = "text/html";
 	else
 		contentType = getContentType(dottedSplit.back());
 	contentTypeString = "Content-Type: " + contentType;
@@ -253,6 +257,7 @@ void Response::generateResponsetemplate()
 	generatedResponse += "Content-Length: " + std::to_string(generatedBody.size()) + "\r\n";
 	generatedResponse += "\r\n";
 	generatedResponse += generatedBody;
+	generatedResponse += "\r\n";
 }
 
 void Response::generateResponse(Request &request, ServerConf &serverConf)
@@ -261,16 +266,19 @@ void Response::generateResponse(Request &request, ServerConf &serverConf)
 	this->srvconf = serverConf;
 	// _generateBasicGetResponse();
 	if (!request.isValid())
+	{
+		std::cout << " 400 BAD REQUEST" << std::endl;
 		this->statusCode = BAD_REQUEST;
+	}
 	else if (request.getType() == GET)
 		getAction();
 	// else if (request.getType() == POST)
 	// 	postAction();
 	// else if (request.getType() == DELETE)
 	// 	deleteAction();
-	if (statusCode != CGI)
+	if (statusCode > OK && statusCode < CGI)
 		generateErrorMessage();
-	generatedResponse += "\r\n";
+	generateResponsetemplate();
 }
 
 void Response::clear()

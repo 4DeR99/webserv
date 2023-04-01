@@ -26,8 +26,14 @@ Request &Request::operator=(Request const &_2Copy)
 	this->valid = _2Copy.valid;
 	this->type = _2Copy.type;
 	this->url = _2Copy.url;
+	this->absoluteUrl = _2Copy.absoluteUrl;
 	this->rawContent = _2Copy.rawContent;
 	this->headers = _2Copy.headers;
+	this->bodyExist = _2Copy.bodyExist;
+	this->requestChunked = _2Copy.requestChunked;
+	this->bodyLength = _2Copy.bodyLength;
+	this->locationIndex = _2Copy.locationIndex;
+	this->serverConf = _2Copy.serverConf;
 	return *this;
 }
 
@@ -88,6 +94,13 @@ void Request::_parseUrl(std::string &url)
 			pos = url.find('/', pos + 1);
 		}
 	}
+	if (locationIndex == NO_LOCATION)
+		valid = false;
+	else
+	{
+		this->url = url;
+		this->absoluteUrl = locations[locationIndex].getRoot() + url;
+	}
 }
 
 void Request::_parseMethod()
@@ -119,12 +132,16 @@ void Request::_parseMethod()
 
 void Request::parse()
 {
+	// forup(i, 0, requestContent.size())
+	// {
+	// 	std::cout << requestContent[i] << std::endl;
+	// }
 	_parseMethod();
 	if (valid)
 	{
 		for (size_t i = 1; i < requestContent.size() && valid; i++)
 		{
-			if (requestContent[i].find(':') == requestContent.size() - 1)
+			if (requestContent[i].find(':') == requestContent[i].size() - 1)
 				valid = false;
 			if (requestContent[i].find(':') != std::string::npos)
 			{
@@ -165,6 +182,8 @@ void Request::parse()
 
 void Request::setValidity(bool validity) { this->valid = validity; }
 
+void Request::setServerConf(ServerConf &serverConf) { this->serverConf = serverConf; }
+
 std::string Request::getrawContent() { return this->rawContent; }
 
 bool Request::isValid() { return this->valid; }
@@ -176,6 +195,8 @@ int Request::getLocationIndex() { return this->locationIndex; }
 int Request::getBodyLength() { return this->bodyLength; }
 
 std::string Request::getUrl() { return this->url; }
+
+std::string Request::getAbsoluteUrl() { return this->absoluteUrl; }
 
 std::map<std::string, std::string> Request::getHeaders() { return this->headers; }
 

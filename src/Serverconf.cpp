@@ -154,7 +154,7 @@ std::string ServerConf::getHost() { return host; }
 
 std::map<int, std::string> ServerConf::getErr_page() { return errorPage; }
 
-std::vector<Location> ServerConf::getLocations() { return locations; }
+std::vector<Location>& ServerConf::getLocations() { return locations; }
 
 int ServerConf::getSd() { return sd; }
 

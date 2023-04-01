@@ -50,7 +50,7 @@ void Pollge::_run()
 			else
 			{
 				close_conn = false;
-				this->_sdReceive(this->fds.at(i), close_conn);
+				this->_sdReceive(this->fds[i].fd, close_conn);
 				if (close_conn)
 				{
 					close(this->fds[i].fd);
@@ -105,13 +105,13 @@ void Pollge::_sdAccept(int sd)
 	} while (new_sd != -1);
 }
 
-void Pollge::_sdReceive(struct pollfd &pollfd, bool &close_conn)
+void Pollge::_sdReceive(int sd, bool &close_conn)
 {
 	int rc;
-	Client &client = this->clients[pollfd.fd];
+	Client &client = this->clients[sd];
 	std::string buff;
 
-	if ((rc = recv(pollfd.fd, this->buffer, sizeof(this->buffer), 0)) > 0)
+	if ((rc = recv(sd, this->buffer, sizeof(this->buffer), 0)) > 0)
 	{
 		forup(i, 0, (size_t)rc)
 		{
@@ -122,7 +122,7 @@ void Pollge::_sdReceive(struct pollfd &pollfd, bool &close_conn)
 			size_t size = client.getResponse().getGeneratedResponse().size();
 			if (size)
 			{
-				rc = send(pollfd.fd, client.getResponse().getGeneratedResponse().c_str(), size, 0);
+				rc = send(sd, client.getResponse().getGeneratedResponse().c_str(), size, 0);
 				if (rc < 0)
 				{
 					std::cerr << "  send() failed" << std::endl;
