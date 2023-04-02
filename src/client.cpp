@@ -82,9 +82,7 @@ void Client::addChunkedBody()
 				request.setValidity(false);
 				return;
 			}
-			forup(i, 0, rawContent.size())
-					request.getBody()
-							.push_back(rawBody[i]);
+			forup(i, 0, rawContent.size()) request.getBody().push_back(rawBody[i]);
 		}
 		else
 			return;
@@ -100,11 +98,12 @@ void Client::addNormalBody()
 	rawContent.erase(rawContent.begin(), rawContent.begin() + i);
 }
 
-void Client::addRawRequest(std::string buffer)
+void Client::addRawRequest(char *buffer, size_t size)
 {
-	this->rawContent += buffer;
+	forup(i, 0, size) this->rawContent.push_back(buffer[i]);
 	if (request.empty() && rawContent.find("\r\n\r\n") != std::string::npos)
 	{
+		forup(i, 0, rawContent.size()) std::cout << rawContent[i];
 		splitRawRequest();
 		request.addRawContent(rawContent);
 		request.parse();

@@ -66,10 +66,8 @@ void Pollge::_run()
 			{
 				if (this->fds[i].fd == -1)
 				{
-					forup(j, i, this->fds.size())
-					{
+					forup(j, i, this->fds.size()-1)
 						this->fds[j].fd = fds[j + 1].fd;
-					}
 					i--;
 					this->fds.pop_back();
 				}
@@ -113,16 +111,13 @@ void Pollge::_sdReceive(int sd, bool &close_conn)
 
 	if ((rc = recv(sd, this->buffer, sizeof(this->buffer), 0)) > 0)
 	{
-		forup(i, 0, (size_t)rc)
-		{
-			buff.push_back(this->buffer[i]);
-		}
 		try{
-			client.addRawRequest(buff);
+			client.addRawRequest(this->buffer, rc);
 			size_t size = client.getResponse().getGeneratedResponse().size();
 			if (size)
 			{
 				rc = send(sd, client.getResponse().getGeneratedResponse().c_str(), size, 0);
+				client.getResponse().clear();
 				if (rc < 0)
 				{
 					std::cerr << "  send() failed" << std::endl;
@@ -142,7 +137,7 @@ void Pollge::_sdReceive(int sd, bool &close_conn)
 		std::cout << " Connection closed" << std::endl;
 		close_conn = true;
 	}
-	else if (rc == -1 || this->buffer[0] == '\0')
+	else if (rc == -1)
 	{
 		std::cerr << " recv() failed" << std::endl;
 		close_conn = true;

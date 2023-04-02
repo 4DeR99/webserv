@@ -25,7 +25,6 @@ private:
 
 	// private functions
 	std::vector<std::string> _split(std::string s, char c);
-	void _generateBasicGetResponse();
 
 public:
 	Response();

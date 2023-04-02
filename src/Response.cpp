@@ -19,29 +19,12 @@ std::vector<std::string> Response::_split(std::string s, char c)
 	return arr;
 }
 
-void Response::_generateBasicGetResponse()
-{
-	std::fstream fs("www/index.html");
-	std::string fileContent;
-	std::string buff;
-	while (getline(fs, buff, '\n'))
-	{
-		fileContent += buff;
-		fileContent += "\r\n";
-	}
-	this->generatedResponse = "HTTP/1.1 200 OK\r\n";
-	this->generatedResponse += "Content-Type: text/html\r\n";
-	this->generatedResponse += "Content-Length: " + std::to_string(fileContent.size()) + "\r\n";
-	this->generatedResponse += "\r\n";
-	this->generatedResponse += fileContent;
-}
-
 std::vector<std::string> Response::listDirectory(DIR *dir)
 {
 	std::vector<std::string> dirItems;
 
 	// Read the directory entries
-	struct dirent *entry;
+	struct dirent *entry = NULL;
 	while ((entry = readdir(dir)) != NULL)
 	{
 		std::string name = entry->d_name;
@@ -59,7 +42,11 @@ std::vector<std::string> Response::listDirectory(DIR *dir)
 void Response::generateBasedOnDirectory(DIR *dir)
 {
 	std::vector<std::string> dirItems;
+	std::string url = request.getUrl();
 
+
+	if (url[url.size() - 1] != '/')
+		url += '/';
 	dirItems = listDirectory(dir);
 	generatedBody += "<!DOCTYPE html>\n";
 	generatedBody += "<html lang=\"en\">\n\n";
@@ -74,7 +61,7 @@ void Response::generateBasedOnDirectory(DIR *dir)
 	generatedBody += "<body >\n";
 	for (size_t i = 0; i < dirItems.size(); i++)
 	{
-		generatedBody += "\t<a href=\"./" + dirItems[i];
+		generatedBody += "\t<a href=\"" + url + dirItems[i];
 		generatedBody += "\">" + dirItems[i] + "</a>";
 		generatedBody += "<br>\n";
 	}
@@ -96,9 +83,10 @@ void Response::generateFileError(std::fstream &fs)
 
 void Response::getAction()
 {
-	std::string url = request.getUrl();
+	std::string url = this->request.getAbsoluteUrl();
 	Location location;
 
+	std::cout << "url: " << url << std::endl;
 	try
 	{
 		location = srvconf.getLocation(request.getLocationIndex());
@@ -119,16 +107,19 @@ void Response::getAction()
 		url = location.getIndex();
 	else if (dir)
 	{
+		std::cout << "dir:-------------- "<< std::endl;
+		std::cout << "body??: " << generatedBody << std::endl;
 		if (!location.getAutoIndex())
 		{
 			this->statusCode = NOT_ALLOWED;
 			return;
 		}
 		generateBasedOnDirectory(dir);
+		std::cout << "              body: " << generatedBody << std::endl;
 		this->statusCode = OK;
 		return;
 	}
-	std::fstream fs(url);
+	std::fstream fs(url.c_str());
 	if (!fs.good())
 	{
 		generateFileError(fs);
@@ -145,10 +136,10 @@ void Response::getAction()
 		std::string buffer;
 		while (getline(fs, buffer, '\n'))
 		{
-			generatedResponse += buffer;
-			generatedResponse += "\r\n";
+			generatedBody += buffer;
+			generatedBody += "\r\n";
 		}
-		generatedResponse += "\r\n";
+		generatedBody += "\r\n";
 		fs.close();
 	}
 }
@@ -264,7 +255,6 @@ void Response::generateResponse(Request &request, ServerConf &serverConf)
 {
 	this->request = request;
 	this->srvconf = serverConf;
-	// _generateBasicGetResponse();
 	if (!request.isValid())
 	{
 		std::cout << " 400 BAD REQUEST" << std::endl;
@@ -284,6 +274,7 @@ void Response::generateResponse(Request &request, ServerConf &serverConf)
 void Response::clear()
 {
 	generatedResponse.clear();
+	generatedBody.clear();
 	statusCode = 0;
 }
 

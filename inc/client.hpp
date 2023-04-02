@@ -29,7 +29,7 @@ public:
 	Response getResponse();
 	ServerConf getSrvConf();
 
-	void addRawRequest(std::string buffer);
+	void addRawRequest(char *buffer, size_t size);
 	void addNormalBody();
 	void addChunkedBody();
 	void makeRequest();
