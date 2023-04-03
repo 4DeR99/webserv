@@ -116,7 +116,9 @@ void Pollge::_sdReceive(int sd, bool &close_conn)
 			size_t size = client.getResponse().getGeneratedResponse().size();
 			if (size)
 			{
-				rc = send(sd, client.getResponse().getGeneratedResponse().c_str(), size, 0);
+				rc = 0;
+				while (rc < (int)size)
+					rc += send(sd, client.getResponse().getGeneratedResponse().c_str() + rc, size, 0);
 				client.getResponse().clear();
 				if (rc < 0)
 				{

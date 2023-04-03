@@ -24,10 +24,10 @@ public:
 	bool requestCompleted();
 
 	int getFd();
-	Request getRequest();
-	std::string getRawContent();
-	Response getResponse();
-	ServerConf getSrvConf();
+	Request& getRequest();
+	std::string& getRawContent();
+	Response& getResponse();
+	ServerConf& getSrvConf();
 
 	void addRawRequest(char *buffer, size_t size);
 	void addNormalBody();

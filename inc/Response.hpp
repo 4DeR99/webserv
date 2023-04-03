@@ -18,6 +18,7 @@ class Response
 {
 private:
 	size_t statusCode;
+	size_t dirListen;
 	Request request;
 	ServerConf srvconf;
 	std::string generatedResponse;

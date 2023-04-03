@@ -1,7 +1,8 @@
 #include "Inc.hpp"
 
 Response::Response()
-		: statusCode(0) {}
+		: statusCode(0),
+			dirListen(0) {}
 
 //! check this later
 // Response::Response(Request &request, ServerConf &serverconf)
@@ -86,7 +87,6 @@ void Response::getAction()
 	std::string url = this->request.getAbsoluteUrl();
 	Location location;
 
-	std::cout << "url: " << url << std::endl;
 	try
 	{
 		location = srvconf.getLocation(request.getLocationIndex());
@@ -107,19 +107,19 @@ void Response::getAction()
 		url = location.getIndex();
 	else if (dir)
 	{
-		std::cout << "dir:-------------- "<< std::endl;
-		std::cout << "body??: " << generatedBody << std::endl;
 		if (!location.getAutoIndex())
 		{
 			this->statusCode = NOT_ALLOWED;
 			return;
 		}
 		generateBasedOnDirectory(dir);
-		std::cout << "              body: " << generatedBody << std::endl;
+		dirListen = 1;
 		this->statusCode = OK;
 		return;
 	}
+	std::cout << "url: " << url << std::endl;
 	std::fstream fs(url.c_str());
+	std::cout << "heheurl: " << url << std::endl;
 	if (!fs.good())
 	{
 		generateFileError(fs);
@@ -202,8 +202,7 @@ std::string Response::getMessage(int statusCode)
 }
 
 std::string Response::getContentType(std::string &extention)
-{
-	if (extention == "html")
+{if (extention == "html")
 		return "text/html";
 	else if (extention == "css")
 		return "text/css";
@@ -213,7 +212,7 @@ std::string Response::getContentType(std::string &extention)
 		return "application/xml";
 	else if (extention == "png")
 		return "image/png";
-	else if (extention == "jpeg")
+	else if (extention == "jpeg" || extention == "jpg")
 		return "image/jpeg";
 	else if (extention == "mpeg")
 		return "audio/mpeg";
@@ -226,8 +225,10 @@ std::string Response::getContentTypeString()
 	std::string url = this->request.getUrl();
 
 	std::vector<std::string> dottedSplit = _split(url, '.');
-	if (dottedSplit.size() == 1)
+	if (dirListen)
 		contentType = "text/html";
+	else if (dottedSplit.size() == 1)
+		contentType = "text/plain";
 	else
 		contentType = getContentType(dottedSplit.back());
 	contentTypeString = "Content-Type: " + contentType;

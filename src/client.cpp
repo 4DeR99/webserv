@@ -101,9 +101,9 @@ void Client::addNormalBody()
 void Client::addRawRequest(char *buffer, size_t size)
 {
 	forup(i, 0, size) this->rawContent.push_back(buffer[i]);
+	std::cout << "in\n";
 	if (request.empty() && rawContent.find("\r\n\r\n") != std::string::npos)
 	{
-		forup(i, 0, rawContent.size()) std::cout << rawContent[i];
 		splitRawRequest();
 		request.addRawContent(rawContent);
 		request.parse();
@@ -112,6 +112,7 @@ void Client::addRawRequest(char *buffer, size_t size)
 		{
 			response.generateResponse(request, srvconf);
 			nextRequest();
+			return;
 		}
 		else
 		{
@@ -141,12 +142,12 @@ void Client::addRawRequest(char *buffer, size_t size)
 
 int Client::getFd() { return fd; }
 
-Request Client::getRequest() { return request; }
+Request& Client::getRequest() { return request; }
 
-std::string Client::getRawContent() { return this->rawContent; }
+std::string& Client::getRawContent() { return this->rawContent; }
 
-Response Client::getResponse() { return this->response; }
+Response& Client::getResponse() { return this->response; }
 
-ServerConf Client::getSrvConf() { return this->srvconf; }
+ServerConf& Client::getSrvConf() { return this->srvconf; }
 
 Client::~Client() {}
