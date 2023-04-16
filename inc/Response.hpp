@@ -10,6 +10,7 @@ enum StatusCode
 	FORBIDDEN = 403,
 	NOT_FOUND = 404,
 	NOT_ALLOWED = 405,
+	REQUEST_ENTITY_TOO_LARGE = 413,
 	INTERNAL_SERVER_ERROR = 500,
 	CGI = 600
 };
@@ -52,7 +53,7 @@ public:
 
 	// utils to generate reponse
 	void generateResponsetemplate();
-	std::string getMessage(int statusCode);
+	std::string getMessage();
 	std::string getContentTypeString();
 	std::string getContentType(std::string &extention);
 	std::string getGeneratedResponse();

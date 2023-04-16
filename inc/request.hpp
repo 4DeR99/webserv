@@ -15,20 +15,21 @@ enum request_type
 class Request
 {
 private:
-	std::vector<std::string> requestContent;
-	std::vector<char> body;
+	int type;
+	int bodyLength;
+	int locationIndex;
 	bool valid;
 	bool bodyExist;
 	bool requestChunked;
-	int type;
-	int locationIndex;
-	int bodyLength;
+	ServerConf serverConf;
 	std::string url;
 	std::string absoluteUrl;
 	std::string rawContent;
+	std::vector<char> body;
+	std::vector<std::string> requestContent;
 	std::map<std::string, std::string> headers;
-	ServerConf serverConf;
 
+	// private methods
 	void _parseMethod();
 	void _parseUrl(std::string &url);
 	void _sweep(std::string &string);
@@ -43,28 +44,29 @@ public:
 	~Request();
 
 	// getters
-	bool isValid();
 	int getType();
 	int getLocationIndex();
 	int getBodyLength();
-	std::string getrawContent();
+	bool isValid();
 	std::string getUrl();
 	std::string getAbsoluteUrl();
+	std::string getrawContent();
+	std::vector<char>& getBody();
 	std::map<std::string, std::string> getHeaders();
-	std::vector<char> getBody();
 
 	// setters
 	void setValidity(bool validity);
 	void setServerConf(ServerConf &serverConf);
 
 	// class info
-	bool
-	bodyDoesExist();
+	bool bodyDoesExist();
 	bool isRequestChunked();
 	bool empty();
 
+	// class manipulation
 	void clear();
 
+	// parse methods
 	void addRawContent(std::string rawContent);
 	void parse();
 };

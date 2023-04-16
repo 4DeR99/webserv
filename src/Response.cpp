@@ -58,15 +58,17 @@ void Response::generateBasedOnDirectory(DIR *dir)
 	generatedBody += "\t<meta charset=\"UTF-8\">\n";
 	generatedBody += "\t<title>" + request.getUrl() + "</title>\n";
 	generatedBody += "</head>\n";
-
+	generatedBody += "<h1>Index of " + request.getUrl() + "</h1>\n";
+	generatedBody += "<hr>\n";
 	generatedBody += "<body >\n";
 	for (size_t i = 0; i < dirItems.size(); i++)
 	{
+		if (dirItems[i][0] == '.')
+			continue;
 		generatedBody += "\t<a href=\"" + url + dirItems[i];
 		generatedBody += "\">" + dirItems[i] + "</a>";
 		generatedBody += "<br>\n";
 	}
-
 	generatedBody += "</body>\n\n";
 	generatedBody += "</html>\n";
 }
@@ -119,7 +121,6 @@ void Response::getAction()
 	}
 	std::cout << "url: " << url << std::endl;
 	std::fstream fs(url.c_str());
-	std::cout << "heheurl: " << url << std::endl;
 	if (!fs.good())
 	{
 		generateFileError(fs);
@@ -137,9 +138,15 @@ void Response::getAction()
 		while (getline(fs, buffer, '\n'))
 		{
 			generatedBody += buffer;
-			generatedBody += "\r\n";
+			generatedBody += "\n";
+			if (generatedBody.size() > NGINX_MAX_BODY_SIZE)
+			{
+				generatedBody.clear();
+				this->statusCode = INTERNAL_SERVER_ERROR;
+				return;
+			}
 		}
-		generatedBody += "\r\n";
+		generatedBody += "\n";
 		fs.close();
 	}
 }
@@ -171,22 +178,22 @@ void Response::generateErrorMessage()
 	std::fstream fs;
 	std::string buff;
 
-	fs.open(errPages[statusCode]);
-	if (!fs.good())
+	fs.open(errPages[this->statusCode]);
+	if (fs.good())
 	{
 		while (getline(fs, buff, '\n'))
 		{
 			generatedBody += buff;
-			generatedBody += "\r\n";
+			generatedBody += "\n";
 		}
-		generatedBody += "\r\n";
+		generatedBody += "\n";
 		fs.close();
 	}
 }
 
-std::string Response::getMessage(int statusCode)
+std::string Response::getMessage()
 {
-	switch (statusCode)
+	switch (this->statusCode)
 	{
 	case OK:
 		return "OK";
@@ -196,6 +203,10 @@ std::string Response::getMessage(int statusCode)
 		return "FORBIDDEN";
 	case NOT_FOUND:
 		return "NOT_FOUND";
+	case NOT_ALLOWED:
+		return "NOT_ALLOWED";
+	case REQUEST_ENTITY_TOO_LARGE:
+		return "REQUEST_ENTITY_TOO_LARGE";
 	default:
 		return "INTERNAL_SERVER_ERROR";
 	}
@@ -225,7 +236,7 @@ std::string Response::getContentTypeString()
 	std::string url = this->request.getUrl();
 
 	std::vector<std::string> dottedSplit = _split(url, '.');
-	if (dirListen)
+	if (dirListen || this->statusCode != OK)
 		contentType = "text/html";
 	else if (dottedSplit.size() == 1)
 		contentType = "text/plain";
@@ -244,9 +255,10 @@ std::string Response::getContentTypeString()
 
 void Response::generateResponsetemplate()
 {
-	generatedResponse += "HTTP/1.1 " + std::to_string(statusCode) + " " + getMessage(statusCode) + "\r\n";
+	generatedResponse += "HTTP/1.1 " + std::to_string(statusCode) + " " + getMessage() + "\r\n";
 	generatedResponse += getContentTypeString() + "\r\n";
 	generatedResponse += "Content-Length: " + std::to_string(generatedBody.size()) + "\r\n";
+	generatedResponse += "Connection: close\r\n";
 	generatedResponse += "\r\n";
 	generatedResponse += generatedBody;
 	generatedResponse += "\r\n";

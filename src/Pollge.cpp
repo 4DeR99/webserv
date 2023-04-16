@@ -117,10 +117,16 @@ void Pollge::_sdReceive(int sd, bool &close_conn)
 			if (size)
 			{
 				rc = 0;
-				while (rc < (int)size)
-					rc += send(sd, client.getResponse().getGeneratedResponse().c_str() + rc, size, 0);
+				int tmp = 0;
+				std::cout << "	" << client.getResponse().getGeneratedResponse().substr(0, 100) << std::endl;
+				while (rc < (int)size){
+					tmp = send(sd, client.getResponse().getGeneratedResponse().c_str() + rc, size, 0);
+					if (tmp < 0)
+						break;
+					rc += tmp;
+				}
 				client.getResponse().clear();
-				if (rc < 0)
+				if (tmp < 0)
 				{
 					std::cerr << "  send() failed" << std::endl;
 					close_conn = true;

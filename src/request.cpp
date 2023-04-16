@@ -1,20 +1,20 @@
 #include "Inc.hpp"
 
 Request::Request()
-		: valid(true),
-			bodyExist(false),
-			requestChunked(false),
-			type(UNKNOWN),
+		:	type(UNKNOWN),
+			bodyLength(0),
 			locationIndex(NO_LOCATION),
-			bodyLength(0) {}
+			valid(true),
+			bodyExist(false),
+			requestChunked(false) {}
 
 Request::Request(ServerConf &serverConf)
-		: valid(true),
+		:	type(UNKNOWN),
+			bodyLength(0),
+			locationIndex(NO_LOCATION),
+			valid(true),
 			bodyExist(false),
 			requestChunked(false),
-			type(UNKNOWN),
-			locationIndex(NO_LOCATION),
-			bodyLength(0),
 			serverConf(serverConf) {}
 
 Request::Request(Request const &_2Copy) { this->operator=(_2Copy); }
@@ -116,6 +116,7 @@ void Request::_parseMethod()
 		if (islower(tab[0][i]))
 			valid = false;
 	}
+	_parseUrl(tab[1]);
 	if (valid && tab[0] == "GET")
 		type = GET;
 	else if (valid && tab[0] == "POST")
@@ -124,7 +125,6 @@ void Request::_parseMethod()
 		type = DELETE;
 	else if (valid)
 		type = UNKNOWN;
-	_parseUrl(tab[1]);
 	if (valid && tab[2] != "HTTP/1.1")
 		valid = false;
 	_parseUrl(tab[1]);
@@ -132,10 +132,6 @@ void Request::_parseMethod()
 
 void Request::parse()
 {
-	// forup(i, 0, requestContent.size())
-	// {
-	// 	std::cout << requestContent[i] << std::endl;
-	// }
 	_parseMethod();
 	if (valid)
 	{
@@ -145,10 +141,9 @@ void Request::parse()
 				valid = false;
 			if (requestContent[i].find(':') != std::string::npos)
 			{
-				std::string key = std::string(requestContent[i].begin(), std::find(requestContent[i].begin(), requestContent[i].end(), ':') - 1);
+				std::string key = std::string(requestContent[i].begin(), std::find(requestContent[i].begin(), requestContent[i].end(), ':'));
 				_sweep(key);
-				forup(i, 0, key.size())
-						key[i] = tolower(key[i]);
+				forup(i, 0, key.size()) key[i] = tolower(key[i]);
 				std::string value = std::string(std::find(requestContent[i].begin(), requestContent[i].end(), ':') + 1, requestContent[i].end());
 				_sweep(value);
 				if (key == "content-length")
@@ -159,8 +154,6 @@ void Request::parse()
 					try
 					{
 						bodyLength = std::stoi(value);
-						if (bodyLength > serverConf.getCMBZ())
-							valid = false;
 					}
 					catch (std::exception &e)
 					{
@@ -200,7 +193,7 @@ std::string Request::getAbsoluteUrl() { return this->absoluteUrl; }
 
 std::map<std::string, std::string> Request::getHeaders() { return this->headers; }
 
-std::vector<char> Request::getBody() { return this->body; }
+std::vector<char>& Request::getBody() { return this->body; }
 
 bool Request::bodyDoesExist() { return this->bodyExist; }
 

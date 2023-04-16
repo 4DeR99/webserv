@@ -93,15 +93,25 @@ void Client::addNormalBody()
 {
 	size_t i = 0;
 
+	// std::cout << "[[[[[[[[[[[[[[[[[[[[[[[[in\n";
+	// std::cout << "Content-Length: " << request.getBodyLength() << std::endl;
+	// std::cout << "Body size: " << request.getBody().size() << std::endl;
+	// std::cout << "rawContent size: " << rawContent.size() << std::endl;
+	// std::cout << "done\n";
 	while (i < rawContent.size() && (int)request.getBody().size() < request.getBodyLength())
 		request.getBody().push_back(rawContent[i++]);
+	// request.getBody().assign(rawContent.begin(), rawContent.begin() + i);
+	// std::cout << std::endl;
+	// std::cout << "body: ";
+	// forup(i, 0, request.getBody().size()) std::cout << request.getBody()[i];
+	// std::cout << "end :P" << std::endl;
 	rawContent.erase(rawContent.begin(), rawContent.begin() + i);
 }
 
 void Client::addRawRequest(char *buffer, size_t size)
 {
 	forup(i, 0, size) this->rawContent.push_back(buffer[i]);
-	std::cout << "in\n";
+	std::cout << "   rawContent: " << rawContent << std::endl;
 	if (request.empty() && rawContent.find("\r\n\r\n") != std::string::npos)
 	{
 		splitRawRequest();
@@ -134,6 +144,9 @@ void Client::addRawRequest(char *buffer, size_t size)
 		addNormalBody();
 		if ((int)request.getBody().size() == request.getBodyLength())
 		{
+			// std::cout << "   body: ";
+			forup(i, 0, request.getBody().size()) std::cout << request.getBody()[i];
+			std::cout << std::endl;
 			response.generateResponse(request, srvconf);
 			return;
 		}
