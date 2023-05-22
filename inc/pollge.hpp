@@ -16,10 +16,10 @@ private:
 	std::vector<char*> _split(char *s, char c);
 public:
 	Pollge();
-	Pollge(std::vector<ServerConf>);
+	Pollge(std::vector<ServerConf> &servers);
 	~Pollge();
 
-	void _addSd(int sd, int srvIndex);
+	void _addSd(int sd, int srvIndex, int sendBufferSize);
 	void _run();
 	void _sdAccept(int sd);
 	void _sdReceive(int sd, bool &close_conn);
