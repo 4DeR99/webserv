@@ -2,6 +2,7 @@
 
 ServerConf::ServerConf()
 		: clientMaxBodySize(-1),
+			send_buffer_size(0),
 			sd(-1)
 {
 }
@@ -13,6 +14,7 @@ ServerConf::ServerConf(ServerConf const &_2Copy)
 
 ServerConf &ServerConf::operator=(ServerConf const &_2Copy)
 {
+	// std::cout << "sd lwl: " << _2Copy.sd << std::endl;
 	this->sd = _2Copy.sd;
 	this->on = _2Copy.on;
 	this->port = _2Copy.port;
@@ -23,6 +25,9 @@ ServerConf &ServerConf::operator=(ServerConf const &_2Copy)
 	this->errorPage = _2Copy.errorPage;
 	this->locations = _2Copy.locations;
 	this->locationsPath = _2Copy.locationsPath;
+	this->send_buffer_size = _2Copy.send_buffer_size;
+	// std::cout << "daz hna" << std::endl;
+	// std::cout << "SD------->" << this->sd << std::endl;
 	return *this;
 }
 
@@ -83,6 +88,10 @@ Location ServerConf::getLocation(int index)
 	return locations[index];
 }
 
+void ServerConf::setSendBufferSize(int size) { this->send_buffer_size = size; }
+
+void ServerConf::setSd(int sd) { this->sd = sd; }
+
 void ServerConf::createSd()
 {
 	int rc;
@@ -115,6 +124,16 @@ void ServerConf::createSd()
 	{
 		close(this->sd);
 		throw std::runtime_error("fcntl() failed");
+	}
+	// GETTING THE SIZE OF THE SEND BUFFER
+	socklen_t optlen = sizeof(this->send_buffer_size);
+	int result = getsockopt(sd, SOL_SOCKET, SO_SNDBUF, &this->send_buffer_size, &optlen);
+	// std::cout << "send_buffer_size: " << this->send_buffer_size << std::endl;
+	this->send_buffer_size /= 2;
+	if (result == -1)
+	{
+		close(this->sd);
+		throw std::runtime_error("getsockopt() failed");
 	}
 }
 
@@ -155,6 +174,8 @@ std::string ServerConf::getHost() { return host; }
 std::map<int, std::string> ServerConf::getErr_page() { return errorPage; }
 
 std::vector<Location>& ServerConf::getLocations() { return locations; }
+
+int ServerConf::getSendBufferSize() { return this->send_buffer_size; }
 
 int ServerConf::getSd() { return sd; }
 

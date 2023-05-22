@@ -18,13 +18,14 @@
 #define HOST_ERROR "Error: invalid host"
 #define CMBZ_ERROR "Error: invalid client max body size"
 #define ERRPAGETOKEN_ERROR "Error: error_page token should end with a colon"
-#define ERRPAGE_ERROR "Error: invalid error page"
+#define ERRPAGE_ERROR "Error: invalid error page -> "
 #define LOCATION_ERROR "Error: location token should end with a colon"
 #define PATHFRNT_ERROR "Error: you should start your path with a /"
 #define PATH_ERROR "Error: cant have 1 path in multiple locations"
 #define AUTOINDEX_ERROR "Error: autoindex should be only on or off"
 #define ALMETHODS_ERROR "Error: invalid allow methods"
 // #define RETURN_ERROR "Error: invalid return configuration"
+#define SERVERNAME_MISSING "Error: server name missing"
 #define PORT_MISSING "Error: port missing"
 #define ROOT_MISSING "Error: root missing"
 #define PATH_MISSING "Error: path missing on a location"
@@ -76,6 +77,7 @@
 #define LOCALHOST "127.0.0.1"
 
 #define NGINX_MAX_BODY_SIZE 1048576
+#define MAX_SEND_SIZE 8192
 
 #include <iostream>
 #include <stdio.h>

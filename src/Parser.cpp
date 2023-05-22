@@ -184,10 +184,10 @@ void parser::_errorPagesCheck(std::string s, ServerConf &srv)
 	else if (tab[0] != "error_page")
 	{
 		if (tab.size() != 2)
-			throw std::invalid_argument(ERRPAGE_ERROR);
+			throw std::invalid_argument(ERRPAGE_ERROR + s);
 		_sweep(tab[1]);
 		if (access(tab[1].c_str(), F_OK) == -1)
-			throw std::invalid_argument(PATHFRNT_ERROR);
+			throw std::invalid_argument(ERRPAGE_ERROR + s);
 		srv.addErrPage(std::stoi(tab[0]), tab[1]);
 	}
 }
@@ -411,14 +411,16 @@ void parser::_setDefaultLocationsDetails()
 			throw std::invalid_argument(PORT_MISSING);
 		if (servers[i].getRoot().empty())
 			throw std::invalid_argument(ROOT_MISSING);
+		if (servers[i].getSrvname().empty())
+			throw std::invalid_argument(SERVERNAME_MISSING);
 		forup(j, 0, servers[i].getLocations().size())
 		{
-			if (servers[i].getLocations()[i].getPath().empty())
+			if (servers[i].getLocations()[j].getPath().empty())
 				throw std::invalid_argument(PATH_MISSING);
-			if (servers[i].getLocations()[i].getMethods().empty())
-				servers[i].getLocations()[i].getMethods().push_back("GET");
-			if (servers[i].getLocations()[i].getRoot().empty())
-				servers[i].getLocations()[i].setRoot(servers[i].getRoot());
+			if (servers[i].getLocations()[j].getMethods().empty())
+				servers[i].getLocations()[j].getMethods().push_back("GET");
+			if (servers[i].getLocations()[j].getRoot().empty())
+				servers[i].getLocations()[j].setRoot(servers[i].getRoot());
 		}
 	}
 }
@@ -450,7 +452,9 @@ std::vector<ServerConf> parser::_runparser()
 			throw std::invalid_argument(SPACE_ERROR + buffer);
 		if (dash && !space && !_file_content.empty())
 		{
+			srv.addLocation(location);
 			servers.push_back(ServerConf(srv));
+			location.clear();
 			srv.clear();
 			_file_content.clear();
 			used_path.clear();
@@ -472,7 +476,8 @@ std::vector<ServerConf> parser::_runparser()
 			throw std::invalid_argument(GEN_ERROR);
 		_file_content.push_back(buffer);
 	}
-	srv.addLocation(location);
+	if (!location.empty())
+		srv.addLocation(location);
 	servers.push_back(ServerConf(srv));
 	_setDefaultLocationsDetails();
 	return servers;
@@ -489,6 +494,6 @@ parser::parser(int ac, char **av)
 
 parser::~parser()
 {
-	// servers.clear();
+	servers.clear();
 	_file_content.clear();
 }

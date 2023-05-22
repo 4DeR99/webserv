@@ -12,7 +12,7 @@ int main(int ac, char **av)
 			servers[i].createSd();
 			servers[i].bindSd();
 			servers[i].listenSd();
-			pollin._addSd(servers[i].getSd(), i + 1);
+			pollin._addSd(servers[i].getSd(), i + 1, servers[i].getSendBufferSize());
 		}
 		pollin._run();
 	}

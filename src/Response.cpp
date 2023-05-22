@@ -123,6 +123,7 @@ void Response::getAction()
 	std::fstream fs(url.c_str());
 	if (!fs.good())
 	{
+		std::cout << "error: " << strerror(errno) << std::endl;
 		generateFileError(fs);
 		return;
 	}
@@ -139,12 +140,12 @@ void Response::getAction()
 		{
 			generatedBody += buffer;
 			generatedBody += "\n";
-			if (generatedBody.size() > NGINX_MAX_BODY_SIZE)
-			{
-				generatedBody.clear();
-				this->statusCode = INTERNAL_SERVER_ERROR;
-				return;
-			}
+			// if (generatedBody.size() > NGINX_MAX_BODY_SIZE)
+			// {
+			// 	generatedBody.clear();
+			// 	this->statusCode = INTERNAL_SERVER_ERROR;
+			// 	return;
+			// }
 		}
 		generatedBody += "\n";
 		fs.close();
@@ -289,6 +290,7 @@ void Response::clear()
 	generatedResponse.clear();
 	generatedBody.clear();
 	statusCode = 0;
+	dirListen = 0;
 }
 
 std::string Response::getGeneratedResponse() { return generatedResponse; }

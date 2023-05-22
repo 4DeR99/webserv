@@ -7,11 +7,12 @@ class ServerConf
 private:
 	std::string port;
 	std::string host;
-	std::string serverName;
 	std::string root;
+	std::string serverName;
 	int clientMaxBodySize;
-	std::map<int, std::string> errorPage;
+	int send_buffer_size;
 	std::vector<Location> locations;
+	std::map<int, std::string> errorPage;
 	std::map<std::string, int> locationsPath;
 
 	int sd, on;
@@ -31,6 +32,8 @@ public:
 	void addErrPage(int nb, std::string path);
 	void setCMBZ(int CMBZ);
 	void addLocation(Location location);
+	void setSendBufferSize(int sendBufferSize);
+	void setSd(int sd);
 
 	// getters
 	std::string getPort();
@@ -42,6 +45,7 @@ public:
 	std::vector<Location>& getLocations();
 	int getSd();
 	Location getLocation(int index);
+	int getSendBufferSize();
 
 	// socket descriptor
 	void createSd();

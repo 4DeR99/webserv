@@ -5,16 +5,18 @@ Pollge::Pollge()
 			end_server(false),
 			compress_array(false) {}
 
-Pollge::Pollge(std::vector<ServerConf> servers)
+Pollge::Pollge(std::vector<ServerConf> &servers)
 		: timeout(3 * 60 * 1000),
 			end_server(false),
 			compress_array(false),
 			servers(servers) {}
 
-void Pollge::_addSd(int sd, int srvIndex)
+void Pollge::_addSd(int sd, int srvIndex, int sendBufferSize)
 {
 	struct pollfd pollfd;
 	sd2srv[sd] = srvIndex;
+	servers[srvIndex - 1].setSendBufferSize(sendBufferSize);
+	servers[srvIndex - 1].setSd(sd);
 	memset(&pollfd, 0, sizeof(pollfd));
 	pollfd.fd = sd;
 	pollfd.events = POLLIN;
@@ -105,7 +107,7 @@ void Pollge::_sdAccept(int sd)
 
 void Pollge::_sdReceive(int sd, bool &close_conn)
 {
-	int rc;
+	long long rc;
 	Client &client = this->clients[sd];
 	std::string buff;
 
@@ -114,21 +116,21 @@ void Pollge::_sdReceive(int sd, bool &close_conn)
 		try{
 			client.addRawRequest(this->buffer, rc);
 			size_t size = client.getResponse().getGeneratedResponse().size();
+			size_t to_send = client.getSrvConf().getSendBufferSize();
 			if (size)
 			{
 				rc = 0;
-				int tmp = 0;
-				std::cout << "	" << client.getResponse().getGeneratedResponse().substr(0, 100) << std::endl;
-				while (rc < (int)size){
-					tmp = send(sd, client.getResponse().getGeneratedResponse().c_str() + rc, size, 0);
-					if (tmp < 0)
-						break;
+				long long tmp = 0;
+				while (rc < (long long)size){
+					if (size - rc < (size_t)client.getSrvConf().getSendBufferSize())
+						to_send = size - rc;
+					tmp = send(sd, client.getResponse().getGeneratedResponse().c_str() + rc, to_send, 0);
 					rc += tmp;
 				}
 				client.getResponse().clear();
 				if (tmp < 0)
 				{
-					std::cerr << "  send() failed" << std::endl;
+					std::cerr << "send() failed" << std::endl;
 					close_conn = true;
 				}
 			}
