@@ -119,11 +119,9 @@ void Response::getAction()
 		this->statusCode = OK;
 		return;
 	}
-	std::cout << "url: " << url << std::endl;
 	std::fstream fs(url.c_str());
 	if (!fs.good())
 	{
-		std::cout << "error: " << strerror(errno) << std::endl;
 		generateFileError(fs);
 		return;
 	}
@@ -140,33 +138,27 @@ void Response::getAction()
 		{
 			generatedBody += buffer;
 			generatedBody += "\n";
-			// if (generatedBody.size() > NGINX_MAX_BODY_SIZE)
-			// {
-			// 	generatedBody.clear();
-			// 	this->statusCode = INTERNAL_SERVER_ERROR;
-			// 	return;
-			// }
 		}
 		generatedBody += "\n";
 		fs.close();
 	}
 }
 
-// void Response::postAction()
-// {
-// 	std::string url = request.getUrl();
-// 	std::fstream fs(url);
+void Response::postAction()
+{
+	// std::string url = request.getUrl();
+	// std::fstream fs(url);
 
-// 	if (!fs.good())
-// 	{
-// 		generateFileError(fs);
-// 		return;
-// 	}
-// 	for (size_t i = 0; i < request.getBody().size(); i++)
-// 		fs << request.getBody()[i];
-// 	fs.close();
-// 	generateResponsetemplate(OK);
-// }
+	// if (!fs.good())
+	// {
+	// 	generateFileError(fs);
+	// 	return;
+	// }
+	// for (size_t i = 0; i < request.getBody().size(); i++)
+	// 	fs << request.getBody()[i];
+	// fs.close();
+	// generateResponsetemplate(OK);
+}
 
 void Response::deleteAction()
 {
@@ -228,6 +220,8 @@ std::string Response::getContentType(std::string &extention)
 		return "image/jpeg";
 	else if (extention == "mpeg")
 		return "audio/mpeg";
+	else if (extention == "mp4")
+		return "video/mp4";
 	return "text/plain";
 }
 
