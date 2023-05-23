@@ -122,21 +122,14 @@ void Pollge::_sdReceive(int sd, bool &close_conn)
 				rc = 0;
 				long long tmp = 0;
 				while (rc < (long long)size){
-					std::cout << "sending" << std::endl;
 					if (size - rc < (size_t)client.getSrvConf().getSendBufferSize())
 						to_send = size - rc;
-					std::cout << "to_send: " << to_send << std::endl;
 					tmp = send(sd, client.getResponse().getGeneratedResponse().c_str() + rc, to_send, 0);
-					std::cout << tmp << " bytes sent" << std::endl;
 					if (tmp < 0)
 						break;
 					rc += tmp;
 					std::cout << "sent: " << rc << "out of " << size << std::endl;
 				}
-				std::cout << "	" << rc << " bytes sent" << std::endl;
-				std::cout << "size: " << size << std::endl;
-				client.getResponse().clear();
-				std::cout << "clear" << std::endl;
 				if (tmp < 0)
 				{
 					std::cerr << "send() failed" << std::endl;
