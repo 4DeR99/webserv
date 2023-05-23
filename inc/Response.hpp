@@ -18,6 +18,7 @@ enum StatusCode
 class Response
 {
 private:
+	bool   responseCompleted;
 	size_t statusCode;
 	size_t dirListen;
 	Request request;
@@ -58,6 +59,9 @@ public:
 	std::string getContentType(std::string &extention);
 	std::string getGeneratedResponse();
 	std::string getBody();
+
+	// getters
+	bool isResponseCompleted();
 
 	void clear();
 

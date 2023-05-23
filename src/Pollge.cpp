@@ -19,7 +19,8 @@ void Pollge::_addSd(int sd, int srvIndex, int sendBufferSize)
 	servers[srvIndex - 1].setSd(sd);
 	memset(&pollfd, 0, sizeof(pollfd));
 	pollfd.fd = sd;
-	pollfd.events = POLLIN;
+	pollfd.events = POLLIN | POLLOUT;
+	pollfd.revents = 0;
 	this->fds.push_back(pollfd);
 }
 
@@ -47,12 +48,28 @@ void Pollge::_run()
 		{
 			if (this->fds[i].revents == 0)
 				continue;
-			if (sd2srv[this->fds[i].fd] > 0)
-				this->_sdAccept(this->fds[i].fd);
-			else
+			if (this->fds[i].revents & POLLIN)
+			{
+				if (sd2srv[this->fds[i].fd] > 0)
+				{
+					this->_sdAccept(this->fds[i].fd);
+				}
+				else
+				{
+					close_conn = false;
+					this->_sdReceive(this->fds[i].fd, close_conn);
+					if (close_conn)
+					{
+						close(this->fds[i].fd);
+						this->fds[i].fd = -1;
+						this->compress_array = true;
+					}
+				}
+			}
+			if (this->fds[i].revents & POLLOUT)
 			{
 				close_conn = false;
-				this->_sdReceive(this->fds[i].fd, close_conn);
+				this->_sdSend(this->fds[i].fd, close_conn);
 				if (close_conn)
 				{
 					close(this->fds[i].fd);
@@ -99,7 +116,8 @@ void Pollge::_sdAccept(int sd)
 		Client newClient(new_sd, servers[sd2srv[sd] - 1]);
 		memset(&pollfd, 0, sizeof(pollfd));
 		pollfd.fd = new_sd;
-		pollfd.events = POLLIN;
+		pollfd.events = POLLIN | POLLOUT;
+		pollfd.revents = 0;
 		this->fds.push_back(pollfd);
 		this->clients[new_sd] = newClient;
 	} while (new_sd != -1);
@@ -112,38 +130,7 @@ void Pollge::_sdReceive(int sd, bool &close_conn)
 	std::string buff;
 
 	if ((rc = recv(sd, this->buffer, sizeof(this->buffer), 0)) > 0)
-	{
-		try{
-			client.addRawRequest(this->buffer, rc);
-			size_t size = client.getResponse().getGeneratedResponse().size();
-			size_t to_send = client.getSrvConf().getSendBufferSize();
-			if (size)
-			{
-				rc = 0;
-				long long tmp = 0;
-				while (rc < (long long)size){
-					if (size - rc < (size_t)client.getSrvConf().getSendBufferSize())
-						to_send = size - rc;
-					tmp = send(sd, client.getResponse().getGeneratedResponse().c_str() + rc, to_send, 0);
-					if (tmp < 0)
-						break;
-					rc += tmp;
-					std::cout << "sent: " << rc << "out of " << size << std::endl;
-				}
-				if (tmp < 0)
-				{
-					std::cerr << "send() failed" << std::endl;
-					close_conn = true;
-				}
-			}
-		}
-		catch (std::exception &e)
-		{
-			std::cout << "Error: ";
-			std::cerr << e.what() << std::endl;
-			close_conn = true;
-		}
-	}
+		client.addRawRequest(this->buffer, rc);
 	else if (rc == 0)
 	{
 		std::cout << " Connection closed" << std::endl;
@@ -153,6 +140,40 @@ void Pollge::_sdReceive(int sd, bool &close_conn)
 	{
 		std::cerr << " recv() failed" << std::endl;
 		close_conn = true;
+	}
+}
+
+void Pollge::_sdSend(int sd, bool &close_conn)
+{
+	Client &client = this->clients[sd];
+	long long rc;
+	if (client.getResponse().isResponseCompleted())
+	{
+		size_t size = client.getResponse().getGeneratedResponse().size();
+		size_t to_send;
+		if (size)
+		{
+			rc = 0;
+			long long tmp = 0;
+			while (rc < (long long)size){
+				// if (size - rc < (size_t)client.getSrvConf().getSendBufferSize())
+				to_send = size - rc;
+				tmp = send(sd, client.getResponse().getGeneratedResponse().c_str() + rc, to_send, 0);
+				if (tmp < 0)
+					break;
+				rc += tmp;
+			}
+			if (rc == (long long)size)
+			{
+				client.getResponse().clear();
+				close_conn = true;
+			}
+			if (tmp < 0)
+			{
+				std::cerr << "send() failed" << std::endl;
+				close_conn = true;
+			}
+		}
 	}
 }
 

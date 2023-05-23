@@ -23,6 +23,7 @@ public:
 	void _run();
 	void _sdAccept(int sd);
 	void _sdReceive(int sd, bool &close_conn);
+	void _sdSend(int sd, bool &close_conn);
 };
 
 #endif

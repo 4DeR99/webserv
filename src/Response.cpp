@@ -1,7 +1,8 @@
 #include "Inc.hpp"
 
 Response::Response()
-		: statusCode(0),
+		:	responseCompleted(false),
+			statusCode(0),
 			dirListen(0) {}
 
 //! check this later
@@ -277,7 +278,11 @@ void Response::generateResponse(Request &request, ServerConf &serverConf)
 	if (statusCode > OK && statusCode < CGI)
 		generateErrorMessage();
 	generateResponsetemplate();
+	this->responseCompleted = true;
+	// std::cout << "generated response: " << this->generatedResponse << std::endl;
 }
+
+bool Response::isResponseCompleted() { return responseCompleted; }
 
 void Response::clear()
 {
@@ -285,6 +290,7 @@ void Response::clear()
 	generatedBody.clear();
 	statusCode = 0;
 	dirListen = 0;
+	responseCompleted = false;
 }
 
 std::string Response::getGeneratedResponse() { return generatedResponse; }
