@@ -2,11 +2,13 @@
 
 Client::Client()
 		: fd(-1),
-			chunkSize(-1) {}
+			chunkSize(-1),
+			sentBytes(0) {}
 
 Client::Client(int fd, ServerConf &serverconf)
 		: fd(fd),
 			chunkSize(-1),
+			sentBytes(0),
 			srvconf(serverconf)
 {
 	this->request.setServerConf(serverconf);
@@ -142,6 +144,8 @@ void Client::addRawRequest(char *buffer, size_t size)
 	}
 }
 
+void Client::setSentBytes(long long sentBytes) {	this->sentBytes = sentBytes; }
+
 int Client::getFd() { return fd; }
 
 Request& Client::getRequest() { return request; }
@@ -151,5 +155,7 @@ std::string& Client::getRawContent() { return this->rawContent; }
 Response& Client::getResponse() { return this->response; }
 
 ServerConf& Client::getSrvConf() { return this->srvconf; }
+
+long long Client::getSentBytes() { return this->sentBytes; }
 
 Client::~Client() {}

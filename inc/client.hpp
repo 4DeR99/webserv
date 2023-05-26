@@ -8,6 +8,7 @@ class Client
 private:
 	int fd;
 	int chunkSize;
+	long long sentBytes;
 	Request request;
 	Response response;
 	ServerConf srvconf;
@@ -23,18 +24,24 @@ public:
 	void splitRawRequest();
 	bool requestCompleted();
 
+	// Getters
 	int getFd();
+	long long getSentBytes();
 	Request& getRequest();
 	std::string& getRawContent();
 	Response& getResponse();
 	ServerConf& getSrvConf();
 
+	// Setters
 	void addRawRequest(char *buffer, size_t size);
 	void addNormalBody();
 	void addChunkedBody();
+	void setSentBytes(long long sentBytes);
+	
+	// Request related methods
 	void makeRequest();
-
 	void nextRequest();
+
 };
 
 #endif
