@@ -52,6 +52,7 @@ public:
 	std::string getAbsoluteUrl();
 	std::string getrawContent();
 	std::vector<char>& getBody();
+	std::vector<std::string>& getRequestContent();
 	std::map<std::string, std::string> getHeaders();
 
 	// setters

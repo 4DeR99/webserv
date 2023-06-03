@@ -133,35 +133,29 @@ void Request::_parseMethod()
 void Request::parse()
 {
 	_parseMethod();
-	if (valid)
-	{
-		for (size_t i = 1; i < requestContent.size() && valid; i++)
-		{
+	if (valid) {
+		for (size_t i = 1; i < requestContent.size() && valid; i++) {
 			if (requestContent[i].find(':') == requestContent[i].size() - 1)
 				valid = false;
-			if (requestContent[i].find(':') != std::string::npos)
-			{
+			if (requestContent[i].find(':') != std::string::npos) {
 				std::string key = std::string(requestContent[i].begin(), std::find(requestContent[i].begin(), requestContent[i].end(), ':'));
 				_sweep(key);
 				forup(i, 0, key.size()) key[i] = tolower(key[i]);
 				std::string value = std::string(std::find(requestContent[i].begin(), requestContent[i].end(), ':') + 1, requestContent[i].end());
 				_sweep(value);
-				if (key == "content-length")
-				{
+				if (key == "content-length") {
 					if (requestChunked)
 						valid = false;
 					bodyExist = true;
-					try
-					{
+					try {
 						bodyLength = std::stoi(value);
 					}
-					catch (std::exception &e)
-					{
+					catch (std::exception &e) {
 						valid = false;
 					}
 				}
-				else if (key == "transfer-encoding" && value == "chunked")
-				{
+				else if (key == "transfer-encoding" && value == "chunked") {
+					std::cout << "chunked request" << std::endl;
 					if (!headers["content-length"].empty())
 						valid = false;
 					bodyExist = true;
@@ -194,6 +188,8 @@ std::string Request::getAbsoluteUrl() { return this->absoluteUrl; }
 std::map<std::string, std::string> Request::getHeaders() { return this->headers; }
 
 std::vector<char>& Request::getBody() { return this->body; }
+
+std::vector<std::string>& Request::getRequestContent() { return this->requestContent; }
 
 bool Request::bodyDoesExist() { return this->bodyExist; }
 

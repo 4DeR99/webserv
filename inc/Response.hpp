@@ -57,7 +57,7 @@ public:
 	std::string getMessage();
 	std::string getContentTypeString();
 	std::string getContentType(std::string &extention);
-	std::string getGeneratedResponse();
+	std::string& getGeneratedResponse();
 	std::string getBody();
 
 	// getters

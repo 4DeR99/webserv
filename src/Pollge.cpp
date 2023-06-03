@@ -27,33 +27,29 @@ void Pollge::_addSd(int sd, int srvIndex, int sendBufferSize)
 void Pollge::_run()
 {
 	int rc;
-	size_t current_size;
 	bool close_conn;
 	std::cout << "Begin" << std::endl;
-	while (this->end_server == false)
+	while (true)
 	{
 		// CALL POLL() AND WAIT FOR INC CONNECTIONS
 		rc = poll(this->fds.data(), this->fds.size(), this->timeout);
 		// CHECK IF POLL() FAILED
 		if (rc < 0)
-			throw std::runtime_error("poll() failed");
+			throw std::runtime_error("poll() failed: " + std::string(strerror(errno)));
 		// CHECK IF THE 3MIN EXPIRED
 		if (rc == 0)
 		{
 			std::cout << "	poll() timed out. End program." << std::endl;
 			break;
 		}
-		current_size = this->fds.size();
-		forup(i, 0, current_size)
+		forup(i, 0, this->fds.size())
 		{
 			if (this->fds[i].revents == 0)
 				continue;
 			if (this->fds[i].revents & POLLIN)
 			{
 				if (sd2srv[this->fds[i].fd] > 0)
-				{
 					this->_sdAccept(this->fds[i].fd);
-				}
 				else
 				{
 					close_conn = false;
@@ -75,6 +71,7 @@ void Pollge::_run()
 					close(this->fds[i].fd);
 					this->fds[i].fd = -1;
 					this->compress_array = true;
+					this->clients.erase(this->fds[i].fd);
 				}
 			}
 		}
@@ -100,30 +97,20 @@ void Pollge::_sdAccept(int sd)
 	int new_sd = -1;
 	struct pollfd pollfd;
 
-	do
-	{
-		new_sd = accept(sd, NULL, NULL);
-		if (new_sd < 0)
-		{
-			if (errno != EWOULDBLOCK)
-			{
-				std::cerr << "  accept() failed" << std::endl;
-				end_server = true;
-			}
-			break;
-		}
-		// Set the socket to be nonblocking
-		if (fcntl(new_sd, F_SETFL, O_NONBLOCK) < 0)
-			throw std::runtime_error("fcntl() failed");
-		std::cout << "	New client connected " << std::endl;
-		Client newClient(new_sd, servers[sd2srv[sd] - 1]);
-		memset(&pollfd, 0, sizeof(pollfd));
-		pollfd.fd = new_sd;
-		pollfd.events = POLLIN | POLLOUT;
-		pollfd.revents = 0;
-		this->fds.push_back(pollfd);
-		this->clients[new_sd] = newClient;
-	} while (new_sd != -1);
+	new_sd = accept(sd, NULL, NULL);
+	if (new_sd < 0)
+		throw std::runtime_error("accept() failed: " + std::string(strerror(errno)));
+	// Set the socket to be nonblocking
+	if (fcntl(new_sd, F_SETFL, O_NONBLOCK) < 0)
+		throw std::runtime_error("fcntl() failed");
+	std::cout << "	New client connected " << std::endl;
+	Client newClient(new_sd, servers[sd2srv[sd] - 1]);
+	memset(&pollfd, 0, sizeof(pollfd));
+	pollfd.fd = new_sd;
+	pollfd.events = POLLIN | POLLOUT;
+	pollfd.revents = 0;
+	this->fds.push_back(pollfd);
+	this->clients[new_sd] = newClient;
 }
 
 void Pollge::_sdReceive(int sd, bool &close_conn)
@@ -153,31 +140,27 @@ void Pollge::_sdSend(int sd, bool &close_conn)
 	if (client.getResponse().isResponseCompleted())
 	{
 		size_t size = client.getResponse().getGeneratedResponse().size();
-		std::string response = client.getResponse().getGeneratedResponse();
 		if (size)
 		{
-			rc = 0;
 			long long tmp = 0;
-			size_t to_send = 1024;
-			// while (rc < (long long)size){
-				// std::cout << "Sending " << to_send << " bytes" << std::endl;
-				if (size - rc < 1024)
-					to_send = size - rc;
-				tmp = send(sd, response.c_str() + rc, to_send, 0);
-				// if (tmp < 0)
-					// break;
-				rc += tmp;
-				client.setSentBytes(rc);
-			// }
-			if (rc == (long long)size)
-			{
-				client.getResponse().clear();
-				close_conn = true;
-			}
+			size_t to_send = SEND_BUFFER_SIZE;
+			if (size - rc < to_send)
+				to_send = size - rc;
+			tmp = send(sd, client.getResponse().getGeneratedResponse().c_str() + rc, to_send, 0);
 			if (tmp < 0)
 			{
 				std::cerr << "send() failed" << std::endl;
 				client.getResponse().clear();
+				close_conn = true;
+				return ;
+			}
+			rc += tmp;
+			client.setSentBytes(rc);
+			if (rc == (long long)size)
+			{
+				std::cout << "done sending" << std::endl;
+				client.getResponse().clear();
+				client.setSentBytes(0);
 				close_conn = true;
 			}
 		}

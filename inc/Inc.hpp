@@ -77,7 +77,7 @@
 #define LOCALHOST "127.0.0.1"
 
 #define NGINX_MAX_BODY_SIZE 1048576
-#define MAX_SEND_SIZE 8192
+#define SEND_BUFFER_SIZE 8192
 
 #include <iostream>
 #include <stdio.h>

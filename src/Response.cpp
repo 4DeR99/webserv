@@ -279,7 +279,8 @@ void Response::generateResponse(Request &request, ServerConf &serverConf)
 		generateErrorMessage();
 	generateResponsetemplate();
 	this->responseCompleted = true;
-	// std::cout << "generated response: " << this->generatedResponse << std::endl;
+	std::cout << "	Generated response size-> " << this->generatedResponse.size() << std::endl;
+	std::cout << "	Generated response->\n" << this->generatedResponse.substr(0, 500) << std::endl;
 }
 
 bool Response::isResponseCompleted() { return responseCompleted; }
@@ -291,8 +292,9 @@ void Response::clear()
 	statusCode = 0;
 	dirListen = 0;
 	responseCompleted = false;
+	request.clear();
 }
 
-std::string Response::getGeneratedResponse() { return generatedResponse; }
+std::string& Response::getGeneratedResponse() { return generatedResponse; }
 
 Response::~Response() {}
