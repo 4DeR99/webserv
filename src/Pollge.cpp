@@ -158,7 +158,6 @@ void Pollge::_sdSend(int sd, bool &close_conn)
 			client.setSentBytes(rc);
 			if (rc == (long long)size)
 			{
-				std::cout << "done sending" << std::endl;
 				client.getResponse().clear();
 				client.setSentBytes(0);
 				close_conn = true;

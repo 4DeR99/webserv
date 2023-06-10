@@ -57,12 +57,9 @@ void Client::makeRequest()
 void Client::addChunkedBody()
 {
 	std::string rawBody;
-
-	std::cout << "rawContent: " << rawContent << std::endl;
 	while (rawContent.size()) {
-		rawBody = rawContent.substr(0, rawContent.find('\n'));
-		std::cout << "--rawBody: " << rawBody << "|--" << std::endl;
-		rawContent.erase(rawContent.begin(), rawContent.begin() + rawBody.size() + 1);
+		rawBody = rawContent.substr(0, rawContent.find("\r\n"));
+		rawContent.erase(rawContent.begin(), rawContent.begin() + rawBody.size() + 2);
 		if (chunkSize == -1) {
 			try {
 				chunkSize = std::stoi(rawBody);
@@ -80,13 +77,12 @@ void Client::addChunkedBody()
 			}
 		} 
 		else if (chunkSize > 0) {
-			rawBody = rawContent.substr(0, rawContent.find('\n'));
-			rawContent.erase(rawContent.begin(), rawContent.begin() + rawBody.size());
 			if ((int)rawBody.size() != chunkSize) {
 				request.setValidity(false);
 				return;
 			}
 			forup(i, 0, rawContent.size()) request.getBody().push_back(rawBody[i]);
+			chunkSize = -1;
 		}
 	}
 }
@@ -103,7 +99,6 @@ void Client::addNormalBody()
 void Client::addRawRequest(char *buffer, size_t size)
 {
 	forup(i, 0, size) this->rawContent.push_back(buffer[i]);
-	// std::cout << "rawContent: \n" << rawContent << std::endl;
 	if (request.empty() && rawContent.find("\r\n\r\n") != std::string::npos) {
 		splitRawRequest();
 		request.addRawContent(rawContent);
@@ -121,17 +116,13 @@ void Client::addRawRequest(char *buffer, size_t size)
 		}
 	}
 	if (request.isRequestChunked()) {
-		std::cout << "1" << std::endl;
 		addChunkedBody();
-		std::cout << "2" << std::endl;
 		if (!request.isValid()) {
-			std::cout << "3" << std::endl;
 			response.generateResponse(request, srvconf);
 			chunkSize = -1;
 			return;
 		}
 		if (chunkSize == 0) {
-			std::cout << "4" << std::endl;
 			response.generateResponse(request, srvconf);
 			chunkSize = -1;
 			return;
