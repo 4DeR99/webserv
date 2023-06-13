@@ -45,8 +45,6 @@ void Response::generateBasedOnDirectory(DIR *dir)
 {
 	std::vector<std::string> dirItems;
 	std::string url = request.getUrl();
-
-
 	if (url[url.size() - 1] != '/')
 		url += '/';
 	dirItems = listDirectory(dir);
@@ -88,28 +86,13 @@ void Response::generateFileError(std::fstream &fs)
 void Response::getAction()
 {
 	std::string url = this->request.getAbsoluteUrl();
-	Location location;
-
-	try
-	{
-		location = srvconf.getLocation(request.getLocationIndex());
-	}
-	catch (const std::exception &e)
-	{
-		this->statusCode = NOT_FOUND;
-		return;
-	}
-	if (find(location.getMethods().begin(), location.getMethods().end(), "GET") == location.getMethods().end())
-	{
-		this->statusCode = NOT_ALLOWED;
-		return;
-	}
 
 	DIR *dir = opendir(this->request.getAbsoluteUrl().c_str());
 	if (!location.getIndex().empty())
 		url = location.getIndex();
 	else if (dir)
 	{
+		// directory listing
 		if (!location.getAutoIndex())
 		{
 			this->statusCode = NOT_ALLOWED;
@@ -123,12 +106,13 @@ void Response::getAction()
 	std::fstream fs(url.c_str());
 	if (!fs.good())
 	{
+		// file error
 		generateFileError(fs);
 		return;
 	}
 	if (!location.getCgi().empty())
 	{
-		// todo: larsen part !!
+		// cgi
 		// generatedResponse = 
 	}
 	else
@@ -260,15 +244,28 @@ void Response::generateResponsetemplate()
 	generatedResponse += "\r\n";
 }
 
+int Response::getappropiateLocation()
+{
+	try
+	{
+		this->location = srvconf.getLocation(request.getLocationIndex());
+	}
+	catch (const std::exception &e)
+	{
+		return -1;
+	}
+	return 0;
+}
+
 void Response::generateResponse(Request &request, ServerConf &serverConf)
 {
+		
 	this->request = request;
 	this->srvconf = serverConf;
-	if (!request.isValid())
-	{
-		std::cout << " 400 BAD REQUEST" << std::endl;
+	if (getappropiateLocation() < 0)
+		this->statusCode = NOT_FOUND;
+	else if (!request.isValid())
 		this->statusCode = BAD_REQUEST;
-	}
 	else if (request.getType() == GET)
 		getAction();
 	// else if (request.getType() == POST)

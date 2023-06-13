@@ -22,6 +22,7 @@ private:
 	size_t statusCode;
 	size_t dirListen;
 	Request request;
+	Location location;
 	ServerConf srvconf;
 	std::string generatedResponse;
 	std::string generatedBody;
@@ -53,6 +54,7 @@ public:
 	void generateResponse(Request &request, ServerConf &serverConf);
 
 	// utils to generate reponse
+	int getappropiateLocation();
 	void generateResponsetemplate();
 	std::string getMessage();
 	std::string getContentTypeString();
