@@ -292,4 +292,6 @@ void Response::clear()
 
 std::string& Response::getGeneratedResponse() { return generatedResponse; }
 
+Location& Response::getLocation() { return location; }
+
 Response::~Response() {}

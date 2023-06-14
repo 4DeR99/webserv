@@ -24,6 +24,7 @@ public:
 	Location& operator=(Location const &_2Copy);
 	~Location();
 
+	// getters
 	std::vector<std::string> getMethods();
 	std::string& getRedirectionPath();
 	std::string& getUploadpath();
@@ -36,6 +37,7 @@ public:
 	int getReturnNb();
 	int getAutoIndex();
 
+	// setters
 	void setAllowMethods(std::vector<std::string> methods);
 	void setRedirection(int nb, std::string path);
 	void setUploadPath(std::string uploadPath);

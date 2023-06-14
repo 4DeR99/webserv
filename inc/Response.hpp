@@ -61,6 +61,7 @@ public:
 	std::string getContentType(std::string &extention);
 	std::string& getGeneratedResponse();
 	std::string getBody();
+	Location& getLocation();
 
 	// getters
 	bool isResponseCompleted();
