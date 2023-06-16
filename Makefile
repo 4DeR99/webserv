@@ -2,6 +2,7 @@ NAME = webserv
 
 CC = c++
 CFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address -fsanitize=undefined
+# CFLAGS = -std=c++98
 
 INC_DIR = ./inc/
 SRC_DIR = ./src/
@@ -10,7 +11,7 @@ OBJ_DIR = ./obj/
 INC_FILES = Client.hpp Inc.hpp Location.hpp Parser.hpp Pollge.hpp\
 						Request.hpp Response.hpp Serverconf.hpp
 SRC_FILES = main.cpp Client.cpp Location.cpp Parser.cpp Pollge.cpp\
-						Request.cpp Response.cpp Serverconf.cpp
+						Request.cpp Response.cpp Serverconf.cpp CGI.cpp
 OBJ_FILES = $(SRC_FILES:.cpp=.o)
 
 INC = $(addprefix $(INC_DIR), $(INC_FILES))
