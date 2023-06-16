@@ -1,8 +1,8 @@
 NAME = webserv
 
 CC = c++
-CFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address -fsanitize=undefined
-# CFLAGS = -std=c++98
+# CFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address -fsanitize=undefined
+CFLAGS = -std=c++98
 
 INC_DIR = ./inc/
 SRC_DIR = ./src/
