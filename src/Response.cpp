@@ -78,18 +78,31 @@ void Response::generateFileError(std::fstream &fs)
 		this->statusCode = INTERNAL_SERVER_ERROR;
 }
 
+int Response::_cgi()
+{
+	try {
+		generatedBody = execCgi(request, srvconf, location);
+		statusCode = OK;
+	}
+	catch(const std::exception& e) {
+		statusCode = INTERNAL_SERVER_ERROR;
+		return -1;
+	}
+	return 0;
+}
+
 void Response::getAction()
 {
 	std::string url = this->request.getAbsoluteUrl();
+	bool cgi = url.substr(url.find_last_of('.') + 1) == "php" || url.substr(url.find_last_of('.') + 1) == "py";
 	DIR *dir = opendir(this->request.getAbsoluteUrl().c_str());
 	if (!location.getIndex().empty())
 		url = location.getIndex();
-	else if (dir)
-	{
+	else if (dir) {
 		// directory listing
 		if (!location.getAutoIndex())
 		{
-			this->statusCode = NOT_ALLOWED;
+			this->statusCode = FORBIDDEN;
 			return;
 		}
 		generateBasedOnDirectory(dir);
@@ -98,19 +111,14 @@ void Response::getAction()
 		return;
 	}
 	std::fstream fs(url.c_str());
-	if (!fs.good())
-	{
+	if (!fs.good()) {
 		// file error
 		generateFileError(fs);
 		return;
 	}
-	if (!location.getCgi().empty())
-	{
-		// cgi
-		// generatedResponse = 
-	}
-	else
-	{
+	if (!location.getCgi().empty() && cgi)
+		_cgi();
+	else {
 		this->statusCode = OK;
 		std::string buffer;
 		while (getline(fs, buffer, '\n'))
@@ -170,17 +178,15 @@ std::string Response::getMessage()
 		case OK:
 			return "OK";
 		case BAD_REQUEST:
-			return "BAD_REQUEST";
+			return "BAD REQUEST";
 		case FORBIDDEN:
 			return "FORBIDDEN";
 		case NOT_FOUND:
-			return "NOT_FOUND";
+			return "NOT FOUND";
 		case NOT_ALLOWED:
-			return "NOT_ALLOWED";
-		case REQUEST_ENTITY_TOO_LARGE:
-			return "REQUEST_ENTITY_TOO_LARGE";
+			return "NOT ALLOWED";
 		default:
-			return "INTERNAL_SERVER_ERROR";
+			return "INTERNAL SERVER ERROR";
 	}
 }
 
@@ -201,6 +207,8 @@ std::string Response::getContentType(std::string &extention)
 		return "audio/mpeg";
 	else if (extention == "mp4")
 		return "video/mp4";
+	else if (extention == "php" || extention == "py")
+		return "text/html";
 	return "text/plain";
 }
 
@@ -219,13 +227,6 @@ std::string Response::getContentTypeString()
 	contentTypeString = "Content-Type: " + contentType;
 	return contentTypeString;
 }
-
-// std::string Response::getbody()
-// {
-// 	std::string body;
-
-	
-// }
 
 void Response::generateResponsetemplate()
 {
@@ -264,7 +265,7 @@ void Response::generateResponse(Request &request, ServerConf &serverConf)
 	// 	postAction();
 	// else if (request.getType() == DELETE)
 	// 	deleteAction();
-	if (statusCode > OK && statusCode < CGI)
+	if (statusCode > OK)
 		generateErrorMessage();
 	generateResponsetemplate();
 	this->responseCompleted = true;

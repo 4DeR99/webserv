@@ -14,7 +14,6 @@ ServerConf::ServerConf(ServerConf const &_2Copy)
 
 ServerConf &ServerConf::operator=(ServerConf const &_2Copy)
 {
-	// std::cout << "sd lwl: " << _2Copy.sd << std::endl;
 	this->sd = _2Copy.sd;
 	this->on = _2Copy.on;
 	this->port = _2Copy.port;
@@ -26,8 +25,6 @@ ServerConf &ServerConf::operator=(ServerConf const &_2Copy)
 	this->locations = _2Copy.locations;
 	this->locationsPath = _2Copy.locationsPath;
 	this->send_buffer_size = _2Copy.send_buffer_size;
-	// std::cout << "daz hna" << std::endl;
-	// std::cout << "SD------->" << this->sd << std::endl;
 	return *this;
 }
 
@@ -128,7 +125,6 @@ void ServerConf::createSd()
 	// GETTING THE SIZE OF THE SEND BUFFER
 	socklen_t optlen = sizeof(this->send_buffer_size);
 	int result = getsockopt(sd, SOL_SOCKET, SO_SNDBUF, &this->send_buffer_size, &optlen);
-	// std::cout << "send_buffer_size: " << this->send_buffer_size << std::endl;
 	this->send_buffer_size /= 2;
 	if (result == -1)
 	{

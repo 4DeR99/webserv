@@ -77,29 +77,25 @@ void Request::_parseUrl(std::string &url)
 	std::string holder;
 	std::vector<Location> locations;
 	
-	if (valid)
-	{
-		if (url.front() != '/' || url.find("/../") != std::string::npos)
-		{
+	if (valid) {
+		if (url.front() != '/' || url.find("/../") != std::string::npos) {
 			valid = false;
 			return;
 		}
 		locations = serverConf.getLocations();
-		while (pos != std::string::npos)
-		{
-			holder = url.substr(0, pos + 1);
-			forup(i, 0, locations.size())
-			{
+		holder = url.substr(0, pos + 1);
+		while (pos != std::string::npos) {
+			forup(i, 0, locations.size()) {
 				if (holder == locations[i].getPath())
 					locationIndex = i;
 			}
 			pos = url.find('/', pos + 1);
+			holder = url.substr(0, pos);
 		}
 	}
 	if (locationIndex == NO_LOCATION)
 		valid = false;
-	else
-	{
+	else {
 		pos = url.find('?');
 		this->url = url.substr(0, pos);
 		this->queryString = url.substr(pos + 1);
@@ -138,13 +134,7 @@ void Request::parse()
 {
 	_parseMethod();
 	if (valid) {
-		// int carryOn = -1;
 		for (size_t i = 1; i < requestContent.size() && valid; i++) {
-			// if (!boundary.empty() && requestContent[i] == boundary) {
-			// 	carryOn = i;
-			// 	break;
-			// }
-			std::cout << "hadi 9lwa: " << requestContent[i] << std::endl;
 			if (requestContent[i].find(':') == requestContent[i].size() - 1)
 				valid = false;
 			if (requestContent[i].find(':') != std::string::npos) {
@@ -159,7 +149,6 @@ void Request::parse()
 					_sweep(boundary);
 				}
 				else if (key == "content-length") {
-					std::cout << "content-length request" << std::endl;
 					if (requestChunked)
 						valid = false;
 					bodyExist = true;
@@ -171,7 +160,6 @@ void Request::parse()
 					}
 				}
 				else if (key == "transfer-encoding" && value == "chunked") {
-					std::cout << "chunked request" << std::endl;
 					if (!headers["content-length"].empty())
 						valid = false;
 					bodyExist = true;
@@ -180,9 +168,6 @@ void Request::parse()
 				headers[key] = value;
 			}
 		}
-		// for (size_t i = carryOn; i < requestContent.size() && valid; i++) {
-			// body += requestContent[i];
-		// }
 	}
 }
 

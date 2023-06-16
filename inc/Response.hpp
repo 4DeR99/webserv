@@ -10,9 +10,7 @@ enum StatusCode
 	FORBIDDEN = 403,
 	NOT_FOUND = 404,
 	NOT_ALLOWED = 405,
-	REQUEST_ENTITY_TOO_LARGE = 413,
 	INTERNAL_SERVER_ERROR = 500,
-	CGI = 600
 };
 
 class Response
@@ -29,6 +27,7 @@ private:
 
 	// private functions
 	std::vector<std::string> _split(std::string s, char c);
+	int _cgi();
 
 public:
 	Response();

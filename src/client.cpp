@@ -102,7 +102,6 @@ void Client::addRawRequest(char *buffer, size_t size)
 	if (request.empty() && rawContent.find("\r\n\r\n") != std::string::npos) {
 		splitRawRequest();
 		request.addRawContent(rawContent);
-		forup(i, 0, request.getRequestContent().size())	std::cout << request.getRequestContent()[i] << std::endl;
 		request.parse();
 		this->rawContent.erase(this->rawContent.begin(), this->rawContent.begin() + this->rawContent.find("\r\n\r\n") + 4);
 		if (!request.isValid() || !request.bodyDoesExist()) {

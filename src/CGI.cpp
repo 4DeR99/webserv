@@ -27,7 +27,7 @@ void fill_env(std::map<std::string, std::string>&env, Request &request, ServerCo
 	env["CONTENT_TYPE"] = request.getHeaders()["Content-Type"];
 	env["CONTENT_LENGTH"] = std::to_string(request.getBodyLength());
 	env["QUERY_STRING"] = request.getQueryString();
-	for(std::map<std::string, std::string>::iterator it; it != request.getHeaders().end(); it++){
+	for(std::map<std::string, std::string>::iterator it = request.getHeaders().begin(); it != request.getHeaders().end(); it++){
 		env["HTTP_" + it->first] = it->second;
 	}
 }
@@ -50,10 +50,14 @@ std::string execCgi(Request &request, ServerConf &serverConf, Location &location
 	fill_env(env, request, serverConf, location);
 	std::string response;
 	char buffer[1024];
+	char* _arg[3];
 	FILE *tmp_in = tmpfile();
 	FILE *tmp_out = tmpfile();
 	int in = fileno(tmp_in);
 	int out = fileno(tmp_out);
+	_arg[0] = (char *)cgi_path.c_str();
+	_arg[1] = (char *)request.getAbsoluteUrl().c_str();
+	_arg[2] = NULL;
 	write(in, request.getBody().c_str(), request.getBodyLength());
 	lseek(in, 0, SEEK_SET);
 	char **envp = map2tab(env);
@@ -64,7 +68,7 @@ std::string execCgi(Request &request, ServerConf &serverConf, Location &location
 	{
 		dup2(in, 0);
 		dup2(out, 1);
-		if (execve(cgi_path.c_str(), NULL, envp) == -1)
+		if (execve(_arg[0], (char **)_arg, envp) == -1)
 		{
 			forup(i, 0, env.size())
 				delete[] envp[i];
