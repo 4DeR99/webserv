@@ -49,12 +49,7 @@ void Response::generateBasedOnDirectory(DIR *dir)
 		url += '/';
 	dirItems = listDirectory(dir);
 	generatedBody += "<!DOCTYPE html>\n";
-	generatedBody += "<html lang=\"en\">\n\n";
 	generatedBody += "<head>\n";
-	generatedBody += "\t<meta charset=\"UTF-8\">\n";
-	generatedBody += "\t<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n";
-	generatedBody += "\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n";
-	generatedBody += "\t<meta charset=\"UTF-8\">\n";
 	generatedBody += "\t<title>" + request.getUrl() + "</title>\n";
 	generatedBody += "</head>\n";
 	generatedBody += "<h1>Index of " + request.getUrl() + "</h1>\n";
@@ -86,7 +81,6 @@ void Response::generateFileError(std::fstream &fs)
 void Response::getAction()
 {
 	std::string url = this->request.getAbsoluteUrl();
-
 	DIR *dir = opendir(this->request.getAbsoluteUrl().c_str());
 	if (!location.getIndex().empty())
 		url = location.getIndex();
@@ -173,20 +167,20 @@ std::string Response::getMessage()
 {
 	switch (this->statusCode)
 	{
-	case OK:
-		return "OK";
-	case BAD_REQUEST:
-		return "BAD_REQUEST";
-	case FORBIDDEN:
-		return "FORBIDDEN";
-	case NOT_FOUND:
-		return "NOT_FOUND";
-	case NOT_ALLOWED:
-		return "NOT_ALLOWED";
-	case REQUEST_ENTITY_TOO_LARGE:
-		return "REQUEST_ENTITY_TOO_LARGE";
-	default:
-		return "INTERNAL_SERVER_ERROR";
+		case OK:
+			return "OK";
+		case BAD_REQUEST:
+			return "BAD_REQUEST";
+		case FORBIDDEN:
+			return "FORBIDDEN";
+		case NOT_FOUND:
+			return "NOT_FOUND";
+		case NOT_ALLOWED:
+			return "NOT_ALLOWED";
+		case REQUEST_ENTITY_TOO_LARGE:
+			return "REQUEST_ENTITY_TOO_LARGE";
+		default:
+			return "INTERNAL_SERVER_ERROR";
 	}
 }
 
@@ -246,12 +240,10 @@ void Response::generateResponsetemplate()
 
 int Response::getappropiateLocation()
 {
-	try
-	{
+	try {
 		this->location = srvconf.getLocation(request.getLocationIndex());
 	}
-	catch (const std::exception &e)
-	{
+	catch (const std::exception &e) {
 		return -1;
 	}
 	return 0;

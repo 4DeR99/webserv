@@ -117,6 +117,8 @@ void Client::addRawRequest(char *buffer, size_t size)
 	}
 	if (request.isRequestChunked()) {
 		addChunkedBody();
+		if (request.bodyBoundaryExist())
+			request.parseMultiPartBody();
 		if (!request.isValid()) {
 			response.generateResponse(request, srvconf);
 			chunkSize = -1;
@@ -131,8 +133,8 @@ void Client::addRawRequest(char *buffer, size_t size)
 	else if (request.bodyDoesExist()) {
 		addNormalBody();
 		if ((int)request.getBody().size() == request.getBodyLength()) {
-			forup(i, 0, request.getBody().size()) std::cout << request.getBody()[i];
-			std::cout << std::endl;
+			if (request.bodyBoundaryExist())
+				request.parseMultiPartBody();
 			response.generateResponse(request, srvconf);
 			return;
 		}

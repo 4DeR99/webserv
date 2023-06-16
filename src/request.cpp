@@ -6,6 +6,7 @@ Request::Request()
 			locationIndex(NO_LOCATION),
 			valid(true),
 			bodyExist(false),
+			bodyboundary(false),
 			requestChunked(false) {}
 
 Request::Request(ServerConf &serverConf)
@@ -14,6 +15,7 @@ Request::Request(ServerConf &serverConf)
 			locationIndex(NO_LOCATION),
 			valid(true),
 			bodyExist(false),
+			bodyboundary(false),
 			requestChunked(false),
 			serverConf(serverConf) {}
 
@@ -74,7 +76,7 @@ void Request::_parseUrl(std::string &url)
 	size_t pos = url.find('/');
 	std::string holder;
 	std::vector<Location> locations;
-
+	
 	if (valid)
 	{
 		if (url.front() != '/' || url.find("/../") != std::string::npos)
@@ -88,7 +90,7 @@ void Request::_parseUrl(std::string &url)
 			holder = url.substr(0, pos + 1);
 			forup(i, 0, locations.size())
 			{
-				if (holder == locations[i].getPath().substr(0, holder.size()))
+				if (holder == locations[i].getPath())
 					locationIndex = i;
 			}
 			pos = url.find('/', pos + 1);
@@ -98,7 +100,9 @@ void Request::_parseUrl(std::string &url)
 		valid = false;
 	else
 	{
-		this->url = url;
+		pos = url.find('?');
+		this->url = url.substr(0, pos);
+		this->queryString = url.substr(pos + 1);
 		this->absoluteUrl = locations[locationIndex].getRoot() + url;
 	}
 }
@@ -134,7 +138,13 @@ void Request::parse()
 {
 	_parseMethod();
 	if (valid) {
+		// int carryOn = -1;
 		for (size_t i = 1; i < requestContent.size() && valid; i++) {
+			// if (!boundary.empty() && requestContent[i] == boundary) {
+			// 	carryOn = i;
+			// 	break;
+			// }
+			std::cout << "hadi 9lwa: " << requestContent[i] << std::endl;
 			if (requestContent[i].find(':') == requestContent[i].size() - 1)
 				valid = false;
 			if (requestContent[i].find(':') != std::string::npos) {
@@ -143,7 +153,13 @@ void Request::parse()
 				forup(i, 0, key.size()) key[i] = tolower(key[i]);
 				std::string value = std::string(std::find(requestContent[i].begin(), requestContent[i].end(), ':') + 1, requestContent[i].end());
 				_sweep(value);
-				if (key == "content-length") {
+				if (key == "content-type" && value.find("multipart/form-data") != std::string::npos) {
+					bodyboundary = true;
+					boundary = std::string(std::find(value.begin(), value.end(), '=') + 1, value.end());
+					_sweep(boundary);
+				}
+				else if (key == "content-length") {
+					std::cout << "content-length request" << std::endl;
 					if (requestChunked)
 						valid = false;
 					bodyExist = true;
@@ -164,14 +180,33 @@ void Request::parse()
 				headers[key] = value;
 			}
 		}
+		// for (size_t i = carryOn; i < requestContent.size() && valid; i++) {
+			// body += requestContent[i];
+		// }
 	}
+}
+
+void Request::parseMultiPartBody() {
+	std::string tmpBody = this->body;
+	std::vector<std::string> bodyParts;
+	tmpBody.erase(0, boundary.size() + 4);
+	while (tmpBody.size() != 2) {
+		size_t pos = tmpBody.find(boundary);
+		if (pos == std::string::npos) {
+			valid = false;
+			return;
+		}
+		bodyParts.push_back(tmpBody.substr(0, pos));
+		tmpBody.erase(0, pos + boundary.size() + 2);
+	}
+	tmpBody.clear();
 }
 
 void Request::setValidity(bool validity) { this->valid = validity; }
 
 void Request::setServerConf(ServerConf &serverConf) { this->serverConf = serverConf; }
 
-std::string Request::getrawContent() { return this->rawContent; }
+int Request::getBodyLength() { return this->bodyLength; }
 
 bool Request::isValid() { return this->valid; }
 
@@ -179,21 +214,25 @@ int Request::getType() { return this->type; }
 
 int Request::getLocationIndex() { return this->locationIndex; }
 
-int Request::getBodyLength() { return this->bodyLength; }
+std::string& Request::getrawContent() { return this->rawContent; }
 
-std::string Request::getUrl() { return this->url; }
+std::string& Request::getUrl() { return this->url; }
 
-std::string Request::getAbsoluteUrl() { return this->absoluteUrl; }
+std::string& Request::getAbsoluteUrl() { return this->absoluteUrl; }
 
-std::map<std::string, std::string> Request::getHeaders() { return this->headers; }
+std::string& Request::getQueryString() { return this->queryString; }
 
-std::vector<char>& Request::getBody() { return this->body; }
+std::string& Request::getBody() { return this->body; }
+
+std::map<std::string, std::string>& Request::getHeaders() { return this->headers; }
 
 std::vector<std::string>& Request::getRequestContent() { return this->requestContent; }
 
 bool Request::bodyDoesExist() { return this->bodyExist; }
 
 bool Request::isRequestChunked() { return this->requestChunked; }
+
+bool Request::bodyBoundaryExist() { return this->bodyboundary; }
 
 bool Request::empty() { return (url.empty() && type == UNKNOWN); }
 
@@ -203,9 +242,7 @@ void Request::addRawContent(std::string rawContent)
 	this->requestContent = _splitRawcontent(rawContent);
 }
 
-void Request::clear()
-{
-}
+void Request::clear() {}
 
 Request::~Request()
 {

@@ -282,7 +282,7 @@ void parser::_indexCheck(std::string s, Location &location)
 {
 	s = std::string(std::find(s.begin(), s.end(), ':') + 1, s.end());
 	_sweep(s);
-	forup(i, 0, s.size()) if (isspace(s[i])) throw std::invalid_argument(UPLOADPATH_ERROR);
+	forup(i, 0, s.size()) if (isspace(s[i])) throw std::invalid_argument(INDEX_ERROR);
 	location.setIndex(s);
 }
 
@@ -290,9 +290,9 @@ void parser::_cgiCheck(std::string s, Location &location)
 {
 	s = std::string(std::find(s.begin(), s.end(), ':') + 1, s.end());
 	_sweep(s);
-	if (s.front() != '/')
-		throw std::invalid_argument(CGI_ERROR);
-	forup(i, 0, s.size()) if (isspace(s[i])) throw std::invalid_argument(UPLOADPATH_ERROR);
+	forup(i, 0, s.size()) if (isspace(s[i])) throw std::invalid_argument(CGI_ERROR);
+	if (access(s.c_str(), F_OK) == -1)
+	throw std::invalid_argument(CGI_ERROR);
 	location.setCgi(s);
 }
 

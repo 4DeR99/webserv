@@ -20,12 +20,15 @@ private:
 	int locationIndex;
 	bool valid;
 	bool bodyExist;
+	bool bodyboundary;
 	bool requestChunked;
 	ServerConf serverConf;
 	std::string url;
+	std::string queryString;
 	std::string absoluteUrl;
 	std::string rawContent;
-	std::vector<char> body;
+	std::string body;
+	std::string boundary;
 	std::vector<std::string> requestContent;
 	std::map<std::string, std::string> headers;
 
@@ -48,12 +51,13 @@ public:
 	int getLocationIndex();
 	int getBodyLength();
 	bool isValid();
-	std::string getUrl();
-	std::string getAbsoluteUrl();
-	std::string getrawContent();
-	std::vector<char>& getBody();
+	std::string& getUrl();
+	std::string& getAbsoluteUrl();
+	std::string& getrawContent();
+	std::string& getQueryString();
+	std::string& getBody();
 	std::vector<std::string>& getRequestContent();
-	std::map<std::string, std::string> getHeaders();
+	std::map<std::string, std::string>& getHeaders();
 
 	// setters
 	void setValidity(bool validity);
@@ -61,6 +65,7 @@ public:
 
 	// class info
 	bool bodyDoesExist();
+	bool bodyBoundaryExist();
 	bool isRequestChunked();
 	bool empty();
 
@@ -70,6 +75,7 @@ public:
 	// parse methods
 	void addRawContent(std::string rawContent);
 	void parse();
+	void parseMultiPartBody();
 };
 
 #endif

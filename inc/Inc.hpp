@@ -24,6 +24,7 @@
 #define PATH_ERROR "Error: cant have 1 path in multiple locations"
 #define AUTOINDEX_ERROR "Error: autoindex should be only on or off"
 #define ALMETHODS_ERROR "Error: invalid allow methods"
+#define INDEX_ERROR "Error: invalid index"
 // #define RETURN_ERROR "Error: invalid return configuration"
 #define SERVERNAME_MISSING "Error: server name missing"
 #define PORT_MISSING "Error: port missing"
@@ -111,5 +112,7 @@
 #include "Response.hpp"
 #include "Client.hpp"
 #include "Pollge.hpp"
+
+std::string execCgi(Request &request, ServerConf &serverConf, Location &location);
 
 #endif
