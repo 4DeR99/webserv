@@ -50,14 +50,16 @@ std::string execCgi(Request &request, ServerConf &serverConf, Location &location
 	fill_env(env, request, serverConf, location);
 	std::string response;
 	char buffer[1024];
-	char* _arg[3];
+	char* _args[3];
 	FILE *tmp_in = tmpfile();
 	FILE *tmp_out = tmpfile();
+	FILE *tmp_err = tmpfile();
 	int in = fileno(tmp_in);
 	int out = fileno(tmp_out);
-	_arg[0] = (char *)cgi_path.c_str();
-	_arg[1] = (char *)request.getAbsoluteUrl().c_str();
-	_arg[2] = NULL;
+	int err = fileno(tmp_err);
+	_args[0] = (char *)cgi_path.c_str();
+	_args[1] = (char *)request.getAbsoluteUrl().c_str();
+	_args[2] = NULL;
 	write(in, request.getBody().c_str(), request.getBodyLength());
 	lseek(in, 0, SEEK_SET);
 	char **envp = map2tab(env);
@@ -68,7 +70,8 @@ std::string execCgi(Request &request, ServerConf &serverConf, Location &location
 	{
 		dup2(in, 0);
 		dup2(out, 1);
-		if (execve(_arg[0], (char **)_arg, envp) == -1)
+		dup2(err, 2);
+		if (execve(_args[0], (char **)_args, envp) == -1)
 		{
 			forup(i, 0, env.size())
 				delete[] envp[i];
@@ -77,7 +80,10 @@ std::string execCgi(Request &request, ServerConf &serverConf, Location &location
 		}
 	}
 	else {
-		waitpid(pid, NULL, 0);
+		int status;
+		waitpid(pid, &status, 0);
+		if (status != 0)
+			throw std::runtime_error("internal server error");
 		lseek(out, 0, SEEK_SET);
 		int ret;
 		while ((ret = read(out, buffer, 1024)) > 0)

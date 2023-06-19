@@ -84,11 +84,13 @@ void Request::_parseUrl(std::string &url)
 		}
 		locations = serverConf.getLocations();
 		holder = url.substr(0, pos + 1);
-		while (pos != std::string::npos) {
+		while (true) {
 			forup(i, 0, locations.size()) {
 				if (holder == locations[i].getPath())
 					locationIndex = i;
 			}
+			if (holder == url)
+				break;
 			pos = url.find('/', pos + 1);
 			holder = url.substr(0, pos);
 		}
@@ -106,13 +108,11 @@ void Request::_parseUrl(std::string &url)
 void Request::_parseMethod()
 {
 	std::vector<std::string> tab = _split(requestContent[0], ' ');
-	if (tab.size() != 3)
-	{
+	if (tab.size() != 3) {
 		valid = false;
 		return;
 	}
-	forup(i, 0, tab[0].size())
-	{
+	forup(i, 0, tab[0].size()) {
 		if (islower(tab[0][i]))
 			valid = false;
 	}
@@ -172,8 +172,7 @@ void Request::parse()
 }
 
 void Request::parseMultiPartBody() {
-	std::string tmpBody = this->body;
-	std::vector<std::string> bodyParts;
+	std::string tmpBody = body;
 	tmpBody.erase(0, boundary.size() + 4);
 	while (tmpBody.size() != 2) {
 		size_t pos = tmpBody.find(boundary);

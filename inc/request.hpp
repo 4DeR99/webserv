@@ -30,6 +30,7 @@ private:
 	std::string body;
 	std::string boundary;
 	std::vector<std::string> requestContent;
+	std::vector<std::string> bodyParts;
 	std::map<std::string, std::string> headers;
 
 	// private methods

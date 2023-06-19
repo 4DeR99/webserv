@@ -3,7 +3,8 @@
 Location::Location()
 		: autoindexCount(-1),
 			returnNb(-1),
-			redirectionNb(-1) {}
+			redirectionNb(-1),
+			autoindex(false) {}
 
 Location::Location(Location const &_2Copy) { this->operator=(_2Copy); }
 
@@ -136,4 +137,5 @@ void Location::clear()
 	autoindexCount = -1;
 	returnNb = -1;
 	redirectionNb = -1;
+	autoindex = false;
 }
