@@ -54,30 +54,86 @@ void Client::makeRequest()
 	this->request.parse();
 }
 
+void Client::addBodyboundary() {
+	bool flag = false;
+	std::string str;
+	std::string &boundary = request.getBoundary();
+	std::string bodyPart;
+	while (rawContent.size()) {
+		str = rawContent.substr(0, rawContent.find("\r\n"));
+		rawContent.erase(rawContent.begin(), rawContent.begin() + str.size() + 2);
+		if (str.find(boundary) != std::string::npos && str != boundary) {
+			request.setValidity(false);
+			return ;
+		}
+		if (str == boundary + "--") {
+			request.setBodyBoundary(false);
+			return ;
+		}
+		if (!flag) {
+			if (str == boundary) {
+				if (bodyPart.size()) {
+					request.getBodyParts().push_back(bodyPart);
+					bodyPart.clear();
+				}
+				flag = true;
+				continue ;
+			}
+			else {
+				request.setValidity(false);
+				return ;
+			}
+		}
+		else {
+			if (str == boundary) {
+				if (bodyPart.size()) {
+					request.getBodyParts().push_back(bodyPart);
+					bodyPart.clear();
+					flag = false;
+				}
+				else {
+					request.setValidity(false);
+					return ;
+				}
+			}
+			else {
+				bodyPart += str + "\r\n";
+			}
+		}
+	}
+}
+
 void Client::addChunkedBody()
 {
 	std::string rawBody;
-	while (rawContent.size()) {
+	while (rawContent.size())
+	{
 		rawBody = rawContent.substr(0, rawContent.find("\r\n"));
 		rawContent.erase(rawContent.begin(), rawContent.begin() + rawBody.size() + 2);
-		if (chunkSize == -1) {
+		if (chunkSize == -1)
+		{
 			try {
 				chunkSize = std::stoi(rawBody);
-				if (chunkSize < 0) {
+				if (chunkSize < 0)
+				{
 					request.setValidity(false);
 					return;
 				}
-				else if (chunkSize == 0) {
+				else if (chunkSize == 0)
+				{
 					rawContent.erase(rawContent.begin(), rawContent.begin() + 2);
 					return;
 				}
 			}
-			catch (const std::exception &e) {
+			catch (const std::exception &e)
+			{
 				request.setValidity(false);
 			}
-		} 
-		else if (chunkSize > 0) {
-			if ((int)rawBody.size() != chunkSize) {
+		}
+		else if (chunkSize > 0)
+		{
+			if ((int)rawBody.size() != chunkSize)
+			{
 				request.setValidity(false);
 				return;
 			}
@@ -99,58 +155,80 @@ void Client::addNormalBody()
 void Client::addRawRequest(char *buffer, size_t size)
 {
 	forup(i, 0, size) this->rawContent.push_back(buffer[i]);
-	if (request.empty() && rawContent.find("\r\n\r\n") != std::string::npos) {
+	if (request.empty() && rawContent.find("\r\n\r\n") != std::string::npos)
+	{
 		splitRawRequest();
 		request.addRawContent(rawContent);
 		request.parse();
 		this->rawContent.erase(this->rawContent.begin(), this->rawContent.begin() + this->rawContent.find("\r\n\r\n") + 4);
-		if (!request.isValid() || !request.bodyDoesExist()) {
+		if (!request.isValid() || !request.bodyDoesExist())
+		{
 			response.generateResponse(request, srvconf);
 			nextRequest();
 			return;
 		}
-		else {
+		else
+		{
 			rawContent = remaining;
 			remaining.clear();
 		}
 	}
-	if (request.isRequestChunked()) {
+	if (request.isRequestChunked())
+	{
 		addChunkedBody();
 		if (request.bodyBoundaryExist())
 			request.parseMultiPartBody();
-		if (!request.isValid()) {
+		if (!request.isValid())
+		{
 			response.generateResponse(request, srvconf);
 			chunkSize = -1;
 			return;
 		}
-		if (chunkSize == 0) {
+		if (chunkSize == 0)
+		{
 			response.generateResponse(request, srvconf);
 			chunkSize = -1;
 			return;
 		}
 	}
-	else if (request.bodyDoesExist()) {
+	else if (request.bodyDoesExist())
+	{
 		addNormalBody();
-		if ((int)request.getBody().size() == request.getBodyLength()) {
+		if ((int)request.getBody().size() == request.getBodyLength())
+		{
 			if (request.bodyBoundaryExist())
 				request.parseMultiPartBody();
 			response.generateResponse(request, srvconf);
 			return;
 		}
 	}
+	else if (request.bodyBoundaryExist())
+	{
+		addBodyboundary();
+		if (!request.isValid())
+		{
+			response.generateResponse(request, srvconf);
+			return;
+		}
+		else if (!request.bodyBoundaryExist()) {
+			request.parseMultiPartBody();
+			response.generateResponse(request, srvconf);
+			return;
+		}
+	}
 }
 
-void Client::setSentBytes(long long sentBytes) {	this->sentBytes = sentBytes; }
+void Client::setSentBytes(long long sentBytes) { this->sentBytes = sentBytes; }
 
 int Client::getFd() { return fd; }
 
-Request& Client::getRequest() { return request; }
+Request &Client::getRequest() { return request; }
 
-std::string& Client::getRawContent() { return this->rawContent; }
+std::string &Client::getRawContent() { return this->rawContent; }
 
-Response& Client::getResponse() { return this->response; }
+Response &Client::getResponse() { return this->response; }
 
-ServerConf& Client::getSrvConf() { return this->srvconf; }
+ServerConf &Client::getSrvConf() { return this->srvconf; }
 
 long long Client::getSentBytes() { return this->sentBytes; }
 

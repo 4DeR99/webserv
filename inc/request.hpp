@@ -31,6 +31,7 @@ private:
 	std::string boundary;
 	std::vector<std::string> requestContent;
 	std::vector<std::string> bodyParts;
+	std::vector<std::string> bodyPartsFileNames;
 	std::map<std::string, std::string> headers;
 
 	// private methods
@@ -53,15 +54,18 @@ public:
 	int getBodyLength();
 	bool isValid();
 	std::string& getUrl();
-	std::string& getAbsoluteUrl();
+	std::string& getBody();
+	std::string& getBoundary();
 	std::string& getrawContent();
 	std::string& getQueryString();
-	std::string& getBody();
+	std::string& getAbsoluteUrl();
 	std::vector<std::string>& getRequestContent();
+	std::vector<std::string>& getBodyParts();
 	std::map<std::string, std::string>& getHeaders();
 
 	// setters
 	void setValidity(bool validity);
+	void setBodyBoundary(bool bodyboundary);
 	void setServerConf(ServerConf &serverConf);
 
 	// class info

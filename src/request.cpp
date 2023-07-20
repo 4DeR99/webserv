@@ -144,12 +144,15 @@ void Request::parse()
 				std::string value = std::string(std::find(requestContent[i].begin(), requestContent[i].end(), ':') + 1, requestContent[i].end());
 				_sweep(value);
 				if (key == "content-type" && value.find("multipart/form-data") != std::string::npos) {
+					if (bodyExist)
+						valid = false;
 					bodyboundary = true;
+					bodyExist = true;
 					boundary = std::string(std::find(value.begin(), value.end(), '=') + 1, value.end());
 					_sweep(boundary);
 				}
 				else if (key == "content-length") {
-					if (requestChunked)
+					if (bodyExist)
 						valid = false;
 					bodyExist = true;
 					try {
@@ -160,7 +163,7 @@ void Request::parse()
 					}
 				}
 				else if (key == "transfer-encoding" && value == "chunked") {
-					if (!headers["content-length"].empty())
+					if (bodyExist)
 						valid = false;
 					bodyExist = true;
 					requestChunked = true;
@@ -172,21 +175,27 @@ void Request::parse()
 }
 
 void Request::parseMultiPartBody() {
-	std::string tmpBody = body;
-	tmpBody.erase(0, boundary.size() + 4);
-	while (tmpBody.size() != 2) {
-		size_t pos = tmpBody.find(boundary);
-		if (pos == std::string::npos) {
-			valid = false;
-			return;
+	std::vector<std::string> copy = bodyParts;
+	bodyParts.clear();
+	std::string s1, s2;
+	forup(i, 0, copy.size()) {
+		s1 = copy[i].substr(0, copy[i].find("\r\n\r\n"));
+		s2 = copy[i].substr(copy[i].find("\r\n\r\n") + 4);
+		bodyParts.push_back(s2);
+		if (s1.find("filename") != std::string::npos) {
+			s1 = s1.substr(s1.find("filename") + 10);
+			s1 = s1.substr(0, s1.find("\r\n"));
+			s1 = s1.substr(0, s1.find_last_of('"'));
+			bodyPartsFileNames.push_back(s1);
 		}
-		bodyParts.push_back(tmpBody.substr(0, pos));
-		tmpBody.erase(0, pos + boundary.size() + 2);
+		else
+			bodyPartsFileNames.push_back("");
 	}
-	tmpBody.clear();
 }
 
 void Request::setValidity(bool validity) { this->valid = validity; }
+
+void Request::setBodyBoundary(bool bodyboundary) { this->bodyboundary = bodyboundary; }
 
 void Request::setServerConf(ServerConf &serverConf) { this->serverConf = serverConf; }
 
@@ -208,9 +217,13 @@ std::string& Request::getQueryString() { return this->queryString; }
 
 std::string& Request::getBody() { return this->body; }
 
+std::string& Request::getBoundary() { return this->boundary; }
+
 std::map<std::string, std::string>& Request::getHeaders() { return this->headers; }
 
 std::vector<std::string>& Request::getRequestContent() { return this->requestContent; }
+
+std::vector<std::string>& Request::getBodyParts() { return this->bodyParts; }
 
 bool Request::bodyDoesExist() { return this->bodyExist; }
 
