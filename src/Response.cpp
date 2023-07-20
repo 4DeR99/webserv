@@ -261,8 +261,8 @@ void Response::generateResponse(Request &request, ServerConf &serverConf)
 		this->statusCode = BAD_REQUEST;
 	else if (request.getType() == GET)
 		getAction();
-	// else if (request.getType() == POST)
-	// 	postAction();
+	else if (request.getType() == POST)
+		postAction();
 	// else if (request.getType() == DELETE)
 	// 	deleteAction();
 	if (statusCode > OK)
