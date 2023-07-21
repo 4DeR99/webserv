@@ -27,6 +27,7 @@ void fill_env(std::map<std::string, std::string>&env, Request &request, ServerCo
 	env["CONTENT_TYPE"] = request.getHeaders()["Content-Type"];
 	env["CONTENT_LENGTH"] = std::to_string(request.getBodyLength());
 	env["QUERY_STRING"] = request.getQueryString();
+	env["HTTP_Cookie"] = request.getHeaders()["cookie"];
 	for(std::map<std::string, std::string>::iterator it = request.getHeaders().begin(); it != request.getHeaders().end(); it++){
 		env["HTTP_" + it->first] = it->second;
 	}
@@ -76,6 +77,7 @@ std::string execCgi(Request &request, ServerConf &serverConf, Location &location
 			forup(i, 0, env.size())
 				delete[] envp[i];
 			delete[] envp;
+			std::cout << "execve error" << std::endl;
 			throw std::runtime_error("internal server error");
 		}
 	}
@@ -83,7 +85,19 @@ std::string execCgi(Request &request, ServerConf &serverConf, Location &location
 		int status;
 		waitpid(pid, &status, 0);
 		if (status != 0)
+		{
+			//printing the returned error from cgi to stderr
+			lseek(out, 0, SEEK_SET);
+			int ret;
+			std::cerr << "cgi error: " << std::endl;
+			while ((ret = read(out, buffer, 1023)) > 0)
+			{
+				buffer[ret] = '\0';
+				std::cerr << buffer;
+			}
+			std::cerr << std::endl;
 			throw std::runtime_error("internal server error");
+		}
 		lseek(out, 0, SEEK_SET);
 		int ret;
 		while ((ret = read(out, buffer, 1024)) > 0)

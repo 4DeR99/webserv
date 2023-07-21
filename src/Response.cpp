@@ -1,15 +1,31 @@
 #include "Inc.hpp"
 
 Response::Response()
-		:	responseCompleted(false),
+		:	isCgi(false),
+			responseCompleted(false),
 			statusCode(0),
 			dirListen(0) {}
 
-//! check this later
-// Response::Response(Request &request, ServerConf &serverconf)
-// 		: statusCode(0),
-// 			request(request),
-// 			srvconf(serverconf) {}
+Response::Response(Request &request, ServerConf &serverconf)
+		: isCgi(false),
+			responseCompleted(false),
+			statusCode(0),
+			dirListen(0),
+			request(request),
+			srvconf(serverconf) {}
+
+Response& Response::operator=(Response const &_2Copy)
+{
+	this->statusCode = _2Copy.statusCode;
+	this->request = _2Copy.request;
+	this->srvconf = _2Copy.srvconf;
+	this->location = _2Copy.location;
+	this->generatedResponse = _2Copy.generatedResponse;
+	this->generatedBody = _2Copy.generatedBody;
+	this->dirListen = _2Copy.dirListen;
+	this->responseCompleted = _2Copy.responseCompleted;
+	return *this;
+}
 
 std::vector<std::string> Response::_split(std::string s, char c)
 {
@@ -82,6 +98,7 @@ int Response::_cgi()
 {
 	try {
 		generatedBody = execCgi(request, srvconf, location);
+		isCgi = true;
 		statusCode = OK;
 	}
 	catch(const std::exception& e) {
@@ -133,18 +150,11 @@ void Response::getAction()
 
 void Response::postAction()
 {
-	// std::string url = request.getUrl();
-	// std::fstream fs(url);
-
-	// if (!fs.good())
-	// {
-	// 	generateFileError(fs);
-	// 	return;
-	// }
-	// for (size_t i = 0; i < request.getBody().size(); i++)
-	// 	fs << request.getBody()[i];
-	// fs.close();
-	// generateResponsetemplate(OK);
+	if (request.bodyBoundaryExist()){
+		std::cout << "hihi" << std::endl;
+	}
+	else
+		getAction();
 }
 
 void Response::deleteAction()
@@ -231,10 +241,12 @@ std::string Response::getContentTypeString()
 void Response::generateResponsetemplate()
 {
 	generatedResponse += "HTTP/1.1 " + std::to_string(statusCode) + " " + getMessage() + "\r\n";
-	generatedResponse += getContentTypeString() + "\r\n";
-	generatedResponse += "Content-Length: " + std::to_string(generatedBody.size()) + "\r\n";
-	generatedResponse += "Connection: close\r\n";
-	generatedResponse += "\r\n";
+	if (!isCgi) {
+		generatedResponse += getContentTypeString() + "\r\n";
+		generatedResponse += "Content-Length: " + std::to_string(generatedBody.size()) + "\r\n";
+		generatedResponse += "Connection: close\r\n";
+		generatedResponse += "\r\n";
+	}
 	generatedResponse += generatedBody;
 	generatedResponse += "\r\n";
 }

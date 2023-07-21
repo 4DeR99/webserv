@@ -151,6 +151,7 @@ void Pollge::_sdSend(int sd, bool &close_conn)
 			{
 				std::cerr << "send() failed" << std::endl;
 				client.getResponse().clear();
+				client.setSentBytes(0);
 				close_conn = true;
 				return ;
 			}

@@ -6,12 +6,15 @@
 class Client
 {
 private:
+	bool flag;
 	int fd;
 	int chunkSize;
 	long long sentBytes;
 	Request request;
 	Response response;
 	ServerConf srvconf;
+	std::string str;
+	// std::string bodyPart;
 	std::string remaining;
 	std::string rawContent;
 

@@ -16,6 +16,7 @@ enum StatusCode
 class Response
 {
 private:
+	bool	 isCgi;
 	bool   responseCompleted;
 	size_t statusCode;
 	size_t dirListen;
@@ -31,7 +32,7 @@ private:
 
 public:
 	Response();
-	// Response(Request &request, ServerConf &serverconf);
+	Response(Request &request, ServerConf &serverconf);
 	Response &operator=(Response const &_2Copy);
 
 	// error

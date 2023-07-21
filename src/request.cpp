@@ -36,6 +36,12 @@ Request &Request::operator=(Request const &_2Copy)
 	this->bodyLength = _2Copy.bodyLength;
 	this->locationIndex = _2Copy.locationIndex;
 	this->serverConf = _2Copy.serverConf;
+	this->queryString = _2Copy.queryString;
+	this->bodyboundary = _2Copy.bodyboundary;
+	this->boundary = _2Copy.boundary;
+	this->bodyParts = _2Copy.bodyParts;
+	this->bodyPartsFileNames = _2Copy.bodyPartsFileNames;
+
 	return *this;
 }
 
@@ -73,7 +79,13 @@ void Request::_sweep(std::string &string)
 
 void Request::_parseUrl(std::string &url)
 {
-	size_t pos = url.find('/');
+	size_t pos = url.find('?');
+	if (pos != std::string::npos){
+		this->url = url.substr(0, pos);
+		this->queryString = url.substr(pos + 1);
+		url = url.substr(0, pos);
+	}
+	pos = url.find('/');
 	std::string holder;
 	std::vector<Location> locations;
 	
@@ -98,9 +110,9 @@ void Request::_parseUrl(std::string &url)
 	if (locationIndex == NO_LOCATION)
 		valid = false;
 	else {
-		pos = url.find('?');
-		this->url = url.substr(0, pos);
-		this->queryString = url.substr(pos + 1);
+		// pos = url.find('?');
+		// this->url = url.substr(0, pos);
+		// this->queryString = url.substr(pos + 1);
 		this->absoluteUrl = locations[locationIndex].getRoot() + url;
 	}
 }
@@ -148,11 +160,11 @@ void Request::parse()
 						valid = false;
 					bodyboundary = true;
 					bodyExist = true;
-					boundary = std::string(std::find(value.begin(), value.end(), '=') + 1, value.end());
+					boundary = "--" + std::string(std::find(value.begin(), value.end(), '=') + 1, value.end());
 					_sweep(boundary);
 				}
 				else if (key == "content-length") {
-					if (bodyExist)
+					if (bodyExist && !bodyboundary)
 						valid = false;
 					bodyExist = true;
 					try {
@@ -163,7 +175,7 @@ void Request::parse()
 					}
 				}
 				else if (key == "transfer-encoding" && value == "chunked") {
-					if (bodyExist)
+					if (bodyExist && !bodyboundary)
 						valid = false;
 					bodyExist = true;
 					requestChunked = true;
@@ -239,7 +251,25 @@ void Request::addRawContent(std::string rawContent)
 	this->requestContent = _splitRawcontent(rawContent);
 }
 
-void Request::clear() {}
+void Request::clear() {
+	this->type = UNKNOWN;
+	this->bodyLength = 0;
+	this->locationIndex = NO_LOCATION;
+	this->valid = true;
+	this->bodyExist = false;
+	this->bodyboundary = false;
+	this->requestChunked = false;
+	this->url.clear();
+	this->absoluteUrl.clear();
+	this->queryString.clear();
+	this->rawContent.clear();
+	this->body.clear();
+	this->boundary.clear();
+	this->requestContent.clear();
+	this->bodyParts.clear();
+	this->bodyPartsFileNames.clear();
+	this->headers.clear();
+}
 
 Request::~Request()
 {

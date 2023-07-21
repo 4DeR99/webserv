@@ -1,12 +1,14 @@
 #include "Inc.hpp"
 
 Client::Client()
-		: fd(-1),
+		: flag(false),
+			fd(-1),
 			chunkSize(-1),
 			sentBytes(0) {}
 
 Client::Client(int fd, ServerConf &serverconf)
-		: fd(fd),
+		: flag(false),
+			fd(fd),
 			chunkSize(-1),
 			sentBytes(0),
 			srvconf(serverconf)
@@ -17,11 +19,15 @@ Client::Client(int fd, ServerConf &serverconf)
 Client &Client::operator=(Client const &_2Copy)
 {
 	this->fd = _2Copy.fd;
+	this->flag = _2Copy.flag;
+	this->sentBytes = _2Copy.sentBytes;
 	this->chunkSize = _2Copy.chunkSize;
 	this->request = _2Copy.request;
+	// this->response = _2Copy.response;
 	this->remaining = _2Copy.remaining;
 	this->rawContent = _2Copy.rawContent;
 	this->srvconf = _2Copy.srvconf;
+	this->str = _2Copy.str;
 	return *this;
 }
 
@@ -55,19 +61,26 @@ void Client::makeRequest()
 }
 
 void Client::addBodyboundary() {
-	bool flag = false;
-	std::string str;
 	std::string &boundary = request.getBoundary();
-	std::string bodyPart;
+	static std::string bodyPart;
 	while (rawContent.size()) {
 		str = rawContent.substr(0, rawContent.find("\r\n"));
 		rawContent.erase(rawContent.begin(), rawContent.begin() + str.size() + 2);
-		if (str.find(boundary) != std::string::npos && str != boundary) {
-			request.setValidity(false);
+		if (str == boundary + "--") {
+			if (bodyPart.size())
+			{
+				request.getBodyParts().push_back(bodyPart);
+				bodyPart.clear();
+			}
+			else {
+				request.setValidity(false);
+				return ;
+			}
+			request.setBodyBoundary(false);
 			return ;
 		}
-		if (str == boundary + "--") {
-			request.setBodyBoundary(false);
+		if (str.find(boundary) != std::string::npos && str != boundary) {
+			request.setValidity(false);
 			return ;
 		}
 		if (!flag) {
@@ -89,16 +102,14 @@ void Client::addBodyboundary() {
 				if (bodyPart.size()) {
 					request.getBodyParts().push_back(bodyPart);
 					bodyPart.clear();
-					flag = false;
 				}
 				else {
 					request.setValidity(false);
 					return ;
 				}
 			}
-			else {
+			else
 				bodyPart += str + "\r\n";
-			}
 		}
 	}
 }
@@ -155,6 +166,7 @@ void Client::addNormalBody()
 void Client::addRawRequest(char *buffer, size_t size)
 {
 	forup(i, 0, size) this->rawContent.push_back(buffer[i]);
+	std::cout << "rawContent: " << rawContent << std::endl;
 	if (request.empty() && rawContent.find("\r\n\r\n") != std::string::npos)
 	{
 		splitRawRequest();
@@ -191,17 +203,6 @@ void Client::addRawRequest(char *buffer, size_t size)
 			return;
 		}
 	}
-	else if (request.bodyDoesExist())
-	{
-		addNormalBody();
-		if ((int)request.getBody().size() == request.getBodyLength())
-		{
-			if (request.bodyBoundaryExist())
-				request.parseMultiPartBody();
-			response.generateResponse(request, srvconf);
-			return;
-		}
-	}
 	else if (request.bodyBoundaryExist())
 	{
 		addBodyboundary();
@@ -212,6 +213,17 @@ void Client::addRawRequest(char *buffer, size_t size)
 		}
 		else if (!request.bodyBoundaryExist()) {
 			request.parseMultiPartBody();
+			std::cout << "after" << std::endl;
+			response.generateResponse(request, srvconf);
+			return;
+		}
+	}
+	else if (request.bodyDoesExist())
+	{
+		addNormalBody();
+		if ((int)request.getBody().size() == request.getBodyLength())
+		{
+			std::cout << "body size: " << request.getBody().size() << std::endl;
 			response.generateResponse(request, srvconf);
 			return;
 		}
