@@ -1,6 +1,7 @@
 #include "../inc/Inc.hpp"
 
-std::string method2String(int method) {
+std::string method2String(int method)
+{
 	switch (method)
 	{
 	case GET:
@@ -14,29 +15,35 @@ std::string method2String(int method) {
 	}
 }
 
-void fill_env(std::map<std::string, std::string>&env, Request &request, ServerConf &serverConf, Location &location){
+void fill_env(std::map<std::string, std::string> &env, Request &request, ServerConf &serverConf, Location &location)
+{
 	env["REQUEST_METHOD"] = method2String(request.getType());
 	env["SERVER_PROTOCOL"] = "HTTP/1.1";
 	env["SERVER_SOFTWARE"] = "webserv";
 	env["GATEWAY_INTERFACE"] = "CGI/1.1";
 	env["SERVER_ADDR"] = serverConf.getHost();
 	env["SCRIPT_NAME"] = request.getUrl();
+	env["SCRIPT_FILENAME"] = request.getUrl().substr(request.getUrl().find_last_of('/') + 1);
 	env["SERVER_NAME"] = serverConf.getSrvname();
 	env["SERVER_PORT"] = serverConf.getPort();
 	env["PATH_INFO"] = location.getRoot();
 	env["CONTENT_TYPE"] = request.getHeaders()["Content-Type"];
 	env["CONTENT_LENGTH"] = std::to_string(request.getBodyLength());
 	env["QUERY_STRING"] = request.getQueryString();
-	env["HTTP_Cookie"] = request.getHeaders()["cookie"];
-	for(std::map<std::string, std::string>::iterator it = request.getHeaders().begin(); it != request.getHeaders().end(); it++){
+	env["HTTP_COOKIE"] = request.getHeaders()["cookie"];
+	env["REDIRECT_STATUS"] = "200";
+	for (std::map<std::string, std::string>::iterator it = request.getHeaders().begin(); it != request.getHeaders().end(); it++)
+	{
 		env["HTTP_" + it->first] = it->second;
 	}
 }
 
-char **map2tab(std::map<std::string, std::string> &env){
-	char **envp = new char*[env.size() + 1];
+char **map2tab(std::map<std::string, std::string> &env)
+{
+	char **envp = new char *[env.size() + 1];
 	int i = 0;
-	for(std::map<std::string, std::string>::iterator it = env.begin(); it != env.end(); it++, i++){
+	for (std::map<std::string, std::string>::iterator it = env.begin(); it != env.end(); it++, i++)
+	{
 		std::string tmp = it->first + "=" + it->second;
 		envp[i] = new char[tmp.size() + 1];
 		envp[i] = std::strcpy(envp[i], tmp.c_str());
@@ -45,13 +52,14 @@ char **map2tab(std::map<std::string, std::string> &env){
 	return envp;
 }
 
-std::string execCgi(Request &request, ServerConf &serverConf, Location &location){
+std::string execCgi(Request &request, ServerConf &serverConf, Location &location)
+{
 	std::map<std::string, std::string> env;
 	std::string cgi_path = location.getCgi();
 	fill_env(env, request, serverConf, location);
 	std::string response;
 	char buffer[1024];
-	char* _args[3];
+	char *_args[3];
 	FILE *tmp_in = tmpfile();
 	FILE *tmp_out = tmpfile();
 	FILE *tmp_err = tmpfile();
@@ -59,7 +67,7 @@ std::string execCgi(Request &request, ServerConf &serverConf, Location &location
 	int out = fileno(tmp_out);
 	int err = fileno(tmp_err);
 	_args[0] = (char *)cgi_path.c_str();
-	_args[1] = (char *)request.getAbsoluteUrl().c_str();
+	_args[1] = (char *)env["SCRIPT_FILENAME"].c_str();
 	_args[2] = NULL;
 	write(in, request.getBody().c_str(), request.getBodyLength());
 	lseek(in, 0, SEEK_SET);
@@ -72,30 +80,28 @@ std::string execCgi(Request &request, ServerConf &serverConf, Location &location
 		dup2(in, 0);
 		dup2(out, 1);
 		dup2(err, 2);
+		if (chdir(request.getAbsoluteUrl().substr(0, request.getAbsoluteUrl().find_last_of('/')).c_str()) == -1)
+		{
+			forup(i, 0, env.size()) delete[] envp[i];
+			delete[] envp;
+			throw std::runtime_error("internal server error");
+		}
 		if (execve(_args[0], (char **)_args, envp) == -1)
 		{
-			forup(i, 0, env.size())
-				delete[] envp[i];
+			forup(i, 0, env.size()) delete[] envp[i];
 			delete[] envp;
 			std::cout << "execve error" << std::endl;
 			throw std::runtime_error("internal server error");
 		}
 	}
-	else {
+	else
+	{
 		int status;
 		waitpid(pid, &status, 0);
 		if (status != 0)
 		{
-			//printing the returned error from cgi to stderr
-			lseek(out, 0, SEEK_SET);
-			int ret;
-			std::cerr << "cgi error: " << std::endl;
-			while ((ret = read(out, buffer, 1023)) > 0)
-			{
-				buffer[ret] = '\0';
-				std::cerr << buffer;
-			}
-			std::cerr << std::endl;
+			forup(i, 0, env.size()) delete[] envp[i];
+			delete[] envp;
 			throw std::runtime_error("internal server error");
 		}
 		lseek(out, 0, SEEK_SET);
@@ -107,8 +113,7 @@ std::string execCgi(Request &request, ServerConf &serverConf, Location &location
 	fclose(tmp_out);
 	close(in);
 	close(out);
-	forup(i, 0, env.size())
-		delete[] envp[i];
+	forup(i, 0, env.size()) delete[] envp[i];
 	delete[] envp;
 	return response;
 }
