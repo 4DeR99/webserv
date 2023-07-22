@@ -53,15 +53,16 @@ public:
 	int getLocationIndex();
 	int getBodyLength();
 	bool isValid();
-	std::string& getUrl();
-	std::string& getBody();
-	std::string& getBoundary();
-	std::string& getrawContent();
-	std::string& getQueryString();
-	std::string& getAbsoluteUrl();
-	std::vector<std::string>& getRequestContent();
-	std::vector<std::string>& getBodyParts();
-	std::map<std::string, std::string>& getHeaders();
+	std::string &getUrl();
+	std::string &getBody();
+	std::string &getBoundary();
+	std::string &getrawContent();
+	std::string &getQueryString();
+	std::string &getAbsoluteUrl();
+	std::vector<std::string> &getRequestContent();
+	std::vector<std::string> &getBodyParts();
+	std::vector<std::string> &getBodyPartsFileNames();
+	std::map<std::string, std::string> &getHeaders();
 
 	// setters
 	void setValidity(bool validity);

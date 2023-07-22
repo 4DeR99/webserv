@@ -65,6 +65,7 @@ public:
 
 	// getters
 	bool isResponseCompleted();
+	bool isCgiResponse();
 
 	void clear();
 

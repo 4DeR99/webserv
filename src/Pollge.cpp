@@ -161,7 +161,8 @@ void Pollge::_sdSend(int sd, bool &close_conn)
 			{
 				client.getResponse().clear();
 				client.setSentBytes(0);
-				close_conn = true;
+				// if (!client.getResponse().isCgiResponse())
+					close_conn = true;
 			}
 		}
 	}

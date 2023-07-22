@@ -1,20 +1,26 @@
 #include "Inc.hpp"
 
 Response::Response()
-		:	isCgi(false),
+		: isCgi(false),
+			// isIndex(false),
 			responseCompleted(false),
 			statusCode(0),
-			dirListen(0) {}
+			dirListen(0)
+{
+}
 
 Response::Response(Request &request, ServerConf &serverconf)
 		: isCgi(false),
+			// isIndex(false),
 			responseCompleted(false),
 			statusCode(0),
 			dirListen(0),
 			request(request),
-			srvconf(serverconf) {}
+			srvconf(serverconf)
+{
+}
 
-Response& Response::operator=(Response const &_2Copy)
+Response &Response::operator=(Response const &_2Copy)
 {
 	this->statusCode = _2Copy.statusCode;
 	this->request = _2Copy.request;
@@ -96,12 +102,14 @@ void Response::generateFileError(std::fstream &fs)
 
 int Response::_cgi()
 {
-	try {
+	try
+	{
 		generatedBody = execCgi(request, srvconf, location);
 		isCgi = true;
 		statusCode = OK;
 	}
-	catch(const std::exception& e) {
+	catch (const std::exception &e)
+	{
 		statusCode = INTERNAL_SERVER_ERROR;
 		return -1;
 	}
@@ -113,9 +121,10 @@ void Response::getAction()
 	std::string url = this->request.getAbsoluteUrl();
 	bool cgi = url.substr(url.find_last_of('.') + 1) == "php" || url.substr(url.find_last_of('.') + 1) == "py";
 	DIR *dir = opendir(this->request.getAbsoluteUrl().c_str());
-	if (!location.getIndex().empty())
-		url = location.getIndex();
-	else if (dir) {
+	if (!location.getIndex().empty() && dir && !cgi)
+		this->request.getUrl() = url = this->request.getAbsoluteUrl() + '/' + location.getIndex();
+	else if (dir)
+	{
 		// directory listing
 		if (!location.getAutoIndex())
 		{
@@ -128,14 +137,16 @@ void Response::getAction()
 		return;
 	}
 	std::fstream fs(url.c_str());
-	if (!fs.good()) {
+	if (!fs.good())
+	{
 		// file error
 		generateFileError(fs);
 		return;
 	}
 	if (!location.getCgi().empty() && cgi)
 		_cgi();
-	else {
+	else
+	{
 		this->statusCode = OK;
 		std::string buffer;
 		while (getline(fs, buffer, '\n'))
@@ -150,41 +161,96 @@ void Response::getAction()
 
 void Response::postAction()
 {
-	if (request.bodyBoundaryExist()){
-		std::cout << "hihi" << std::endl;
-	}
-	else
-		getAction();
-}
-
-void Response::deleteAction()
-{
-	// pass
-}
-
-void Response::generateErrorMessage()
-{
-	std::map<int, std::string> errPages = srvconf.getErr_page();
-	std::fstream fs;
-	std::string buff;
-
-	fs.open(errPages[this->statusCode]);
-	if (fs.good())
+	if (request.bodyBoundaryExist() && !location.getUploadpath().empty())
 	{
-		while (getline(fs, buff, '\n'))
+		std::string uploadPath = location.getUploadpath();
+		std::vector<std::string> bodyParts = request.getBodyParts();
+		std::vector<std::string> bodyPartsFileNames = request.getBodyPartsFileNames();
+
+		forup(i, 0, bodyParts.size())
 		{
-			generatedBody += buff;
-			generatedBody += "\n";
+			if (!bodyPartsFileNames[i].empty())
+			{
+				std::ofstream outfile(uploadPath + '/' + bodyPartsFileNames[i]);
+				// check if file is open
+				if (!outfile.is_open())
+				{
+					// check erno
+					if (errno == ENOENT)
+						this->statusCode = NOT_FOUND;
+					else if (errno == EACCES)
+						this->statusCode = FORBIDDEN;
+					else
+						this->statusCode = INTERNAL_SERVER_ERROR;
+					return;
+				}
+				outfile << bodyParts[i];
+				outfile.close();
+			}
+			else if (request.bodyBoundaryExist() && location.getUploadpath().empty())
+				this->statusCode = FORBIDDEN;
+			else
+				getAction();
 		}
-		generatedBody += "\n";
-		fs.close();
 	}
 }
 
-std::string Response::getMessage()
-{
-	switch (this->statusCode)
+	void Response::deleteAction()
 	{
+		std::string url = this->request.getAbsoluteUrl();
+		DIR *dir = opendir(this->request.getAbsoluteUrl().c_str());
+		if (!dir)
+		{
+			if (remove(url.c_str()) != 0)
+			{
+				//check errno
+				if (errno == ENOENT)
+					this->statusCode = NOT_FOUND;
+				else if (errno == EACCES)
+					this->statusCode = FORBIDDEN;
+				else
+					this->statusCode = INTERNAL_SERVER_ERROR;
+					return;
+			}
+			this->statusCode = OK;
+		}
+		else
+		{
+			if (!location.getAutoIndex())
+			{
+				this->statusCode = FORBIDDEN;
+				return;
+			}
+			generateBasedOnDirectory(dir);
+			dirListen = 1;
+			this->statusCode = OK;
+			return;
+		}
+	}
+
+	void Response::generateErrorMessage()
+	{
+		std::map<int, std::string> errPages = srvconf.getErr_page();
+		std::fstream fs;
+		std::string buff;
+
+		fs.open(errPages[this->statusCode]);
+		if (fs.good())
+		{
+			while (getline(fs, buff, '\n'))
+			{
+				generatedBody += buff;
+				generatedBody += "\n";
+			}
+			generatedBody += "\n";
+			fs.close();
+		}
+	}
+
+	std::string Response::getMessage()
+	{
+		switch (this->statusCode)
+		{
 		case OK:
 			return "OK";
 		case BAD_REQUEST:
@@ -197,106 +263,116 @@ std::string Response::getMessage()
 			return "NOT ALLOWED";
 		default:
 			return "INTERNAL SERVER ERROR";
+		}
 	}
-}
 
-std::string Response::getContentType(std::string &extention)
-{if (extention == "html")
-		return "text/html";
-	else if (extention == "css")
-		return "text/css";
-	else if (extention == "json")
-		return "application/json";
-	else if (extention == "xml")
-		return "application/xml";
-	else if (extention == "png")
-		return "image/png";
-	else if (extention == "jpeg" || extention == "jpg")
-		return "image/jpeg";
-	else if (extention == "mpeg")
-		return "audio/mpeg";
-	else if (extention == "mp4")
-		return "video/mp4";
-	else if (extention == "php" || extention == "py")
-		return "text/html";
-	return "text/plain";
-}
+	std::string Response::getContentType(std::string & extention)
+	{
+		if (extention == "html")
+			return "text/html";
+		else if (extention == "css")
+			return "text/css";
+		else if (extention == "json")
+			return "application/json";
+		else if (extention == "xml")
+			return "application/xml";
+		else if (extention == "png")
+			return "image/png";
+		else if (extention == "jpeg" || extention == "jpg")
+			return "image/jpeg";
+		else if (extention == "mpeg")
+			return "audio/mpeg";
+		else if (extention == "mp4")
+			return "video/mp4";
+		else if (extention == "php" || extention == "py")
+			return "text/html";
+		return "text/plain";
+	}
 
-std::string Response::getContentTypeString()
-{
-	std::string contentTypeString, contentType;
-	std::string url = this->request.getUrl();
+	std::string Response::getContentTypeString()
+	{
+		std::string contentTypeString, contentType;
+		std::string url = this->request.getUrl();
 
-	std::vector<std::string> dottedSplit = _split(url, '.');
-	if (dirListen || this->statusCode != OK)
-		contentType = "text/html";
-	else if (dottedSplit.size() == 1)
-		contentType = "text/plain";
-	else
-		contentType = getContentType(dottedSplit.back());
-	contentTypeString = "Content-Type: " + contentType;
-	return contentTypeString;
-}
+		std::vector<std::string> dottedSplit = _split(url, '.');
+		if (dirListen || this->statusCode != OK)
+			contentType = "text/html";
+		else if (dottedSplit.size() == 1)
+			contentType = "text/plain";
+		else
+			contentType = getContentType(dottedSplit.back());
+		contentTypeString = "Content-Type: " + contentType;
+		return contentTypeString;
+	}
 
-void Response::generateResponsetemplate()
-{
-	generatedResponse += "HTTP/1.1 " + std::to_string(statusCode) + " " + getMessage() + "\r\n";
-	if (!isCgi) {
-		generatedResponse += getContentTypeString() + "\r\n";
-		generatedResponse += "Content-Length: " + std::to_string(generatedBody.size()) + "\r\n";
-		generatedResponse += "Connection: close\r\n";
+	void Response::generateResponsetemplate()
+	{
+		generatedResponse += "HTTP/1.1 " + std::to_string(statusCode) + " " + getMessage() + "\r\n";
+		if (!isCgi)
+		{
+			generatedResponse += getContentTypeString() + "\r\n";
+			generatedResponse += "Content-Length: " + std::to_string(generatedBody.size()) + "\r\n";
+			generatedResponse += "Connection: close\r\n";
+			generatedResponse += "\r\n";
+		}
+		generatedResponse += generatedBody;
 		generatedResponse += "\r\n";
 	}
-	generatedResponse += generatedBody;
-	generatedResponse += "\r\n";
-}
 
-int Response::getappropiateLocation()
-{
-	try {
-		this->location = srvconf.getLocation(request.getLocationIndex());
+	int Response::getappropiateLocation()
+	{
+		try
+		{
+			this->location = srvconf.getLocation(request.getLocationIndex());
+		}
+		catch (const std::exception &e)
+		{
+			return -1;
+		}
+		return 0;
 	}
-	catch (const std::exception &e) {
-		return -1;
+
+	void Response::generateResponse(Request & request, ServerConf & serverConf)
+	{
+		if (request.getBody().size() > (size_t)serverConf.getCMBZ())
+		{
+			this->statusCode = FORBIDDEN;
+			return;
+		}
+		this->request = request;
+		this->srvconf = serverConf;
+		if (getappropiateLocation() < 0)
+			this->statusCode = NOT_FOUND;
+		else if (!request.isValid())
+			this->statusCode = BAD_REQUEST;
+		else if (request.getType() == GET)
+			getAction();
+		else if (request.getType() == POST)
+			postAction();
+		else if (request.getType() == DELETE)
+			deleteAction();
+		if (statusCode > OK)
+			generateErrorMessage();
+		generateResponsetemplate();
+		this->responseCompleted = true;
 	}
-	return 0;
-}
 
-void Response::generateResponse(Request &request, ServerConf &serverConf)
-{
-		
-	this->request = request;
-	this->srvconf = serverConf;
-	if (getappropiateLocation() < 0)
-		this->statusCode = NOT_FOUND;
-	else if (!request.isValid())
-		this->statusCode = BAD_REQUEST;
-	else if (request.getType() == GET)
-		getAction();
-	else if (request.getType() == POST)
-		postAction();
-	// else if (request.getType() == DELETE)
-	// 	deleteAction();
-	if (statusCode > OK)
-		generateErrorMessage();
-	generateResponsetemplate();
-	this->responseCompleted = true;
-}
+	bool Response::isResponseCompleted() { return responseCompleted; }
 
-bool Response::isResponseCompleted() { return responseCompleted; }
+	bool Response::isCgiResponse() { return isCgi; }
 
-void Response::clear()
-{
-	generatedResponse.clear();
-	generatedBody.clear();
-	statusCode = 0;
-	dirListen = 0;
-	responseCompleted = false;
-	request.clear();
-}
+	void Response::clear()
+	{
+		generatedResponse.clear();
+		generatedBody.clear();
+		statusCode = 0;
+		dirListen = 0;
+		responseCompleted = false;
+		request.clear();
+	}
 
-std::string& Response::getGeneratedResponse() { return generatedResponse; }
+	std::string &Response::getGeneratedResponse() { return generatedResponse; }
 
-Location& Response::getLocation() { return location; }
+	Location &Response::getLocation() { return location; }
 
-Response::~Response() {}
+	Response::~Response() {}

@@ -81,7 +81,6 @@ void Request::_parseUrl(std::string &url)
 {
 	size_t pos = url.find('?');
 	if (pos != std::string::npos){
-		this->url = url.substr(0, pos);
 		this->queryString = url.substr(pos + 1);
 		url = url.substr(0, pos);
 	}
@@ -110,9 +109,7 @@ void Request::_parseUrl(std::string &url)
 	if (locationIndex == NO_LOCATION)
 		valid = false;
 	else {
-		// pos = url.find('?');
-		// this->url = url.substr(0, pos);
-		// this->queryString = url.substr(pos + 1);
+		this->url = url.substr(0, pos);
 		this->absoluteUrl = locations[locationIndex].getRoot() + url;
 	}
 }
@@ -236,6 +233,8 @@ std::map<std::string, std::string>& Request::getHeaders() { return this->headers
 std::vector<std::string>& Request::getRequestContent() { return this->requestContent; }
 
 std::vector<std::string>& Request::getBodyParts() { return this->bodyParts; }
+
+std::vector<std::string>& Request::getBodyPartsFileNames() { return this->bodyPartsFileNames; }
 
 bool Request::bodyDoesExist() { return this->bodyExist; }
 

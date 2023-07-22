@@ -21,6 +21,7 @@ private:
 	void _trimString(std::string &s);
 	void _rmBackSpaces(std::string &s);
 	void _lookForSevOP();
+	bool _isAllSpace(std::string &s);
 	size_t _find_dash(std::string &s);
 	int _count_spaces(std::string &s);
 	std::string _sweep(std::string &s);

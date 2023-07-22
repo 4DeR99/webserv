@@ -212,8 +212,8 @@ void Client::addRawRequest(char *buffer, size_t size)
 			return;
 		}
 		else if (!request.bodyBoundaryExist()) {
+			request.setBodyBoundary(true);
 			request.parseMultiPartBody();
-			std::cout << "after" << std::endl;
 			response.generateResponse(request, srvconf);
 			return;
 		}
@@ -223,7 +223,6 @@ void Client::addRawRequest(char *buffer, size_t size)
 		addNormalBody();
 		if ((int)request.getBody().size() == request.getBodyLength())
 		{
-			std::cout << "body size: " << request.getBody().size() << std::endl;
 			response.generateResponse(request, srvconf);
 			return;
 		}

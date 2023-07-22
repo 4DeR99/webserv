@@ -87,7 +87,7 @@ void parser::_lookForSevOP()
 		else if (isspace(buffer.front()))
 			throw std::invalid_argument(SPACE_ERROR + buffer);
 		else
-			throw std::invalid_argument(TOKEN_ERROR + buffer);
+			throw std::invalid_argument(TOKEN_ERROR + buffer + ".");
 	}
 }
 
@@ -292,7 +292,7 @@ void parser::_cgiCheck(std::string s, Location &location)
 	_sweep(s);
 	forup(i, 0, s.size()) if (isspace(s[i])) throw std::invalid_argument(CGI_ERROR);
 	if (access(s.c_str(), F_OK) == -1)
-	throw std::invalid_argument(CGI_ERROR);
+		throw std::invalid_argument(CGI_ERROR);
 	location.setCgi(s);
 }
 
@@ -369,7 +369,7 @@ void parser::_token_recognizer(std::string s, int lvl, ServerConf &srv, Location
 		std::vector<std::string>::iterator it = _tokens[lvl].end();
 		it = std::find(_tokens[lvl].begin(), _tokens[lvl].end(), s.substr(0, s.find(':')));
 		if (it == _tokens[lvl].end())
-			throw std::invalid_argument(TOKEN_ERROR + s);
+			throw std::invalid_argument(TOKEN_ERROR + s + ".");
 		else if (!lvl)
 			(this->*lvl1[it - _tokens[lvl].begin()])(s, srv);
 		else
@@ -384,7 +384,7 @@ void parser::_token_recognizer(std::string s, int lvl, ServerConf &srv, Location
 		}
 		catch (const std::exception &e)
 		{
-			throw std::invalid_argument(TOKEN_ERROR + s);
+			throw std::invalid_argument(TOKEN_ERROR + s + ".");
 		}
 		_errorPagesCheck(s, srv);
 	}
@@ -425,6 +425,16 @@ void parser::_setDefaultLocationsDetails()
 	}
 }
 
+bool parser::_isAllSpace(std::string &s)
+{
+	forup(i, 0, s.size())
+	{
+		if (!isspace(s[i]))
+			return false;
+	}
+	return true;
+}
+
 std::vector<ServerConf> parser::_runparser()
 {
 	ServerConf srv;
@@ -439,7 +449,7 @@ std::vector<ServerConf> parser::_runparser()
 			throw std::invalid_argument(TAB_ERROR);
 		_rmBackSpaces(buffer);
 		buffer = buffer.substr(0, buffer.find('#'));
-		if (buffer.empty())
+		if (buffer.empty() || _isAllSpace(buffer))
 			continue;
 		int space = _count_spaces(buffer);
 		int dash = _find_dash(buffer) == buffer.npos ? 0 : 1;
