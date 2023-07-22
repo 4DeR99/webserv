@@ -1,5 +1,11 @@
 #include "Inc.hpp"
 
+// !!!!!!      SET TIMEOUT FOR CLIENTS
+
+// !!!!!!      MAKE SERVERS CHECK FOR HOST HEADER ITS NOT ITS SERVER NAME MOVE TO OTHER SERVER
+
+// !!!!!! 		 FIX THE LAST ERROR	
+
 int main(int ac, char **av)
 {
 	try
