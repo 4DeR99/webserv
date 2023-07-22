@@ -245,6 +245,17 @@ void Response::postAction()
 			generatedBody += "\n";
 			fs.close();
 		}
+		else
+		{
+			generatedBody += "<html>\n";
+			generatedBody += "<head>\n";
+			generatedBody += "\t<title>" + std::to_string(this->statusCode) + " " + getMessage() + "</title>\n";
+			generatedBody += "</head>\n";
+			generatedBody += "<body>\n";
+			generatedBody += "\t<h1>" + std::to_string(this->statusCode) + " " + getMessage() + "</h1>\n";
+			generatedBody += "</body>\n";
+			generatedBody += "</html>\n";
+		}
 	}
 
 	std::string Response::getMessage()
@@ -332,11 +343,19 @@ void Response::postAction()
 		return 0;
 	}
 
+	void Response::redirect(){
+		generatedResponse = "HTTP/1.1 301 Moved Permanently\r\n";
+		generatedResponse += "Location: " + location.getReturnPath() + "\r\n";
+		generatedResponse += "Content-Length: 0\r\n";
+		generatedResponse += "Connection: close\r\n";
+		generatedResponse += "\r\n";
+	}
+
 	void Response::generateResponse(Request & request, ServerConf & serverConf)
 	{
 		if (request.getBody().size() > (size_t)serverConf.getCMBZ())
 		{
-			this->statusCode = FORBIDDEN;
+			this->statusCode = BAD_REQUEST;
 			return;
 		}
 		this->request = request;
@@ -345,6 +364,14 @@ void Response::postAction()
 			this->statusCode = NOT_FOUND;
 		else if (!request.isValid())
 			this->statusCode = BAD_REQUEST;
+		else if (location.getReturnNb() == 301 && request.getType() == GET)
+		{
+			redirect();
+			this->responseCompleted = true;
+			return;
+		}
+		else if (location.getReturnNb() == 301)
+			this->statusCode = NOT_ALLOWED;
 		else if (request.getType() == GET)
 			getAction();
 		else if (request.getType() == POST)

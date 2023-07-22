@@ -62,6 +62,7 @@ public:
 	std::string& getGeneratedResponse();
 	std::string getBody();
 	Location& getLocation();
+	void redirect();
 
 	// getters
 	bool isResponseCompleted();

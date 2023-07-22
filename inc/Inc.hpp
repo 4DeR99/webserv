@@ -25,7 +25,7 @@
 #define AUTOINDEX_ERROR "Error: autoindex should be only on or off"
 #define ALMETHODS_ERROR "Error: invalid allow methods"
 #define INDEX_ERROR "Error: invalid index"
-// #define RETURN_ERROR "Error: invalid return configuration"
+#define RETURN_ERROR "Error: invalid return configuration"
 #define SERVERNAME_MISSING "Error: server name missing"
 #define PORT_MISSING "Error: port missing"
 #define ROOT_MISSING "Error: root missing"
@@ -35,6 +35,7 @@
 #define ROOT_ERROR "Error: invalid root"
 #define CGI_ERROR "Error: invalid cgi info"
 #define REDIR_ERROR "Error: invalid redirection"
+#define DUPPED_PORT "Error: port duplicated"
 #define DOUBLE_PORT "Error: cant have more than 1 port in a server"
 #define DOUBLE_HOST "Error: cant have more than 1 host in a server"
 #define DOUBLE_ROOT "Error: cant have more than 1 root in a server"
@@ -74,6 +75,8 @@
 //? tokens nd leverls
 #define LVL1_TOKEN_N 7
 #define LVL2_TOKEN_N 8
+
+#define TIMEOUT 15000
 
 #define LOCALHOST "127.0.0.1"
 

@@ -5,7 +5,8 @@
 class ServerConf
 {
 private:
-	std::string port;
+	std::vector<std::string> port;
+	std::map<std::string, int> portMap;
 	std::string host;
 	std::string root;
 	std::string serverName;
@@ -15,7 +16,8 @@ private:
 	std::map<int, std::string> errorPage;
 	std::map<std::string, int> locationsPath;
 
-	int sd, on;
+	std::vector<int> sd;
+	int on;
 	struct addrinfo hints, *res;
 
 public:
@@ -36,21 +38,22 @@ public:
 	void setSd(int sd);
 
 	// getters
-	std::string getPort();
+	std::vector<std::string> getPort();
 	std::string getSrvname();
 	std::string getRoot();
 	int getCMBZ();
 	std::string getHost();
 	std::map<int, std::string> getErr_page();
 	std::vector<Location>& getLocations();
-	int getSd();
+	int getSd(int index);
+	std::vector<int> getSds();
 	Location getLocation(int index);
 	int getSendBufferSize();
 
 	// socket descriptor
-	void createSd();
-	void bindSd();
-	void listenSd();
+	void createSd(int index);
+	void bindSd(int index);
+	void listenSd(int index);
 
 	// utility
 	void clear();

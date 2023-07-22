@@ -3,7 +3,6 @@
 Location::Location()
 		: autoindexCount(-1),
 			returnNb(-1),
-			redirectionNb(-1),
 			autoindex(false) {}
 
 Location::Location(Location const &_2Copy) { this->operator=(_2Copy); }
@@ -15,11 +14,11 @@ Location &Location::operator=(Location const &_2Copy)
 	this->uploadPath = _2Copy.uploadPath;
 	this->index = _2Copy.index;
 	this->cgiInfo = _2Copy.cgiInfo;
-	// this->returnPath = _2Copy.returnPath;
-	// this->returnNb = _2Copy.returnNb;
-	this->redirectionPath = _2Copy.redirectionPath;
+	this->returnPath = _2Copy.returnPath;
+	this->returnNb = _2Copy.returnNb;
+	// this->redirectionPath = _2Copy.redirectionPath;
 	this->autoindexCount = _2Copy.autoindexCount;
-	this->redirectionNb = _2Copy.redirectionNb;
+	// this->redirectionNb = _2Copy.redirectionNb;
 	this->autoindex = _2Copy.autoindex;
 	this->allowMethods = _2Copy.allowMethods;
 	return *this;
@@ -74,21 +73,21 @@ void Location::setAllowMethods(std::vector<std::string> methods)
 	this->allowMethods = methods;
 }
 
-void Location::setRedirection(int nb, std::string path)
-{
-	if (this->redirectionNb != -1)
-		throw std::invalid_argument(DOUBLE_REDIRECTION);
-	this->redirectionNb = nb;
-	this->redirectionPath = path;
-}
-
-// void Location::setReturn(int nb, std::string path)
+// void Location::setRedirection(int nb, std::string path)
 // {
-// 	if (returnNb != -1)
-// 		throw std::invalid_argument(DOUBLE_RETURN);
-// 	this->returnNb = nb;
-// 	this->returnPath = path;
+// 	if (this->redirectionNb != -1)
+// 		throw std::invalid_argument(DOUBLE_REDIRECTION);
+// 	this->redirectionNb = nb;
+// 	this->redirectionPath = path;
 // }
+
+void Location::setReturn(int nb, std::string path)
+{
+	if (returnNb != -1)
+		throw std::invalid_argument(DOUBLE_RETURN);
+	this->returnNb = nb;
+	this->returnPath = path;
+}
 
 void Location::setCgi(std::string cgi)
 {
@@ -107,13 +106,9 @@ std::string& Location::getIndex() { return this->index; }
 
 std::string& Location::getCgi() { return this->cgiInfo; }
 
-// std::string& Location::getReturnPath() { return this->returnPath; }
-
-std::string& Location::getRedirectionPath() { return this->redirectionPath; }
+std::string& Location::getReturnPath() { return this->returnPath; }
 
 int Location::getReturnNb() { return this->returnNb; }
-
-int Location::getRedirectionNb() { return this->redirectionNb; }
 
 int Location::getAutoIndex() { return this->autoindex; }
 
@@ -121,7 +116,7 @@ std::vector<std::string> Location::getMethods() { return this->allowMethods; }
 
 bool Location::empty()
 {
-	return (path.empty() && root.empty() && uploadPath.empty() && index.empty() && cgiInfo.empty() && redirectionPath.empty() && allowMethods.empty() && autoindexCount == -1 && returnNb == -1 && redirectionNb == -1);
+	return (path.empty() && root.empty() && uploadPath.empty() && index.empty() && cgiInfo.empty() && allowMethods.empty() && autoindexCount == -1 && returnNb == -1);
 }
 
 void Location::clear()
@@ -131,11 +126,9 @@ void Location::clear()
 	uploadPath.clear();
 	index.clear();
 	cgiInfo.clear();
-	// returnPath.clear();
-	redirectionPath.clear();
+	returnPath.clear();
 	allowMethods.clear();
 	autoindexCount = -1;
 	returnNb = -1;
-	redirectionNb = -1;
 	autoindex = false;
 }

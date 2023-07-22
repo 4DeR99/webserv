@@ -166,7 +166,6 @@ void Client::addNormalBody()
 void Client::addRawRequest(char *buffer, size_t size)
 {
 	forup(i, 0, size) this->rawContent.push_back(buffer[i]);
-	std::cout << "rawContent: " << rawContent << std::endl;
 	if (request.empty() && rawContent.find("\r\n\r\n") != std::string::npos)
 	{
 		splitRawRequest();

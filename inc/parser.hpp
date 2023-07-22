@@ -24,6 +24,7 @@ private:
 	bool _isAllSpace(std::string &s);
 	size_t _find_dash(std::string &s);
 	int _count_spaces(std::string &s);
+	std::string _cleanse(std::string &s);
 	std::string _sweep(std::string &s);
 	void _token_recognizer(std::string s, int lvl, ServerConf &srv, Location &location, std::string head);
 	std::vector<std::string> _split(std::string s, char c);
@@ -41,8 +42,8 @@ private:
 	void _autoindexCheck(std::string s, Location &location);
 	void _indexCheck(std::string s, Location &location);
 	void _cgiCheck(std::string s, Location &location);
-	void _redirectionCheck(std::string s, Location &location);
-	// void _returnCheck(std::string s, Location &location);
+	void _returnCheck(std::string s, Location &location);
+	// void _redirectionCheck(std::string s, Location &location);
 
 	void _setDefaultLocationsDetails();
 

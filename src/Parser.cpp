@@ -53,10 +53,10 @@ void parser::_set_token()
 	lvl2.push_back(&parser::_indexCheck);
 	_tokens[1].push_back(LVL2_CGI);
 	lvl2.push_back(&parser::_cgiCheck);
-	_tokens[1].push_back(LVL2_REDIR);
-	lvl2.push_back(&parser::_redirectionCheck);
-	// _tokens[1].push_back(LVL2_RETURN);
-	// lvl2.push_back(&parser::_returnCheck);
+	// _tokens[1].push_back(LVL2_REDIR);
+	// lvl2.push_back(&parser::_redirectionCheck);
+	_tokens[1].push_back(LVL2_RETURN);
+	lvl2.push_back(&parser::_returnCheck);
 }
 
 void parser::_trimString(std::string &s)
@@ -296,42 +296,25 @@ void parser::_cgiCheck(std::string s, Location &location)
 	location.setCgi(s);
 }
 
-// void parser::_returnCheck(std::string s, Location &location)
-// {
-// 	s = std::string(std::find(s.begin(), s.end(), ':') + 1, s.end());
-// 	_sweep(s);
-// 	int r_index;
-// 	std::vector<std::string> tab = _split(s, ' ');
-// 	if (tab.size() != 2)
-// 		throw std::invalid_argument(RETURN_ERROR);
-// 	try
-// 	{
-// 		r_index = std::stoi(tab[0]);
-// 	}
-// 	catch (const std::exception &e)
-// 	{
-// 		throw std::invalid_argument(RETURN_ERROR);
-// 	}
-// 	location.setReturn(r_index, tab[1]);
-// }
-
-void parser::_redirectionCheck(std::string s, Location &location)
+void parser::_returnCheck(std::string s, Location &location)
 {
 	s = std::string(std::find(s.begin(), s.end(), ':') + 1, s.end());
 	_sweep(s);
 	int r_index;
 	std::vector<std::string> tab = _split(s, ' ');
 	if (tab.size() != 2)
-		throw std::invalid_argument(REDIRECTION_ERROR);
+		throw std::invalid_argument(RETURN_ERROR);
 	try
 	{
 		r_index = std::stoi(tab[0]);
-		location.setRedirection(r_index, tab[1]);
+		if (r_index != 301)
+			throw std::invalid_argument(RETURN_ERROR);
 	}
 	catch (const std::exception &e)
 	{
-		throw std::invalid_argument(REDIRECTION_ERROR);
+		throw std::invalid_argument(RETURN_ERROR);
 	}
+	location.setReturn(r_index, tab[1]);
 }
 
 int parser::_count_spaces(std::string &s)
@@ -403,6 +386,17 @@ std::string parser::_sweep(std::string &s)
 	return s;
 }
 
+std::string parser::_cleanse(std::string &s)
+{
+	std::string copy = s;
+	_trimString(copy);
+	while (copy.front() == '/')
+		copy.erase(copy.begin());
+	while (copy.back() == '/')
+		copy.erase(copy.end() - 1);
+	return copy;
+}
+
 void parser::_setDefaultLocationsDetails()
 {
 	forup(i, 0, servers.size())
@@ -415,12 +409,15 @@ void parser::_setDefaultLocationsDetails()
 			throw std::invalid_argument(SERVERNAME_MISSING);
 		forup(j, 0, servers[i].getLocations().size())
 		{
-			if (servers[i].getLocations()[j].getPath().empty())
+			Location &location = servers[i].getLocations()[j];
+			if (!location.getReturnPath().empty() && _cleanse(location.getReturnPath()) == _cleanse(location.getPath()))
+				throw std::invalid_argument(REDIR_ERROR);
+			if (location.getPath().empty())
 				throw std::invalid_argument(PATH_MISSING);
-			if (servers[i].getLocations()[j].getMethods().empty())
-				servers[i].getLocations()[j].getMethods().push_back("GET");
-			if (servers[i].getLocations()[j].getRoot().empty())
-				servers[i].getLocations()[j].setRoot(servers[i].getRoot());
+			if (location.getMethods().empty())
+				location.getMethods().push_back("GET");
+			if (location.getRoot().empty())
+				location.setRoot(servers[i].getRoot());
 		}
 	}
 }
