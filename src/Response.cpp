@@ -187,12 +187,12 @@ void Response::postAction()
 				outfile << bodyParts[i];
 				outfile.close();
 			}
-			else if (request.bodyBoundaryExist() && location.getUploadpath().empty())
-				this->statusCode = FORBIDDEN;
-			else
-				getAction();
 		}
 	}
+	else if (request.bodyBoundaryExist() && location.getUploadpath().empty())
+		this->statusCode = FORBIDDEN;
+	else
+		getAction();
 }
 
 	void Response::deleteAction()
@@ -351,13 +351,20 @@ void Response::postAction()
 		generatedResponse += "\r\n";
 	}
 
+	bool Response::methodAllowed(std::string method)
+	{
+		forup(i, 0, location.getMethods().size())
+		{
+			if (location.getMethods()[i] == method)
+				return true;
+		}
+		return false;
+	}
+
 	void Response::generateResponse(Request & request, ServerConf & serverConf)
 	{
 		if (request.getBody().size() > (size_t)serverConf.getCMBZ())
-		{
-			this->statusCode = BAD_REQUEST;
-			return;
-		}
+			request.setValidity(false);
 		this->request = request;
 		this->srvconf = serverConf;
 		if (getappropiateLocation() < 0)
@@ -372,13 +379,15 @@ void Response::postAction()
 		}
 		else if (location.getReturnNb() == 301)
 			this->statusCode = NOT_ALLOWED;
-		else if (request.getType() == GET)
+		else if (request.getType() == GET && methodAllowed("GET"))
 			getAction();
-		else if (request.getType() == POST)
+		else if (request.getType() == POST && methodAllowed("POST"))
 			postAction();
-		else if (request.getType() == DELETE)
+		else if (request.getType() == DELETE && methodAllowed("DELETE"))
 			deleteAction();
 		else if (request.getType() == UNKNOWN)
+			this->statusCode = NOT_ALLOWED;
+		else if (!methodAllowed(std::to_string(request.getType())))
 			this->statusCode = NOT_ALLOWED;
 		else
 			this->statusCode = INTERNAL_SERVER_ERROR;

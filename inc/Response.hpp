@@ -63,6 +63,7 @@ public:
 	std::string getBody();
 	Location& getLocation();
 	void redirect();
+	bool methodAllowed(std::string method);
 
 	// getters
 	bool isResponseCompleted();

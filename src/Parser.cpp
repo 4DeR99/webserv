@@ -12,10 +12,10 @@ std::vector<std::string> parser::_split(std::string s, char c)
 
 void parser::_argsparser(int ac, char **av)
 {
-	if (ac != 2 || av == NULL)
+	if (av == NULL)
 		throw std::invalid_argument("Invalid arguments!\n try: ./Webserv + ConfigFile.conf");
 	else if (ac == 1)
-		_filename = "./ConfigFile.conf";
+		_filename = "./default.conf";
 	else
 		_filename = av[1];
 	std::vector<std::string> arr = _split(_filename, '.');
