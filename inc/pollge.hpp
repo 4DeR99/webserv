@@ -12,12 +12,15 @@ private:
 	std::vector<struct pollfd> fds;
 	std::map<int, int> sd2srv;
 	std::map<int, Client> clients;
+	std::map<int, long long> clientConnectTime;
 	std::vector<ServerConf> servers;
 	std::vector<char*> _split(char *s, char c);
 public:
 	Pollge();
 	Pollge(std::vector<ServerConf> &servers);
 	~Pollge();
+
+	void setServers(std::vector<ServerConf> &servers);
 
 	void _addSd(int sd, int srvIndex, int sendBufferSize);
 	void _run();

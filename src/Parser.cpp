@@ -405,8 +405,6 @@ void parser::_setDefaultLocationsDetails()
 			throw std::invalid_argument(PORT_MISSING);
 		if (servers[i].getRoot().empty())
 			throw std::invalid_argument(ROOT_MISSING);
-		if (servers[i].getSrvname().empty())
-			throw std::invalid_argument(SERVERNAME_MISSING);
 		forup(j, 0, servers[i].getLocations().size())
 		{
 			Location &location = servers[i].getLocations()[j];

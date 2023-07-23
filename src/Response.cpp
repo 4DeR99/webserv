@@ -74,7 +74,7 @@ void Response::generateBasedOnDirectory(DIR *dir)
 	generatedBody += "<head>\n";
 	generatedBody += "\t<title>" + request.getUrl() + "</title>\n";
 	generatedBody += "</head>\n";
-	generatedBody += "<h1>Index of " + request.getUrl() + "</h1>\n";
+	generatedBody += "<h1>Index of " + url + "</h1>\n";
 	generatedBody += "<hr>\n";
 	generatedBody += "<body >\n";
 	for (size_t i = 0; i < dirItems.size(); i++)
@@ -378,6 +378,10 @@ void Response::postAction()
 			postAction();
 		else if (request.getType() == DELETE)
 			deleteAction();
+		else if (request.getType() == UNKNOWN)
+			this->statusCode = NOT_ALLOWED;
+		else
+			this->statusCode = INTERNAL_SERVER_ERROR;
 		if (statusCode > OK)
 			generateErrorMessage();
 		generateResponsetemplate();
@@ -394,6 +398,7 @@ void Response::postAction()
 		generatedBody.clear();
 		statusCode = 0;
 		dirListen = 0;
+		isCgi = false;
 		responseCompleted = false;
 		request.clear();
 	}

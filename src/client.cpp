@@ -64,6 +64,8 @@ void Client::addBodyboundary() {
 	std::string &boundary = request.getBoundary();
 	static std::string bodyPart;
 	while (rawContent.size()) {
+		if (rawContent.find("\r\n") == std::string::npos)
+			return ;
 		str = rawContent.substr(0, rawContent.find("\r\n"));
 		rawContent.erase(rawContent.begin(), rawContent.begin() + str.size() + 2);
 		if (str == boundary + "--") {

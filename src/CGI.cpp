@@ -25,7 +25,7 @@ void fill_env(std::map<std::string, std::string> &env, Request &request, ServerC
 	env["SCRIPT_NAME"] = request.getUrl();
 	env["SCRIPT_FILENAME"] = request.getUrl().substr(request.getUrl().find_last_of('/') + 1);
 	env["SERVER_NAME"] = serverConf.getSrvname();
-	env["SERVER_PORT"] = serverConf.getPort();
+	env["SERVER_PORT"] = serverConf.getPort().front();
 	env["PATH_INFO"] = location.getRoot();
 	env["CONTENT_TYPE"] = request.getHeaders()["Content-Type"];
 	env["CONTENT_LENGTH"] = std::to_string(request.getBodyLength());

@@ -1,18 +1,13 @@
 #include "Inc.hpp"
 
-// !!!!!!      SET TIMEOUT FOR CLIENTS
-
-// !!!!!!      MAKE SERVERS CHECK FOR HOST HEADER ITS NOT ITS SERVER NAME MOVE TO OTHER SERVER
-
-// !!!!!! 		 FIX THE LAST ERROR	
-
 int main(int ac, char **av)
 {
 	try
 	{
 		parser webhamid(ac, av);
 		std::vector<ServerConf> servers = webhamid._runparser();
-		Pollge pollin(servers);
+		Pollge pollin;
+		pollin.setServers(servers);
 		forup(i, 0, servers.size())
 		{
 			forup(j, 0, servers[i].getPort().size())

@@ -11,6 +11,8 @@ Pollge::Pollge(std::vector<ServerConf> &servers)
 			compress_array(false),
 			servers(servers) {}
 
+void Pollge::setServers(std::vector<ServerConf> &servers) {	this->servers = servers; }
+
 void Pollge::_addSd(int sd, int srvIndex, int sendBufferSize)
 {
 	struct pollfd pollfd;
@@ -44,6 +46,18 @@ void Pollge::_run()
 		}
 		forup(i, 0, this->fds.size())
 		{
+			if (clientConnectTime[this->fds[i].fd] != 0){
+				long long now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+				if (now - clientConnectTime[this->fds[i].fd] > TIMEOUT)
+				{
+					std::cout << "	Timeout" << std::endl;
+					close(this->fds[i].fd);
+					this->fds[i].fd = -1;
+					this->compress_array = true;
+					this->clients.erase(this->fds[i].fd);
+					continue;
+				}
+			}
 			if (this->fds[i].revents == 0)
 				continue;
 			if (this->fds[i].revents & POLLIN)
@@ -105,6 +119,7 @@ void Pollge::_sdAccept(int sd)
 		throw std::runtime_error("fcntl() failed");
 	std::cout << "	New client connected " << std::endl;
 	Client newClient(new_sd, servers[sd2srv[sd] - 1]);
+	clientConnectTime[new_sd] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	memset(&pollfd, 0, sizeof(pollfd));
 	pollfd.fd = new_sd;
 	pollfd.events = POLLIN | POLLOUT;

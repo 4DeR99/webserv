@@ -181,7 +181,6 @@ std::vector<int> ServerConf::getSds() { return sd; }
 void ServerConf::clear()
 {
 	port.clear();
-	portMap.clear();
 	serverName.clear();
 	root.clear();
 	clientMaxBodySize = -1;
